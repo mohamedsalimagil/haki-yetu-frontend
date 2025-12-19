@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#1a365d",
-        secondary: "#c53030",
+        primary: "#1a365d", // Professional Navy Blue
+        secondary: "#c53030", // Accent Red for 'Urgency'
       }
     },
   },
