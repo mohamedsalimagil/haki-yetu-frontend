@@ -22,3 +22,26 @@ const Navbar = () => {
             <Link to="/lawyers" className="hover:text-gray-300 transition">Find a Lawyer</Link>
             <Link to="/login" className="px-4 py-2 bg-secondary rounded hover:bg-red-700 transition">Login</Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button onClick={() => setIsOpen(!isOpen)} className="focus:outline-none">
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown */}
+      {isOpen && (
+        <div className="md:hidden bg-blue-900 px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <Link to="/services" className="block px-3 py-2 rounded-md hover:bg-blue-800">Services</Link>
+          <Link to="/lawyers" className="block px-3 py-2 rounded-md hover:bg-blue-800">Find a Lawyer</Link>
+          <Link to="/login" className="block px-3 py-2 rounded-md bg-secondary text-center mt-4">Login</Link>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;
