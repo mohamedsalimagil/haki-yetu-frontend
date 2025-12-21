@@ -4,3 +4,4 @@ import ServiceCard from '../../components/domain/marketplace/ServiceCard';
 import { Search } from 'lucide-react';
 
 const ServiceCatalog = () => { 
+    const [services, setServices] = useState([]);
