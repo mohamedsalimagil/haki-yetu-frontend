@@ -1,11 +1,6 @@
 import React from 'react';
 import { ArrowRight, Clock, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-import React from 'react';
-import { ArrowRight, Clock, Tag } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
 const ServiceCard = ({ service }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition duration-300 border border-gray-100 overflow-hidden flex flex-col">
