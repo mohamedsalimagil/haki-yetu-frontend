@@ -59,6 +59,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = (updatedUserData) => {
+    const updatedUser = { ...user, ...updatedUserData };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -70,6 +76,7 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     register,
+    updateProfile,
     logout,
     loading
   };
