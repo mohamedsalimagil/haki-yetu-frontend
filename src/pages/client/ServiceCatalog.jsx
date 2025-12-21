@@ -5,3 +5,4 @@ import { Search } from 'lucide-react';
 
 const ServiceCatalog = () => { 
     const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);//state to manage loading 
