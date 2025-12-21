@@ -9,5 +9,9 @@ const ServiceCatalog = () => {
     const [searchTerm, setSearchTerm] = useState('');// state to hold search term 
 
     useEffect(() => {//fetch services from api on component mount
-        const fetchServices = async () => {//async function to fetch services 
+        const fetchServices = async () => {//async function to fetch services
+            try {
+        const response = await api.get('/marketplace/services');//fetch service from api
+        setServices(response.data);//set service data to state
+
 
