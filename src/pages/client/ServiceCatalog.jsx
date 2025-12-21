@@ -8,4 +8,6 @@ const ServiceCatalog = () => {
     const [loading, setLoading] = useState(true);//state to manage loading 
     const [searchTerm, setSearchTerm] = useState('');// state to hold search term 
 
-    useEffect(() => {//fetch services from api on component mount 
+    useEffect(() => {//fetch services from api on component mount
+        const fetchServices = async () => {//async function to fetch services 
+
