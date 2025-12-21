@@ -15,6 +15,10 @@ const ServiceCatalog = () => {
         setServices(response.data);//set service data to state
         } catch (error) {
         console.error("Failed to fetch services:", error);
+        } finally {
+        setLoading(false);//set loading to false after fetch
+      
+
 
 
 
