@@ -1,9 +1,11 @@
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import UserProfileSettings from './pages/auth/UserProfileSettings';
 import LawyerRegistration from './pages/auth/LawyerRegistration';
+import LawyerDashboard from './pages/lawyer/LawyerDashboard';
+import Home from './pages/Home';
 
 function App() {
   return (
@@ -12,29 +14,8 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/register/lawyer" element={<LawyerRegistration />} />
       <Route path="/profile" element={<UserProfileSettings />} />
-      <Route path="/" element={
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-          <div className="text-center p-8 bg-white rounded-lg shadow-lg">
-            <h1 className="text-4xl font-bold text-primary mb-4">Haki Yetu Digital</h1>
-            <p className="text-gray-600 mb-6">Legal Services Platform</p>
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/login" className="px-6 py-2 bg-primary text-white rounded hover:bg-blue-700 transition">
-                  Sign In
-                </Link>
-                <Link to="/register" className="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
-                  Client Sign Up
-                </Link>
-              </div>
-              <div>
-                <Link to="/register/lawyer" className="text-primary hover:text-blue-700 text-sm underline">
-                  Register as a Legal Professional
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      } />
+      <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
+      <Route path="/" element={<Home />} />
     </Routes>
   );
 }
