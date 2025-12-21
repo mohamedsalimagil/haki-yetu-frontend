@@ -13,5 +13,9 @@ const ServiceCatalog = () => {
             try {
         const response = await api.get('/marketplace/services');//fetch service from api
         setServices(response.data);//set service data to state
+        } catch (error) {
+        console.error("Failed to fetch services:", error);
+
+
 
 
