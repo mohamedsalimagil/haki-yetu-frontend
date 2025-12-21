@@ -5,6 +5,7 @@ import Register from './pages/auth/Register';
 import UserProfileSettings from './pages/auth/UserProfileSettings';
 import LawyerRegistration from './pages/auth/LawyerRegistration';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
+import ClientDashboard from './pages/client/ClientDashboard';
 import Home from './pages/Home';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Route path="/register/lawyer" element={<LawyerRegistration />} />
       <Route path="/profile" element={<UserProfileSettings />} />
       <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
+      <Route path="/dashboard/client" element={<ClientDashboard />} />
       <Route path="/" element={<Home />} />
     </Routes>
   );

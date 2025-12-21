@@ -30,6 +30,11 @@ const Home = () => {
                       Go to Lawyer Dashboard
                     </Link>
                   )}
+                  {user.role === 'client' && (
+                    <Link to="/dashboard/client" className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                      Go to Client Dashboard
+                    </Link>
+                  )}
                   <Link to="/profile" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                     Profile Settings
                   </Link>
