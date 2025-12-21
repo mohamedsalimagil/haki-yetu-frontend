@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import LandingPage from './pages/public/LandingPage';
+import ServiceCatalog from './pages/client/ServiceCatalog';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/services" element={<ServiceCatalog />} />
         {/* We will add more routes later */}
       </Routes>
     </div>
