@@ -22,6 +22,12 @@ const ServiceCatalog = () => {
 
     fetchServices();//call fetch services function 
   }, []);
+
+  const filteredServices = services.filter(service => 
+    service.name.toLowerCase().includes(searchTerm.toLowerCase())//filter services based on search term
+  );
+
+
       
 
 
