@@ -7,3 +7,5 @@ const ServiceCatalog = () => {
     const [services, setServices] = useState([]);//state to hold service data
     const [loading, setLoading] = useState(true);//state to manage loading 
     const [searchTerm, setSearchTerm] = useState('');// state to hold search term 
+
+    useEffect(() => {//fetch services from api on component mount 
