@@ -1,0 +1,553 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+
+const LawyerRegistrationForm = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    // Step 1: Personal Information
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+
+    // Step 2: Professional Credentials
+    lskNumber: '',
+    bio: '',
+    specializations: [],
+    yearsOfExperience: '',
+    location: '',
+    languages: [],
+
+    // Step 3: Additional Information
+    education: '',
+    certifications: '',
+    barAdmission: ''
+  });
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [newSpecialization, setNewSpecialization] = useState('');
+  const [newLanguage, setNewLanguage] = useState('');
+
+  const { register } = useAuth();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const addSpecialization = () => {
+    if (newSpecialization.trim() && !formData.specializations.includes(newSpecialization.trim())) {
+      setFormData({
+        ...formData,
+        specializations: [...formData.specializations, newSpecialization.trim()]
+      });
+      setNewSpecialization('');
+    }
+  };
+
+  const removeSpecialization = (spec) => {
+    setFormData({
+      ...formData,
+      specializations: formData.specializations.filter(s => s !== spec)
+    });
+  };
+
+  const addLanguage = () => {
+    if (newLanguage.trim() && !formData.languages.includes(newLanguage.trim())) {
+      setFormData({
+        ...formData,
+        languages: [...formData.languages, newLanguage.trim()]
+      });
+      setNewLanguage('');
+    }
+  };
+
+  const removeLanguage = (lang) => {
+    setFormData({
+      ...formData,
+      languages: formData.languages.filter(l => l !== lang)
+    });
+  };
+
+  const validateStep = (step) => {
+    switch (step) {
+      case 1:
+        if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
+          setError('All personal information fields are required');
+          return false;
+        }
+        if (formData.password !== formData.confirmPassword) {
+          setError('Passwords do not match');
+          return false;
+        }
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters long');
+          return false;
+        }
+        break;
+      case 2:
+        if (!formData.lskNumber || !formData.bio || formData.specializations.length === 0) {
+          setError('LSK Number, Bio, and at least one specialization are required');
+          return false;
+        }
+        break;
+      default:
+        break;
+    }
+    setError('');
+    return true;
+  };
+
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    // Prepare registration data
+    const registrationData = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: 'advocate',
+      phone: formData.phone,
+      lawyer_profile: {
+        lsk_number: formData.lskNumber,
+        bio: formData.bio,
+        specializations: formData.specializations,
+        years_of_experience: parseInt(formData.yearsOfExperience) || 0,
+        location: formData.location,
+        languages: formData.languages,
+        education: formData.education,
+        certifications: formData.certifications,
+        bar_admission: formData.barAdmission
+      }
+    };
+
+    const result = await register(registrationData);
+
+    if (!result.success) {
+      setError(result.error);
+    } else {
+      // Registration successful, redirect or show success message
+      alert('Registration submitted! Your account will be reviewed by an administrator.');
+    }
+
+    setLoading(false);
+  };
+
+  const renderStepIndicator = () => (
+    <div className="flex items-center justify-center mb-8">
+      {[1, 2, 3].map((step) => (
+        <div key={step} className="flex items-center">
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              step <= currentStep
+                ? 'bg-primary text-white'
+                : 'bg-gray-200 text-gray-600'
+            }`}
+          >
+            {step}
+          </div>
+          {step < 3 && (
+            <div
+              className={`w-12 h-1 mx-2 ${
+                step < currentStep ? 'bg-primary' : 'bg-gray-200'
+              }`}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderStep1 = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          Full Name *
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="Enter your full legal name"
+          value={formData.name}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          Email Address *
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="Enter your professional email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+          Phone Number *
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="+254 XXX XXX XXX"
+          value={formData.phone}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          Password *
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="Create a secure password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+          Confirm Password *
+        </label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="Confirm your password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+        />
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Professional Credentials</h3>
+
+      <div>
+        <label htmlFor="lskNumber" className="block text-sm font-medium text-gray-700">
+          LSK Number *
+        </label>
+        <input
+          id="lskNumber"
+          name="lskNumber"
+          type="text"
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="e.g., LSK/1234/2020"
+          value={formData.lskNumber}
+          onChange={handleChange}
+        />
+        <p className="mt-1 text-xs text-gray-500">Your Law Society of Kenya registration number</p>
+      </div>
+
+      <div>
+        <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+          Professional Bio *
+        </label>
+        <textarea
+          id="bio"
+          name="bio"
+          rows={4}
+          required
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="Describe your legal expertise, experience, and practice areas..."
+          value={formData.bio}
+          onChange={handleChange}
+        />
+        <p className="mt-1 text-xs text-gray-500">Maximum 500 characters</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Areas of Specialization *
+        </label>
+        <div className="flex space-x-2 mb-2">
+          <input
+            type="text"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            placeholder="e.g., Corporate Law"
+            value={newSpecialization}
+            onChange={(e) => setNewSpecialization(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSpecialization())}
+          />
+          <button
+            type="button"
+            onClick={addSpecialization}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
+          >
+            Add
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {formData.specializations.map((spec, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary bg-opacity-10 text-primary"
+            >
+              {spec}
+              <button
+                type="button"
+                onClick={() => removeSpecialization(spec)}
+                className="ml-1 text-primary hover:text-red-600"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700">
+            Years of Experience
+          </label>
+          <input
+            id="yearsOfExperience"
+            name="yearsOfExperience"
+            type="number"
+            min="0"
+            className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            placeholder="e.g., 5"
+            value={formData.yearsOfExperience}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+            Location
+          </label>
+          <input
+            id="location"
+            name="location"
+            type="text"
+            className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            placeholder="e.g., Nairobi"
+            value={formData.location}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Languages Spoken
+        </label>
+        <div className="flex space-x-2 mb-2">
+          <input
+            type="text"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            placeholder="e.g., English"
+            value={newLanguage}
+            onChange={(e) => setNewLanguage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addLanguage())}
+          />
+          <button
+            type="button"
+            onClick={addLanguage}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
+          >
+            Add
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {formData.languages.map((lang, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+            >
+              {lang}
+              <button
+                type="button"
+                onClick={() => removeLanguage(lang)}
+                className="ml-1 text-green-800 hover:text-red-600"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+
+      <div>
+        <label htmlFor="education" className="block text-sm font-medium text-gray-700">
+          Education & Qualifications
+        </label>
+        <textarea
+          id="education"
+          name="education"
+          rows={3}
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="List your educational background and qualifications..."
+          value={formData.education}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="certifications" className="block text-sm font-medium text-gray-700">
+          Certifications & Awards
+        </label>
+        <textarea
+          id="certifications"
+          name="certifications"
+          rows={3}
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="List any relevant certifications, awards, or professional memberships..."
+          value={formData.certifications}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="barAdmission" className="block text-sm font-medium text-gray-700">
+          Bar Admission Details
+        </label>
+        <input
+          id="barAdmission"
+          name="barAdmission"
+          type="text"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          placeholder="Date and place of bar admission"
+          value={formData.barAdmission}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mt-6">
+        <div className="flex">
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-yellow-800">
+              Review Your Information
+            </h3>
+            <div className="mt-2 text-sm text-yellow-700">
+              <p>Once submitted, your registration will be reviewed by our admin team. You will receive an email notification once your account is approved.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Lawyer Registration
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Join Haki Yetu as a legal professional
+          </p>
+        </div>
+
+        {renderStepIndicator()}
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
+
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+
+          <div className="flex justify-between pt-6">
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Previous
+              </button>
+            )}
+
+            <div className="flex-1" />
+
+            {currentStep < 3 ? (
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-6 py-2 bg-primary border border-transparent rounded-md text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2 bg-green-600 border border-transparent rounded-md text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                {loading ? 'Submitting...' : 'Submit Registration'}
+              </button>
+            )}
+          </div>
+
+          <div className="text-center pt-4">
+            <span className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-primary hover:text-blue-500">
+                Sign in
+              </Link>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LawyerRegistrationForm;
