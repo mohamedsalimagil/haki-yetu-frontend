@@ -16,7 +16,12 @@ const ServiceCatalog = () => {
         } catch (error) {
         console.error("Failed to fetch services:", error);
         } finally {
-        setLoading(false);//set loading to false after fetch
+          setLoading(false);//set loading to false after fetch
+        }
+    };
+
+    fetchServices();//call fetch services function 
+  }, []);
       
 
 
