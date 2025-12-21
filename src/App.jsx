@@ -2,12 +2,14 @@ import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import UserProfileSettings from './pages/auth/UserProfileSettings';
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/profile" element={<UserProfileSettings />} />
       <Route path="/" element={
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
           <div className="text-center p-8 bg-white rounded-lg shadow-lg">
