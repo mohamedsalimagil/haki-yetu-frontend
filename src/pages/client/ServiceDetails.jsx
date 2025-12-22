@@ -17,7 +17,16 @@ const ServiceDetails = () => { // Define functional component for service detail
             try {// Try block for error handling
                 const response = await api.get(`/marketplace/services/${id}`);// API call to get service by ID
                 setService(response.data);// Update state with fetched service data
-            } catch (err) {// Catch block for error handling    
+            } catch (err) {// Catch block for error handling
+                setError('Service not found');// Set error message if fetch fails
+            } finally {// Finally block to clean up
+        setLoading(false);// Set loading to false regardless of success/failure
+      }
+    };
+    fetchService();// Call the fetch function
+  }, [id]);// Dependency array - re-run when ID changes    
+
+
 
 
 
