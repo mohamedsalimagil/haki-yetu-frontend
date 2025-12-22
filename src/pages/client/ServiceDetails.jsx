@@ -12,4 +12,6 @@ const ServiceDetails = () => { // Define functional component for service detail
     const [ordering, setOrdering] = useState(false);  // State for tracking order submission
     const [error, setError] = useState(null);// State for storing error messages
 
+    useEffect(() => {// Effect hook to fetch data on component mount
+
 
