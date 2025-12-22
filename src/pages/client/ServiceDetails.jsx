@@ -44,6 +44,67 @@ const ServiceDetails = () => { // Define functional component for service detail
       setOrdering(false);// Reset ordering state
     }
   };
+  if (loading) return <div className="text-center py-20">Loading...</div>;
+  if (error) return <div className="text-center py-20 text-red-600">{error}</div>;
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 mb-6 hover:text-primary">
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Services
+        </button>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid md:grid-cols-3">
+          
+          {/* Left: Info */}
+          <div className="md:col-span-2 p-8">
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded-full">
+              {service.category || 'Legal'}
+            </span>
+            <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-4">{service.name}</h1>
+            <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
+            
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <div className="flex items-center">
+                <Clock className="w-5 h-5 mr-2 text-primary" />
+                {service.processing_days} Days Turnaround
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                Verified Lawyer
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Action Box */}
+          <div className="bg-gray-50 p-8 border-l border-gray-100 flex flex-col justify-center">
+            <div className="text-center mb-6">
+              <p className="text-gray-500 text-sm">Total Cost</p>
+              <p className="text-4xl font-bold text-gray-900">KES {service.price.toLocaleString()}</p>
+            </div>
+            
+            <button 
+              onClick={handleOrder}
+              disabled={ordering}
+              className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition disabled:opacity-50"
+            >
+              {ordering ? 'Processing...' : 'Order Service'}
+            </button>
+            
+            <p className="text-xs text-gray-400 text-center mt-4 flex items-center justify-center">
+              <AlertCircle className="w-3 h-3 mr-1" /> Payment is held in escrow
+            </p>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ServiceDetails;
+
+
       
  
 
