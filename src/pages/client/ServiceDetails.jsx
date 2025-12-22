@@ -24,7 +24,10 @@ const ServiceDetails = () => { // Define functional component for service detail
       }
     };
     fetchService();// Call the fetch function
-  }, [id]);// Dependency array - re-run when ID changes    
+  }, [id]);// Dependency array - re-run when ID changes
+  const handleOrder = async () => {// Function to handle service ordering
+    setOrdering(true);// Set ordering state to true to show processing
+    try {// Try block for order submission    
 
 
 
