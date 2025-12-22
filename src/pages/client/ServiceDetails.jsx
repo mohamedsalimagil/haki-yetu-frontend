@@ -14,6 +14,8 @@ const ServiceDetails = () => { // Define functional component for service detail
 
     useEffect(() => {// Effect hook to fetch data on component mount
         const fetchService = async () => {// // Async function to fetch service details
+            try {// Try block for error handling
+
 
 
 
