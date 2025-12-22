@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import LandingPage from './pages/public/LandingPage';
 import ServiceCatalog from './pages/client/ServiceCatalog';
+import ServiceDetails from './pages/client/ServiceDetails';
 
 function App() {
   return (
