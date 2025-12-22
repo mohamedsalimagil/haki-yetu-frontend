@@ -16,6 +16,7 @@ const ServiceDetails = () => { // Define functional component for service detail
         const fetchService = async () => {// // Async function to fetch service details
             try {// Try block for error handling
                 const response = await api.get(`/marketplace/services/${id}`);// API call to get service by ID
+                setService(response.data);// Update state with fetched service data
 
 
 
