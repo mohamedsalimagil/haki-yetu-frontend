@@ -27,7 +27,12 @@ const ServiceDetails = () => { // Define functional component for service detail
   }, [id]);// Dependency array - re-run when ID changes
   const handleOrder = async () => {// Function to handle service ordering
     setOrdering(true);// Set ordering state to true to show processing
-    try {// Try block for order submission    
+    try {// Try block for order submission 
+        // Hardcoded client_id for now until Auth is merged
+      const payload = { // Create payload for order
+        service_id: service.id,// Include service ID from state
+        client_id: 1 // Temporary hardcoded client ID
+      };   
 
 
 
