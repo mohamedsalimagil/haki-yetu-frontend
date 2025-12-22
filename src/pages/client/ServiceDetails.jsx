@@ -44,66 +44,65 @@ const ServiceDetails = () => { // Define functional component for service detail
       setOrdering(false);// Reset ordering state
     }
   };
-  if (loading) return <div className="text-center py-20">Loading...</div>;
-  if (error) return <div className="text-center py-20 text-red-600">{error}</div>;
+  if (loading) return <div className="text-center py-20">Loading...</div>;// Show loading indicator
+  if (error) return <div className="text-center py-20 text-red-600">{error}</div>;// Show error message
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 mb-6 hover:text-primary">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Services
+  return ( // Return JSX for component
+    <div className="min-h-screen bg-gray-50 py-12 px-4"> {/* Main page container */}
+      <div className="max-w-4xl mx-auto"> {/* Centered content container */}
+        <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 mb-6 hover:text-primary"> {/* Back button */}
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Services {/* Back icon and text */}
         </button>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid md:grid-cols-3">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid md:grid-cols-3"> {/* Main card with grid */}
           
-          {/* Left: Info */}
-          <div className="md:col-span-2 p-8">
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded-full">
-              {service.category || 'Legal'}
+          {/* Left: Info */} {/* Comment for info section */}
+          <div className="md:col-span-2 p-8"> {/* Left column container */}
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded-full"> {/* Category badge */}
+              {service.category || 'Legal'} {/* Display category or default */}
             </span>
-            <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-4">{service.name}</h1>
-            <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
+            <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-4">{service.name}</h1> {/* Service name */}
+            <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p> {/* Service description */}
             
-            <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center">
-                <Clock className="w-5 h-5 mr-2 text-primary" />
-                {service.processing_days} Days Turnaround
+            <div className="flex items-center space-x-6 text-sm text-gray-500"> {/* Metadata container */}
+              <div className="flex items-center"> {/* Processing time */}
+                <Clock className="w-5 h-5 mr-2 text-primary" /> {/* Clock icon */}
+                {service.processing_days} Days Turnaround {/* Processing days */}
               </div>
-              <div className="flex items-center">
-                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-                Verified Lawyer
+              <div className="flex items-center"> {/* Verification badge */}
+                <CheckCircle className="w-5 h-5 mr-2 text-green-500" /> {/* Check icon */}
+                Verified Lawyer {/* Verification text */}
               </div>
             </div>
           </div>
 
-          {/* Right: Action Box */}
-          <div className="bg-gray-50 p-8 border-l border-gray-100 flex flex-col justify-center">
-            <div className="text-center mb-6">
-              <p className="text-gray-500 text-sm">Total Cost</p>
-              <p className="text-4xl font-bold text-gray-900">KES {service.price.toLocaleString()}</p>
+          {/* Right: Action Box */} {/* Comment for action section */}
+          <div className="bg-gray-50 p-8 border-l border-gray-100 flex flex-col justify-center"> {/* Right column container */}
+            <div className="text-center mb-6"> {/* Price container */}
+              <p className="text-gray-500 text-sm">Total Cost</p> {/* Price label */}
+              <p className="text-4xl font-bold text-gray-900">KES {service.price.toLocaleString()}</p> {/* Formatted price */}
             </div>
             
-            <button 
-              onClick={handleOrder}
-              disabled={ordering}
-              className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition disabled:opacity-50"
+            <button  // Order button
+              onClick={handleOrder} // Click handler
+              disabled={ordering} // Disable when ordering
+              className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition disabled:opacity-50" // Styling
             >
-              {ordering ? 'Processing...' : 'Order Service'}
+              {ordering ? 'Processing...' : 'Order Service'} {/* Dynamic button text */}
             </button>
             
-            <p className="text-xs text-gray-400 text-center mt-4 flex items-center justify-center">
-              <AlertCircle className="w-3 h-3 mr-1" /> Payment is held in escrow
+            <p className="text-xs text-gray-400 text-center mt-4 flex items-center justify-center"> {/* Disclaimer */}
+              <AlertCircle className="w-3 h-3 mr-1" /> Payment is held in escrow {/* Escrow note */}
             </p>
           </div>
           
-        </div>
-      </div>
-    </div>
+        </div> {/* End main card */}
+      </div> {/* End centered container */}
+    </div> // End page container
   );
 };
 
-export default ServiceDetails;
-
+export default ServiceDetails; // Export component as default
 
       
  
