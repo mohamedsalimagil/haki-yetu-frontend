@@ -5,3 +5,4 @@ import api from '../../services/api';// Import API service for HTTP requests
 
 const ServiceDetails = () => { // Define functional component for service details page
     const { id } = useParams(); // Get the ID from the URL
+    const navigate = useNavigate(); // Get navigation function for routing
