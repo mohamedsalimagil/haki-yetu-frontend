@@ -8,4 +8,6 @@ const ServiceDetails = () => { // Define functional component for service detail
     const navigate = useNavigate(); // Get navigation function for routing
 
     const [service, setService] = useState(null);// State for storing service data
+    const [loading, setLoading] = useState(true);// State for tracking loading status
+    
 
