@@ -12,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/services" element={<ServiceCatalog />} />
+        <Route path="/services/:id" element={<ServiceDetails />} />
         {/* We will add more routes later */}
       </Routes>
     </div>
