@@ -25,6 +25,7 @@ const ServiceDetails = () => { // Define functional component for service detail
     };
     fetchService();// Call the fetch function
   }, [id]);// Dependency array - re-run when ID changes
+
   const handleOrder = async () => {// Function to handle service ordering
     setOrdering(true);// Set ordering state to true to show processing
     try {// Try block for order submission 
@@ -32,7 +33,20 @@ const ServiceDetails = () => { // Define functional component for service detail
       const payload = { // Create payload for order
         service_id: service.id,// Include service ID from state
         client_id: 1 // Temporary hardcoded client ID
-      };   
+      };
+      
+      const response = await api.post('/marketplace/orders', payload);// Submit order to API
+      alert(`Success! Order #${response.data.order_number} created.`);// Show success message
+      navigate('/services'); // Go back to catalog
+    } catch (err) {// Catch block for order errors
+      alert("Failed to create order. Please try again.");// Show error alert
+    } finally {// Finally block to clean up
+      setOrdering(false);// Reset ordering state
+    }
+  };
+      
+ 
+
 
 
 
