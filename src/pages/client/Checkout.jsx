@@ -6,3 +6,5 @@ import api from '../../services/api';
 const Checkout = () => { // Define functional component for checkout page
     const { bookingId } = useParams(); // Get booking ID from URL parameters
     const navigate = useNavigate(); // Get navigation function for routing
+
+    const [phone, setPhone] = useState(''); // State for storing phone number input
