@@ -19,5 +19,7 @@ useEffect(() => { // Effect hook to fetch data on component mount
       }
     };
     
-    fetchOrders(); // Call the fetch function
+     fetchOrders(); // Call the fetch function
+  }, []); // Empty dependency array - run only on component mount
+    
 
