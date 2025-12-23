@@ -27,6 +27,18 @@ useEffect(() => { // Effect hook to fetch data on component mount
     <div className="min-h-screen bg-gray-50 py-8 px-4"> {/* Main page container */}
       <div className="max-w-6xl mx-auto"> {/* Centered content container */}
         <h1 className="text-2xl font-bold text-gray-900 mb-6">My Dashboard</h1> {/* Dashboard title */}
+        {/* Stats Row */} {/* Comment for stats section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"> {/* Stats grid container */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center"> {/* Total orders card */}
+            <div className="p-3 bg-blue-50 rounded-lg text-primary mr-4"> {/* Icon container */}
+              <Package className="w-6 h-6" /> {/* Package icon */}
+            </div>
+            <div> {/* Text container */}
+              <p className="text-sm text-gray-500">Total Orders</p> {/* Stat label */}
+              <p className="text-2xl font-bold">{orders.length}</p> {/* Stat value from orders count */}
+            </div>
+          </div>
+        </div> {/* End stats row */}
 
     
 
