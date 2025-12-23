@@ -14,3 +14,4 @@ useEffect(() => { // Effect hook to fetch data on component mount
         setOrders(response.data); // Update state with fetched orders
       } catch (error) { // Catch block for error handling
         console.error("Failed to fetch orders:", error); // Log error to console
+      } finally { // Finally block to clean up  
