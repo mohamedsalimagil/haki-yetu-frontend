@@ -17,5 +17,7 @@ useEffect(() => { // Effect hook to fetch data on component mount
       } finally { // Finally block to clean up
         setLoading(false); // Set loading to false regardless of success/failure
       }
-    }; 
+    };
+    
+    fetchOrders(); // Call the fetch function
 
