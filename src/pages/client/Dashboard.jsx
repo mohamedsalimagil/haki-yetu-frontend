@@ -40,6 +40,54 @@ useEffect(() => { // Effect hook to fetch data on component mount
           </div>
         </div> {/* End stats row */}
 
+        {/* Orders Table */} {/* Comment for orders table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"> {/* Table card container */}
+          <div className="px-6 py-4 border-b border-gray-100"> {/* Table header section */}
+            <h2 className="font-bold text-gray-800">Recent Orders</h2> {/* Table title */}
+          </div>
+          
+          <div className="overflow-x-auto"> {/* Scrollable table container */}
+            <table className="w-full text-left"> {/* Full-width table */}
+              <thead className="bg-gray-50 text-gray-500 text-xs uppercase"> {/* Table header */}
+                <tr> {/* Header row */}
+                  <th className="px-6 py-3">Order #</th> {/* Order number column header */}
+                  <th className="px-6 py-3">Service</th> {/* Service column header */}
+                  <th className="px-6 py-3">Date</th> {/* Date column header */}
+                  <th className="px-6 py-3">Amount</th> {/* Amount column header */}
+                  <th className="px-6 py-3">Status</th> {/* Status column header */}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-sm"> {/* Table body with dividers */}
+                {orders.map((order) => ( // Map through orders array
+                  <tr key={order.id} className="hover:bg-gray-50"> {/* Table row with hover effect */}
+                    <td className="px-6 py-4 font-mono text-gray-600">#{order.order_number}</td> {/* Order number */}
+                    <td className="px-6 py-4 font-medium text-gray-900">{order.service_name}</td> {/* Service name */}
+                    <td className="px-6 py-4 text-gray-500">{new Date(order.created_at).toLocaleDateString()}</td> {/* Formatted date */}
+                    <td className="px-6 py-4">KES {order.total_amount.toLocaleString()}</td> {/* Formatted amount */}
+                    <td className="px-6 py-4"> {/* Status badge cell */}
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold // Status badge with dynamic classes
+                        ${order.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}> {/* Conditional styling */}
+                        {order.status} {/* Status text */}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {orders.length === 0 && ( // Conditional rendering for empty state
+              <div className="text-center py-10 text-gray-400"> {/* Empty state container */}
+                You haven't placed any orders yet. {/* Empty state message */}
+              </div>
+            )}
+          </div> {/* End scrollable container */}
+        </div> {/* End table card */}
+      </div> {/* End centered container */}
+    </div> // End page container
+  );
+};
+
+export default Dashboard; // Export component as default
+
     
 
 
