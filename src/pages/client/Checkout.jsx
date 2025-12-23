@@ -14,3 +14,4 @@ const Checkout = () => { // Define functional component for checkout page
 
     // POLLING FUNCTION
     const pollPaymentStatus = async (requestId) => { // Async function to poll payment status
+        setPaymentStatus('processing'); // Set status to processing when polling starts
