@@ -8,3 +8,4 @@ const Dashboard = () => { // Define functional component for dashboard page
 
 useEffect(() => { // Effect hook to fetch data on component mount
     const fetchOrders = async () => { // Async function to fetch user orders
+        try { // Try block for error handling
