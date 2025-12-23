@@ -19,3 +19,4 @@ const Checkout = () => { // Define functional component for checkout page
 
         const intervalId = setInterval(async () => { // Create polling interval
             try { // Try block for polling requests
+                const response = await api.get(`/marketplace/payments/status/${requestId}`); // API call to check payment status
