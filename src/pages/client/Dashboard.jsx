@@ -22,5 +22,12 @@ useEffect(() => { // Effect hook to fetch data on component mount
      fetchOrders(); // Call the fetch function
   }, []); // Empty dependency array - run only on component mount
   if (loading) return <div className="p-8 text-center">Loading Dashboard...</div>; // Show loading indicator
+
+    return ( // Return JSX for component
+    <div className="min-h-screen bg-gray-50 py-8 px-4"> {/* Main page container */}
+      <div className="max-w-6xl mx-auto"> {/* Centered content container */}
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">My Dashboard</h1> {/* Dashboard title */}
+
     
+
 
