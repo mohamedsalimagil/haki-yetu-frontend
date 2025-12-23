@@ -16,3 +16,5 @@ const Checkout = () => { // Define functional component for checkout page
     const pollPaymentStatus = async (requestId) => { // Async function to poll payment status
         setPaymentStatus('processing'); // Set status to processing when polling starts
         setStatusMessage('Check your phone... Enter M-Pesa PIN.'); // Update user message
+
+        const intervalId = setInterval(async () => { // Create polling interval
