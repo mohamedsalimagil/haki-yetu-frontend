@@ -18,3 +18,4 @@ const Checkout = () => { // Define functional component for checkout page
         setStatusMessage('Check your phone... Enter M-Pesa PIN.'); // Update user message
 
         const intervalId = setInterval(async () => { // Create polling interval
+            try { // Try block for polling requests
