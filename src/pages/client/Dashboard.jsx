@@ -21,5 +21,6 @@ useEffect(() => { // Effect hook to fetch data on component mount
     
      fetchOrders(); // Call the fetch function
   }, []); // Empty dependency array - run only on component mount
+  if (loading) return <div className="p-8 text-center">Loading Dashboard...</div>; // Show loading indicator
     
 
