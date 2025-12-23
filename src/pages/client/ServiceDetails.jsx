@@ -38,7 +38,7 @@ const ServiceDetails = () => { // Define functional component for service detail
       
       const response = await api.post('/marketplace/bookings', payload);
       alert(`Success! Reference: ${response.data.booking_reference}`);
-      navigate('/dashboard'); 
+      navigate(`/checkout/${response.data.booking_id}`);
     } catch (err) {
       // Handle the "Slot taken" error specifically
       if (err.response && err.response.status === 409) {
