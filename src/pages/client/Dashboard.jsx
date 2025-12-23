@@ -9,3 +9,5 @@ const Dashboard = () => { // Define functional component for dashboard page
 useEffect(() => { // Effect hook to fetch data on component mount
     const fetchOrders = async () => { // Async function to fetch user orders
         try { // Try block for error handling
+             // Hardcoded user ID 1 for now (matches your backend logic)
+        const response = await api.get('/marketplace/orders/user/1'); // API call to get orders for user ID 1
