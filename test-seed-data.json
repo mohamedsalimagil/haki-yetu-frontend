@@ -1,0 +1,386 @@
+{
+  "metadata": {
+    "application": "Haki Yetu Digital - Kenyan Legal Services Platform",
+    "description": "Comprehensive test/seed data for Person A features testing",
+    "created": "2025-12-21",
+    "locale": "Kenya",
+    "currency": "KES"
+  },
+
+  "users": {
+    "clients": [
+      {
+        "id": 1,
+        "name": "Grace Wanjiku Kimani",
+        "email": "grace.kimani@email.com",
+        "phone": "+254712345678",
+        "password": "TestPass123!",
+        "role": "client",
+        "location": "Nairobi",
+        "bio": "Small business owner seeking legal advice for my retail shop"
+      },
+      {
+        "id": 2,
+        "name": "David Kiprop Cheruiyot",
+        "email": "david.cheruiyot@email.com",
+        "phone": "+254723456789",
+        "password": "TestPass123!",
+        "role": "client",
+        "location": "Eldoret",
+        "bio": "Farmer looking for agricultural land dispute resolution"
+      },
+      {
+        "id": 3,
+        "name": "Mary Atieno Oduya",
+        "email": "mary.oduya@email.com",
+        "phone": "+254734567890",
+        "password": "TestPass123!",
+        "role": "client",
+        "location": "Kisumu",
+        "bio": "Teacher needing assistance with employment contract review"
+      },
+      {
+        "id": 4,
+        "name": "Peter Kipkemoi Bett",
+        "email": "peter.bett@email.com",
+        "phone": "+254745678901",
+        "password": "TestPass123!",
+        "role": "client",
+        "location": "Nakuru",
+        "bio": "IT consultant requiring NDA and IP protection services"
+      },
+      {
+        "id": 5,
+        "name": "Sarah Akinyi Nyambura",
+        "email": "sarah.nyambura@email.com",
+        "phone": "+254756789012",
+        "password": "TestPass123!",
+        "role": "client",
+        "location": "Thika",
+        "bio": "Real estate investor seeking property purchase agreement review"
+      }
+    ],
+    "lawyers": [
+      {
+        "id": 6,
+        "name": "Advocate James Kiprotich Sang",
+        "email": "james.sang@lawfirm.co.ke",
+        "phone": "+254767890123",
+        "password": "LawyerPass123!",
+        "role": "advocate",
+        "location": "Nairobi",
+        "lsK_number": "LSK/1234/2015",
+        "bio": "Experienced corporate lawyer with 8+ years in commercial law and dispute resolution",
+        "specializations": ["Corporate Law", "Commercial Law", "Dispute Resolution"],
+        "years_experience": 8,
+        "languages": ["English", "Swahili"],
+        "education": "LLB (University of Nairobi), Diploma in Legal Practice (Kenya School of Law)",
+        "certifications": "Certified Public Secretary, ADR Accredited Mediator"
+      },
+      {
+        "id": 7,
+        "name": "Advocate Purity Wairimu Gichuru",
+        "email": "purity.gichuru@law.co.ke",
+        "phone": "+254778901234",
+        "password": "LawyerPass123!",
+        "role": "advocate",
+        "location": "Nairobi",
+        "lsK_number": "LSK/2345/2018",
+        "bio": "Family law specialist helping families navigate divorce, child custody, and inheritance matters",
+        "specializations": ["Family Law", "Succession Law", "Child Law"],
+        "years_experience": 5,
+        "languages": ["English", "Kikuyu", "Swahili"],
+        "education": "LLB (Kenyatta University), Postgraduate Diploma in Legal Practice",
+        "certifications": "Family Law Accredited Mediator"
+      },
+      {
+        "id": 8,
+        "name": "Advocate Samuel Kipkoech Rono",
+        "email": "samuel.rono@legal.co.ke",
+        "phone": "+254789012345",
+        "password": "LawyerPass123!",
+        "role": "advocate",
+        "location": "Nakuru",
+        "lsK_number": "LSK/3456/2012",
+        "bio": "Property law expert specializing in land transactions, conveyancing, and real estate disputes",
+        "specializations": ["Property Law", "Conveyancing", "Land Law"],
+        "years_experience": 11,
+        "languages": ["English", "Kalenjin", "Swahili"],
+        "education": "LLB (Moi University), MSc in Real Estate Law",
+        "certifications": "Registered Land Valuer, Conveyancing Specialist"
+      },
+      {
+        "id": 9,
+        "name": "Advocate Rose Chebet Koech",
+        "email": "rose.koech@advocates.co.ke",
+        "phone": "+254790123456",
+        "password": "LawyerPass123!",
+        "role": "advocate",
+        "location": "Kisumu",
+        "lsK_number": "LSK/4567/2019",
+        "bio": "Criminal law defense attorney with expertise in constitutional law and human rights",
+        "specializations": ["Criminal Law", "Constitutional Law", "Human Rights Law"],
+        "years_experience": 4,
+        "languages": ["English", "Dholuo", "Swahili"],
+        "education": "LLB (Maseno University), Human Rights Law Certificate",
+        "certifications": "Legal Aid Certified, Court Annexed Mediator"
+      },
+      {
+        "id": 10,
+        "name": "Advocate Michael Kiprotich Bett",
+        "email": "michael.bett@lawyers.co.ke",
+        "phone": "+254701234567",
+        "password": "LawyerPass123!",
+        "role": "advocate",
+        "location": "Eldoret",
+        "lsK_number": "LSK/5678/2010",
+        "bio": "Employment law specialist representing both employers and employees in labor disputes",
+        "specializations": ["Employment Law", "Labor Law", "Administrative Law"],
+        "years_experience": 13,
+        "languages": ["English", "Kalenjin", "Swahili"],
+        "education": "LLB (University of Nairobi), LLM in Labor Law",
+        "certifications": "Certified HR Practitioner, Employment Law Specialist"
+      }
+    ]
+  },
+
+  "services": [
+    {
+      "id": 1,
+      "name": "Affidavit Commissioning",
+      "description": "Official witnessing and commissioning of affidavits for court proceedings",
+      "base_price": 1500,
+      "processing_days": 2,
+      "category": "Document Services"
+    },
+    {
+      "id": 2,
+      "name": "Contract Drafting & Review",
+      "description": "Professional drafting and legal review of business contracts",
+      "base_price": 5000,
+      "processing_days": 5,
+      "category": "Commercial Law"
+    },
+    {
+      "id": 3,
+      "name": "Property Purchase Agreement",
+      "description": "Legal drafting and review of property sale agreements",
+      "base_price": 7500,
+      "processing_days": 7,
+      "category": "Property Law"
+    },
+    {
+      "id": 4,
+      "name": "Divorce Petition Filing",
+      "description": "Legal assistance in filing divorce petitions and court proceedings",
+      "base_price": 12000,
+      "processing_days": 10,
+      "category": "Family Law"
+    },
+    {
+      "id": 5,
+      "name": "Company Registration",
+      "description": "Complete company incorporation and registration services",
+      "base_price": 25000,
+      "processing_days": 14,
+      "category": "Corporate Law"
+    },
+    {
+      "id": 6,
+      "name": "Employment Contract",
+      "description": "Drafting and review of employment agreements and contracts",
+      "base_price": 3500,
+      "processing_days": 3,
+      "category": "Employment Law"
+    },
+    {
+      "id": 7,
+      "name": "Criminal Case Defense",
+      "description": "Legal representation in criminal court proceedings",
+      "base_price": 15000,
+      "processing_days": 30,
+      "category": "Criminal Law"
+    },
+    {
+      "id": 8,
+      "name": "Succession & Probate",
+      "description": "Estate administration and grant of probate services",
+      "base_price": 20000,
+      "processing_days": 21,
+      "category": "Succession Law"
+    }
+  ],
+
+  "orders": [
+    {
+      "id": 1,
+      "service_id": 1,
+      "service_name": "Affidavit Commissioning",
+      "client_id": 1,
+      "client_name": "Grace Wanjiku Kimani",
+      "lawyer_id": 6,
+      "lawyer_name": "Advocate James Kiprotich Sang",
+      "status": "completed",
+      "created_at": "2025-12-15T10:30:00Z",
+      "description": "Commissioning of statutory declaration for business registration"
+    },
+    {
+      "id": 2,
+      "service_id": 2,
+      "service_name": "Contract Drafting & Review",
+      "client_id": 2,
+      "client_name": "David Kiprop Cheruiyot",
+      "lawyer_id": 8,
+      "lawyer_name": "Advocate Samuel Kipkoech Rono",
+      "status": "in_progress",
+      "created_at": "2025-12-18T14:20:00Z",
+      "description": "Review of agricultural land lease agreement"
+    },
+    {
+      "id": 3,
+      "service_id": 6,
+      "service_name": "Employment Contract",
+      "client_id": 3,
+      "client_name": "Mary Atieno Oduya",
+      "lawyer_id": 10,
+      "lawyer_name": "Advocate Michael Kiprotich Bett",
+      "status": "pending",
+      "created_at": "2025-12-20T09:15:00Z",
+      "description": "Drafting of teaching staff employment contract"
+    },
+    {
+      "id": 4,
+      "service_id": 3,
+      "service_name": "Property Purchase Agreement",
+      "client_id": 5,
+      "client_name": "Sarah Akinyi Nyambura",
+      "lawyer_id": 8,
+      "lawyer_name": "Advocate Samuel Kipkoech Rono",
+      "status": "completed",
+      "created_at": "2025-12-10T11:45:00Z",
+      "description": "Review of residential property sale agreement in Thika"
+    },
+    {
+      "id": 5,
+      "service_id": 4,
+      "service_name": "Divorce Petition Filing",
+      "client_id": 1,
+      "client_name": "Grace Wanjiku Kimani",
+      "lawyer_id": 7,
+      "lawyer_name": "Advocate Purity Wairimu Gichuru",
+      "status": "in_progress",
+      "created_at": "2025-12-19T16:30:00Z",
+      "description": "Filing divorce petition with child custody arrangements"
+    },
+    {
+      "id": 6,
+      "service_id": 5,
+      "service_name": "Company Registration",
+      "client_id": 4,
+      "client_name": "Peter Kipkemoi Bett",
+      "lawyer_id": 6,
+      "lawyer_name": "Advocate James Kiprotich Sang",
+      "status": "pending",
+      "created_at": "2025-12-21T08:00:00Z",
+      "description": "Incorporation of tech startup company"
+    },
+    {
+      "id": 7,
+      "service_id": 7,
+      "service_name": "Criminal Case Defense",
+      "client_id": 2,
+      "client_name": "David Kiprop Cheruiyot",
+      "lawyer_id": 9,
+      "lawyer_name": "Advocate Rose Chebet Koech",
+      "status": "cancelled",
+      "created_at": "2025-12-12T13:20:00Z",
+      "description": "Defense in land dispute criminal case"
+    }
+  ],
+
+  "reviews": [
+    {
+      "id": 1,
+      "order_id": 1,
+      "client_id": 1,
+      "lawyer_id": 6,
+      "rating": 5,
+      "comment": "Excellent service! Advocate Sang was very professional and efficient. Highly recommended for affidavit services.",
+      "created_at": "2025-12-16T12:00:00Z"
+    },
+    {
+      "id": 2,
+      "order_id": 4,
+      "client_id": 5,
+      "lawyer_id": 8,
+      "rating": 4,
+      "comment": "Good work on the property agreement review. Very thorough and knowledgeable about Nakuru property laws.",
+      "created_at": "2025-12-11T15:30:00Z"
+    }
+  ],
+
+  "test_scenarios": {
+    "authentication": [
+      {
+        "scenario": "Client Login",
+        "email": "grace.kimani@email.com",
+        "password": "TestPass123!",
+        "expected_result": "Login successful, redirect to home with user menu"
+      },
+      {
+        "scenario": "Lawyer Login",
+        "email": "james.sang@lawfirm.co.ke",
+        "password": "LawyerPass123!",
+        "expected_result": "Login successful, dashboard link visible"
+      }
+    ],
+    "registration": [
+      {
+        "scenario": "Client Registration",
+        "data": {
+          "name": "Test Client",
+          "email": "test.client@email.com",
+          "password": "TestPass123!"
+        },
+        "expected_result": "Registration successful, user created"
+      },
+      {
+        "scenario": "Lawyer Registration",
+        "data": {
+          "name": "Advocate Test Lawyer",
+          "email": "test.lawyer@law.co.ke",
+          "lsK_number": "LSK/9999/2024",
+          "specializations": ["Corporate Law", "Property Law"]
+        },
+        "expected_result": "Multi-step registration completes successfully"
+      }
+    ],
+    "dashboard": [
+      {
+        "scenario": "Lawyer Dashboard Access",
+        "user": "james.sang@lawfirm.co.ke",
+        "expected_result": "Calendar displays with bookings, navigation works"
+      },
+      {
+        "scenario": "Calendar Interactions",
+        "actions": ["Event click", "Date click", "View switching"],
+        "expected_result": "All interactions work, appropriate modals/popups appear"
+      }
+    ]
+  },
+
+  "kenyan_locations": [
+    "Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret", "Thika", "Machakos",
+    "Kericho", "Kakamega", "Naivasha", "Meru", "Nyeri", "Kitui", "Garissa"
+  ],
+
+  "kenyan_law_firms": [
+    "Kimani & Partners Advocates",
+    "Oduya Legal Services",
+    "Rift Valley Law Chambers",
+    "Coast Legal Associates",
+    "Western Kenya Advocates",
+    "Central Law Firm",
+    "Eastern Province Legal Services"
+  ]
+}

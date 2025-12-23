@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, FileText, CheckCircle, XCircle, AlertCircle, Loader } from 'lucide-react';
 import clientService from '../../services/client.service';
+import RatingModal from '../../components/domain/RatingModal';
 import { useAuth } from '../../context/AuthContext';
 
 const ClientDashboard = () => {
@@ -9,6 +10,11 @@ const ClientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [ratingModal, setRatingModal] = useState({
+    isOpen: false,
+    orderId: null,
+    lawyerName: ''
+  });
 
   useEffect(() => {
     fetchBookings();
@@ -80,6 +86,28 @@ const ClientDashboard = () => {
     { id: 'in_progress', label: 'In Progress', count: bookings.filter(b => b.status === 'in_progress').length },
     { id: 'completed', label: 'Completed', count: bookings.filter(b => b.status === 'completed').length },
   ];
+
+  const handleRateService = (booking) => {
+    setRatingModal({
+      isOpen: true,
+      orderId: booking.id,
+      lawyerName: booking.lawyer_name
+    });
+  };
+
+  const handleRatingModalClose = () => {
+    setRatingModal({
+      isOpen: false,
+      orderId: null,
+      lawyerName: ''
+    });
+  };
+
+  const handleReviewSubmitted = (reviewData) => {
+    // Update the booking status or refresh data if needed
+    console.log('Review submitted:', reviewData);
+    // You could refresh the bookings data here if needed
+  };
 
   if (loading) {
     return (
@@ -249,7 +277,10 @@ const ClientDashboard = () => {
                       </div>
 
                       {booking.status === 'completed' && (
-                        <button className="px-4 py-2 bg-primary text-white text-sm rounded hover:bg-blue-700 transition-colors">
+                        <button
+                          onClick={() => handleRateService(booking)}
+                          className="px-4 py-2 bg-primary text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                        >
                           Rate Service
                         </button>
                       )}
@@ -266,6 +297,15 @@ const ClientDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Rating Modal */}
+        <RatingModal
+          isOpen={ratingModal.isOpen}
+          onClose={handleRatingModalClose}
+          orderId={ratingModal.orderId}
+          lawyerName={ratingModal.lawyerName}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
       </div>
     </div>
   );
