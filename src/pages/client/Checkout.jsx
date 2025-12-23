@@ -32,4 +32,15 @@ const Checkout = () => { // Define functional component for checkout page
       }
     }, 2000); // Check every 2 seconds
 
+    // Stop checking after 60 seconds (timeout)
+    setTimeout(() => { // Set timeout to stop polling
+      clearInterval(intervalId); // Clear polling interval
+      if (paymentStatus !== 'success') { // Check if payment hasn't succeeded
+        setPaymentStatus('failed'); // Set status to failed
+        setStatusMessage('Payment timed out. Please try again.'); // Update timeout message
+      }
+    }, 60000); // 60 second timeout
+  };
+
+
 
