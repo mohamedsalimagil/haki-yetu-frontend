@@ -8,3 +8,4 @@ const Checkout = () => { // Define functional component for checkout page
     const navigate = useNavigate(); // Get navigation function for routing
 
     const [phone, setPhone] = useState(''); // State for storing phone number input
+    const [loading, setLoading] = useState(false); // State for tracking payment initiation loading
