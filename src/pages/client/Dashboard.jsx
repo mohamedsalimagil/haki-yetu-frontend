@@ -13,3 +13,4 @@ useEffect(() => { // Effect hook to fetch data on component mount
         const response = await api.get('/marketplace/orders/user/1'); // API call to get orders for user ID 1
         setOrders(response.data); // Update state with fetched orders
       } catch (error) { // Catch block for error handling
+        console.error("Failed to fetch orders:", error); // Log error to console
