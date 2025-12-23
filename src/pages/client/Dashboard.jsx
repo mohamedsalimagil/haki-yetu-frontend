@@ -7,3 +7,4 @@ const Dashboard = () => { // Define functional component for dashboard page
     const [loading, setLoading] = useState(true); // State for tracking loading status
 
 useEffect(() => { // Effect hook to fetch data on component mount
+    const fetchOrders = async () => { // Async function to fetch user orders
