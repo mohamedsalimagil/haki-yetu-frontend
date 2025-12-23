@@ -11,3 +11,6 @@ const Checkout = () => { // Define functional component for checkout page
     const [loading, setLoading] = useState(false); // State for tracking payment initiation loading
     const [paymentStatus, setPaymentStatus] = useState('idle'); // State for payment flow: idle, processing, success, failed
     const [statusMessage, setStatusMessage] = useState(''); // State for user feedback messages
+
+    // POLLING FUNCTION
+    const pollPaymentStatus = async (requestId) => { // Async function to poll payment status
