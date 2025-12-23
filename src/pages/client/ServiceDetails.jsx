@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';// Import React and hooks for
 import { useParams, useNavigate } from 'react-router-dom';// Import routing hooks for params and navigation
 import { Clock, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';// Import icon components for UI
 import api from '../../services/api';// Import API service for HTTP requests
-
+import BookingForm from '../../components/domain/marketplace/BookingForm';
 const ServiceDetails = () => { // Define functional component for service details page
     const { id } = useParams(); // Get the ID from the URL
     const navigate = useNavigate(); // Get navigation function for routing
@@ -26,86 +26,87 @@ const ServiceDetails = () => { // Define functional component for service detail
     fetchService();// Call the fetch function
   }, [id]);// Dependency array - re-run when ID changes
 
-  const handleOrder = async () => {// Function to handle service ordering
-    setOrdering(true);// Set ordering state to true to show processing
-    try {// Try block for order submission 
-        // Hardcoded client_id for now until Auth is merged
-      const payload = { // Create payload for order
-        service_id: service.id,// Include service ID from state
-        client_id: 1 // Temporary hardcoded client ID
+  const handleBooking = async ({ date, time }) => {
+    setOrdering(true);
+    try {
+      const payload = {
+        client_id: 1, // Hardcoded for now
+        lawyer_id: 1, // Hardcoded for now (assuming service implies a lawyer)
+        date: date,
+        time: time
       };
       
-      const response = await api.post('/marketplace/orders', payload);// Submit order to API
-      alert(`Success! Order #${response.data.order_number} created.`);// Show success message
-      navigate('/services'); // Go back to catalog
-    } catch (err) {// Catch block for order errors
-      alert("Failed to create order. Please try again.");// Show error alert
-    } finally {// Finally block to clean up
-      setOrdering(false);// Reset ordering state
+      const response = await api.post('/marketplace/bookings', payload);
+      alert(`Success! Reference: ${response.data.booking_reference}`);
+      navigate('/dashboard'); 
+    } catch (err) {
+      // Handle the "Slot taken" error specifically
+      if (err.response && err.response.status === 409) {
+        alert("That time slot is already taken. Please try another.");
+      } else {
+        alert("Failed to create booking.");
+      }
+    } finally {
+      setOrdering(false);
     }
   };
   if (loading) return <div className="text-center py-20">Loading...</div>;// Show loading indicator
   if (error) return <div className="text-center py-20 text-red-600">{error}</div>;// Show error message
 
   return ( // Return JSX for component
-    <div className="min-h-screen bg-gray-50 py-12 px-4"> {/* Main page container */}
-      <div className="max-w-4xl mx-auto"> {/* Centered content container */}
-        <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 mb-6 hover:text-primary"> {/* Back button */}
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Services {/* Back icon and text */}
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Back Button */}
+        <button onClick={() => navigate(-1)} className="flex items-center text-gray-600 mb-6 hover:text-primary">
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Services
         </button>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid md:grid-cols-3"> {/* Main card with grid */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid md:grid-cols-3">
           
-          {/* Left: Info */} {/* Comment for info section */}
-          <div className="md:col-span-2 p-8"> {/* Left column container */}
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded-full"> {/* Category badge */}
-              {service.category || 'Legal'} {/* Display category or default */}
+          {/* Left: Info Section */}
+          <div className="md:col-span-2 p-8">
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold uppercase rounded-full">
+              {service.category || 'Legal'}
             </span>
-            <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-4">{service.name}</h1> {/* Service name */}
-            <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p> {/* Service description */}
+            <h1 className="text-3xl font-bold text-gray-900 mt-4 mb-4">{service.name}</h1>
+            <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
             
-            <div className="flex items-center space-x-6 text-sm text-gray-500"> {/* Metadata container */}
-              <div className="flex items-center"> {/* Processing time */}
-                <Clock className="w-5 h-5 mr-2 text-primary" /> {/* Clock icon */}
-                {service.processing_days} Days Turnaround {/* Processing days */}
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <div className="flex items-center">
+                <Clock className="w-5 h-5 mr-2 text-primary" />
+                {service.processing_days} Days Turnaround
               </div>
-              <div className="flex items-center"> {/* Verification badge */}
-                <CheckCircle className="w-5 h-5 mr-2 text-green-500" /> {/* Check icon */}
-                Verified Lawyer {/* Verification text */}
+              <div className="flex items-center">
+                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                Verified Lawyer
               </div>
             </div>
           </div>
 
-          {/* Right: Action Box */} {/* Comment for action section */}
-          <div className="bg-gray-50 p-8 border-l border-gray-100 flex flex-col justify-center"> {/* Right column container */}
-            <div className="text-center mb-6"> {/* Price container */}
-              <p className="text-gray-500 text-sm">Total Cost</p> {/* Price label */}
-              <p className="text-4xl font-bold text-gray-900">KES {service.price.toLocaleString()}</p> {/* Formatted price */}
+          {/* Right: Action Box (UPDATED) */}
+          <div className="bg-gray-50 p-8 border-l border-gray-100 flex flex-col justify-center">
+            <div className="text-center mb-6">
+              <p className="text-gray-500 text-sm">Consultation Fee</p>
+              <p className="text-4xl font-bold text-gray-900">
+                KES {service.price ? service.price.toLocaleString() : '0'}
+              </p>
             </div>
             
-            <button  // Order button
-              onClick={handleOrder} // Click handler
-              disabled={ordering} // Disable when ordering
-              className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-800 transition disabled:opacity-50" // Styling
-            >
-              {ordering ? 'Processing...' : 'Order Service'} {/* Dynamic button text */}
-            </button>
+            {/* THIS IS THE NEW PART: The Booking Form Component */}
+            <BookingForm onBookingSubmit={handleBooking} loading={ordering} />
             
-            <p className="text-xs text-gray-400 text-center mt-4 flex items-center justify-center"> {/* Disclaimer */}
-              <AlertCircle className="w-3 h-3 mr-1" /> Payment is held in escrow {/* Escrow note */}
+            <p className="text-xs text-gray-400 text-center mt-4 flex items-center justify-center">
+              <AlertCircle className="w-3 h-3 mr-1" /> Payment held in escrow
             </p>
           </div>
           
-        </div> {/* End main card */}
-      </div> {/* End centered container */}
-    </div> // End page container
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default ServiceDetails; // Export component as default
-
-      
- 
+export default ServiceDetails;
 
 
 
