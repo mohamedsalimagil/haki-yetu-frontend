@@ -55,7 +55,7 @@ const Checkout = () => { // Define functional component for checkout page
       
       const response = await api.post('/marketplace/payments/stk-push', payload); // Initiate STK push
       
-      // Start Polling // Comment indicating polling start
+      // Start Polling 
       const requestId = response.data.CheckoutRequestID; // Extract checkout request ID
       pollPaymentStatus(requestId); // Start polling with request ID
       

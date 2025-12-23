@@ -5,6 +5,7 @@ import LandingPage from './pages/public/LandingPage';
 import ServiceCatalog from './pages/client/ServiceCatalog';
 import ServiceDetails from './pages/client/ServiceDetails';
 import Dashboard from './pages/client/Dashboard';
+import Checkout from './pages/client/Checkout';
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
         <Route path="/services" element={<ServiceCatalog />} />
         <Route path="/services/:id" element={<ServiceDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/checkout/:bookingId" element={<Checkout />} />
+
 
         {/* We will add more routes later */}
       </Routes>
