@@ -4,3 +4,4 @@ import { Package, Clock, FileText } from 'lucide-react'; // Import icon componen
 
 const Dashboard = () => { // Define functional component for dashboard page
     const [orders, setOrders] = useState([]); // State for storing user's orders
+    const [loading, setLoading] = useState(true); // State for tracking loading status
