@@ -1,28 +1,49 @@
-# Dependencies
+# =========================================
+# Dependencies and Packages
+# =========================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+jspm_packages/
 
-# Production builds
+# =========================================
+# Build and Distribution
+# =========================================
 dist/
 build/
+.next/
+.nuxt/
+.out/
+.storybook-out/
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# =========================================
+# Environment and Configuration
+# =========================================
+.env*
+!.env.example
+config.local.*
+*.local
 
-# IDE and Editor files
+# =========================================
+# IDE and Editor Files
+# =========================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.tmp
+*.bak
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# OS generated files
+# =========================================
+# OS Generated Files
+# =========================================
 .DS_Store
 .DS_Store?
 ._*
@@ -30,92 +51,92 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Logs
-logs
+# =========================================
+# Logs and Debugging
+# =========================================
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Runtime data
-pids
+# =========================================
+# Runtime and Process Files
+# =========================================
+pids/
 *.pid
 *.seed
 *.pid.lock
+lib-cov/
 
-# Coverage directory used by tools like istanbul
+# =========================================
+# Coverage and Testing
+# =========================================
 coverage/
+*.lcov
+.nyc_output/
 
-# nyc test coverage
-.nyc_output
-
-# Temporary folders
-tmp/
-temp/
-
-# Internal documentation files (untracked for team reference)
-DAY*_CHANGES_EXPLANATION.md
-PERSON_A_API_DOCUMENTATION.md
-*CHANGES_EXPLANATION.md
-*API_DOCUMENTATION.md
-
-# Cache directories
+# =========================================
+# Cache Directories
+# =========================================
 .cache/
 .parcel-cache/
 .next/
 .nuxt/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
 .rpt2_cache/
 .rts2_cache_cjs/
 .rts2_cache_es/
 .rts2_cache_umd/
+.eslintcache
+*.tsbuildinfo
 
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env.test
-
-# parcel-bundler cache (https://parceljs.org/)
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
+# =========================================
+# Temporary and Build Artifacts
+# =========================================
 tmp/
 temp/
+.tmp/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# =========================================
+# Database Files
+# =========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================================
+# API Keys and Secrets
+# =========================================
+secrets/
+*.key
+*.pem
+
+# =========================================
+# Test Data and Seeds
+# =========================================
+test-seed-data.json
+*.seed
+seeds/
+test-data/
+
+# =========================================
+# Internal Documentation (Untracked)
+# =========================================
+DAY*_CHANGES_EXPLANATION.md
+PERSON_A_API_DOCUMENTATION.md
+*CHANGES_EXPLANATION.md
+*API_DOCUMENTATION.md
+*CHANGES.md
+
+# =========================================
+# Optional/Development Files
+# =========================================
+package-lock.json  # Uncomment to ignore
+yarn.lock          # Uncomment to ignore
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env.test
