@@ -20,3 +20,16 @@ const Checkout = () => { // Define functional component for checkout page
         const intervalId = setInterval(async () => { // Create polling interval
             try { // Try block for polling requests
                 const response = await api.get(`/marketplace/payments/status/${requestId}`); // API call to check payment status
+
+                if (response.data.status === 'completed') { // Check if payment is completed
+          clearInterval(intervalId); // Stop polling
+          setPaymentStatus('success'); // Update status to success
+          setStatusMessage('Payment Received! Redirecting...'); // Update success message
+          setTimeout(() => navigate('/dashboard'), 3000); // Redirect after 3 seconds
+        }
+      } catch (err) { // Catch block for polling errors
+        console.error("Polling error", err); // Log error to console
+      }
+    }, 2000); // Check every 2 seconds
+
+
