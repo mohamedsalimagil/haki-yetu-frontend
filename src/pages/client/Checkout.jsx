@@ -9,3 +9,4 @@ const Checkout = () => { // Define functional component for checkout page
 
     const [phone, setPhone] = useState(''); // State for storing phone number input
     const [loading, setLoading] = useState(false); // State for tracking payment initiation loading
+    const [paymentStatus, setPaymentStatus] = useState('idle'); // State for payment flow: idle, processing, success, failed
