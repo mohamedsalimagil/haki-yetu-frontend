@@ -4,3 +4,4 @@ import { Smartphone, Lock, CheckCircle, Loader } from 'lucide-react';
 import api from '../../services/api';
 
 const Checkout = () => { // Define functional component for checkout page
+    const { bookingId } = useParams(); // Get booking ID from URL parameters
