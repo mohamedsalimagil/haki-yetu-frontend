@@ -134,8 +134,8 @@ PERSON_A_API_DOCUMENTATION.md
 # =========================================
 # Optional/Development Files
 # =========================================
-# package-lock.json  # Uncomment to ignore
-# yarn.lock          # Uncomment to ignore
+package-lock.json  # Uncomment to ignore
+yarn.lock          # Uncomment to ignore
 .node_repl_history
 *.tgz
 .yarn-integrity
