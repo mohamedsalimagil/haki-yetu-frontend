@@ -382,5 +382,611 @@
     "Western Kenya Advocates",
     "Central Law Firm",
     "Eastern Province Legal Services"
-  ]
+  ],
+
+  "chat_conversations": [
+    {
+      "id": 1,
+      "client_id": 1,
+      "client_name": "Grace Wanjiku Kimani",
+      "lawyer_id": 6,
+      "lawyer_name": "Advocate James Kiprotich Sang",
+      "service_name": "Affidavit Commissioning",
+      "last_message": "I have reviewed your affidavit draft. It looks good and ready for commissioning.",
+      "last_message_time": "2025-12-21T10:30:00Z",
+      "unread_count": 2,
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "client_id": 2,
+      "client_name": "David Kiprop Cheruiyot",
+      "lawyer_id": 8,
+      "lawyer_name": "Advocate Samuel Kipkoech Rono",
+      "service_name": "Contract Drafting & Review",
+      "last_message": "The lease agreement has been reviewed and is ready for your signature.",
+      "last_message_time": "2025-12-21T09:15:00Z",
+      "unread_count": 0,
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "client_id": 3,
+      "client_name": "Mary Atieno Oduya",
+      "lawyer_id": 10,
+      "lawyer_name": "Advocate Michael Kiprotich Bett",
+      "service_name": "Employment Contract",
+      "last_message": "I need clarification on the probation period terms you mentioned.",
+      "last_message_time": "2025-12-20T16:45:00Z",
+      "unread_count": 1,
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "client_id": 5,
+      "client_name": "Sarah Akinyi Nyambura",
+      "lawyer_id": 8,
+      "lawyer_name": "Advocate Samuel Kipkoech Rono",
+      "service_name": "Property Purchase Agreement",
+      "last_message": "Thank you for your quick response. The agreement is now complete.",
+      "last_message_time": "2025-12-19T14:20:00Z",
+      "unread_count": 0,
+      "status": "completed"
+    }
+  ],
+
+  "chat_messages": {
+    "1": [
+      {
+        "id": 1,
+        "conversation_id": 1,
+        "sender_id": 6,
+        "sender_name": "Advocate James Kiprotich Sang",
+        "sender_role": "advocate",
+        "content": "Hello Grace, thank you for booking my affidavit commissioning service. I have received your documents.",
+        "timestamp": "2025-12-15T10:30:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 2,
+        "conversation_id": 1,
+        "sender_id": 1,
+        "sender_name": "Grace Wanjiku Kimani",
+        "sender_role": "client",
+        "content": "Thank you Advocate Sang. I'm glad to hear from you. When can we schedule the commissioning?",
+        "timestamp": "2025-12-15T10:35:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 3,
+        "conversation_id": 1,
+        "sender_id": 6,
+        "sender_name": "Advocate James Kiprotich Sang",
+        "sender_role": "advocate",
+        "content": "We can do it tomorrow morning at 10 AM at my office in Westlands. Please bring your original ID and the documents we discussed.",
+        "timestamp": "2025-12-15T10:40:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 4,
+        "conversation_id": 1,
+        "sender_id": 1,
+        "sender_name": "Grace Wanjiku Kimani",
+        "sender_role": "client",
+        "content": "Perfect! I'll be there at 10 AM. Should I prepare anything else?",
+        "timestamp": "2025-12-15T10:42:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 5,
+        "conversation_id": 1,
+        "sender_id": 6,
+        "sender_name": "Advocate James Kiprotich Sang",
+        "sender_role": "advocate",
+        "content": "Just bring the draft affidavit we prepared. Everything else will be handled at the office. See you tomorrow!",
+        "timestamp": "2025-12-15T10:45:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 6,
+        "conversation_id": 1,
+        "sender_id": 1,
+        "sender_name": "Grace Wanjiku Kimani",
+        "sender_role": "client",
+        "content": "Thank you so much! Looking forward to it.",
+        "timestamp": "2025-12-15T10:46:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 7,
+        "conversation_id": 1,
+        "sender_id": 6,
+        "sender_name": "Advocate James Kiprotich Sang",
+        "sender_role": "advocate",
+        "content": "I have reviewed your affidavit draft. It looks good and ready for commissioning. The appointment is confirmed for tomorrow.",
+        "timestamp": "2025-12-21T10:30:00Z",
+        "is_mine": false
+      }
+    ],
+    "2": [
+      {
+        "id": 8,
+        "conversation_id": 2,
+        "sender_id": 8,
+        "sender_name": "Advocate Samuel Kipkoech Rono",
+        "sender_role": "advocate",
+        "content": "Good morning David. I've completed the review of your agricultural land lease agreement.",
+        "timestamp": "2025-12-18T14:20:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 9,
+        "conversation_id": 2,
+        "sender_id": 2,
+        "sender_name": "David Kiprop Cheruiyot",
+        "sender_role": "client",
+        "content": "Thank you Advocate Rono. What are your findings?",
+        "timestamp": "2025-12-18T14:25:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 10,
+        "conversation_id": 2,
+        "sender_id": 8,
+        "sender_name": "Advocate Samuel Kipkoech Rono",
+        "sender_role": "advocate",
+        "content": "The agreement is generally well-drafted, but I've suggested some amendments to protect your interests better, especially regarding water rights and crop rotation terms.",
+        "timestamp": "2025-12-18T14:30:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 11,
+        "conversation_id": 2,
+        "sender_id": 8,
+        "sender_name": "Advocate Samuel Kipkoech Rono",
+        "sender_role": "advocate",
+        "content": "The lease agreement has been reviewed and is ready for your signature. I've emailed the final version to you.",
+        "timestamp": "2025-12-21T09:15:00Z",
+        "is_mine": false
+      }
+    ],
+    "3": [
+      {
+        "id": 12,
+        "conversation_id": 3,
+        "sender_id": 3,
+        "sender_name": "Mary Atieno Oduya",
+        "sender_role": "client",
+        "content": "Hello Advocate Bett, I need help drafting employment contracts for new teaching staff at our school.",
+        "timestamp": "2025-12-20T09:15:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 13,
+        "conversation_id": 3,
+        "sender_id": 10,
+        "sender_name": "Advocate Michael Kiprotich Bett",
+        "sender_role": "advocate",
+        "content": "Good morning Mary. I'd be happy to help with your employment contracts. How many contracts do you need drafted?",
+        "timestamp": "2025-12-20T09:20:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 14,
+        "conversation_id": 3,
+        "sender_id": 3,
+        "sender_name": "Mary Atieno Oduya",
+        "sender_role": "client",
+        "content": "We need 5 contracts initially. They should include standard TSC terms, benefits, and school-specific clauses.",
+        "timestamp": "2025-12-20T09:25:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 15,
+        "conversation_id": 3,
+        "sender_id": 10,
+        "sender_name": "Advocate Michael Kiprotich Bett",
+        "sender_role": "advocate",
+        "content": "I need clarification on the probation period terms you mentioned. Is it 6 months as per TSC guidelines?",
+        "timestamp": "2025-12-20T16:45:00Z",
+        "is_mine": false
+      }
+    ],
+    "4": [
+      {
+        "id": 16,
+        "conversation_id": 4,
+        "sender_id": 5,
+        "sender_name": "Sarah Akinyi Nyambura",
+        "sender_role": "client",
+        "content": "Advocate Rono, I've reviewed the property agreement you sent. It looks comprehensive.",
+        "timestamp": "2025-12-19T11:30:00Z",
+        "is_mine": true
+      },
+      {
+        "id": 17,
+        "conversation_id": 4,
+        "sender_id": 8,
+        "sender_name": "Advocate Samuel Kipkoech Rono",
+        "sender_role": "advocate",
+        "content": "Thank you Sarah. I'm glad you find it satisfactory. The agreement includes all necessary protections for property transactions in Thika.",
+        "timestamp": "2025-12-19T11:35:00Z",
+        "is_mine": false
+      },
+      {
+        "id": 18,
+        "conversation_id": 4,
+        "sender_id": 5,
+        "sender_name": "Sarah Akinyi Nyambura",
+        "sender_role": "client",
+        "content": "Thank you for your quick response. The agreement is now complete. When should we schedule the signing?",
+        "timestamp": "2025-12-19T14:20:00Z",
+        "is_mine": true
+      }
+    ]
+  },
+
+  "notifications": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "message",
+      "title": "New Message from Advocate Sang",
+      "message": "I have reviewed your affidavit draft. It looks good and ready for commissioning.",
+      "timestamp": "2025-12-21T10:30:00Z",
+      "read": false,
+      "action_url": "/chat"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "type": "booking",
+      "title": "Booking Confirmed",
+      "message": "Your affidavit commissioning with Advocate James Kiprotich Sang has been confirmed for tomorrow at 10 AM.",
+      "timestamp": "2025-12-15T10:45:00Z",
+      "read": true,
+      "action_url": "/dashboard/client"
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "type": "booking",
+      "title": "Service Update",
+      "message": "Your contract review with Advocate Samuel Kipkoech Rono is now in progress.",
+      "timestamp": "2025-12-18T14:20:00Z",
+      "read": false,
+      "action_url": "/dashboard/client"
+    },
+    {
+      "id": 4,
+      "user_id": 3,
+      "type": "message",
+      "title": "New Message from Advocate Bett",
+      "message": "I need clarification on the probation period terms you mentioned.",
+      "timestamp": "2025-12-20T16:45:00Z",
+      "read": false,
+      "action_url": "/chat"
+    },
+    {
+      "id": 5,
+      "user_id": 5,
+      "type": "system",
+      "title": "Profile Verification Complete",
+      "message": "Your account has been successfully verified. You can now book legal services.",
+      "timestamp": "2025-12-19T14:20:00Z",
+      "read": true,
+      "action_url": "/profile"
+    },
+    {
+      "id": 6,
+      "user_id": 6,
+      "type": "reminder",
+      "title": "Upcoming Appointment",
+      "message": "Reminder: You have an affidavit commissioning appointment tomorrow at 10 AM with Grace Wanjiku Kimani.",
+      "timestamp": "2025-12-20T18:00:00Z",
+      "read": false,
+      "action_url": "/dashboard/lawyer"
+    },
+    {
+      "id": 7,
+      "user_id": 8,
+      "type": "booking",
+      "title": "New Booking Received",
+      "message": "David Kiprop Cheruiyot has booked your Contract Drafting & Review service.",
+      "timestamp": "2025-12-18T14:20:00Z",
+      "read": true,
+      "action_url": "/dashboard/lawyer"
+    },
+    {
+      "id": 8,
+      "user_id": 10,
+      "type": "reminder",
+      "title": "Document Deadline",
+      "message": "Employment contract draft for Mary Atieno Oduya is due for review by tomorrow.",
+      "timestamp": "2025-12-20T16:45:00Z",
+      "read": false,
+      "action_url": "/dashboard/lawyer"
+    }
+  ],
+
+  "lawyer_availability": [
+    {
+      "lawyer_id": 6,
+      "date": "2025-12-22",
+      "slots": [
+        { "time": "09:00", "available": false, "booked_by": "Grace Wanjiku Kimani" },
+        { "time": "10:00", "available": false, "booked_by": "Grace Wanjiku Kimani" },
+        { "time": "11:00", "available": true },
+        { "time": "14:00", "available": true },
+        { "time": "15:00", "available": true }
+      ]
+    },
+    {
+      "lawyer_id": 7,
+      "date": "2025-12-22",
+      "slots": [
+        { "time": "09:00", "available": true },
+        { "time": "10:00", "available": true },
+        { "time": "11:00", "available": false, "booked_by": "Grace Wanjiku Kimani" },
+        { "time": "14:00", "available": true },
+        { "time": "15:00", "available": true }
+      ]
+    },
+    {
+      "lawyer_id": 8,
+      "date": "2025-12-22",
+      "slots": [
+        { "time": "09:00", "available": true },
+        { "time": "10:00", "available": true },
+        { "time": "11:00", "available": true },
+        { "time": "14:00", "available": false, "booked_by": "David Kiprop Cheruiyot" },
+        { "time": "15:00", "available": true }
+      ]
+    }
+  ],
+
+  "enhanced_orders": [
+    {
+      "id": 1,
+      "service_id": 1,
+      "service_name": "Affidavit Commissioning",
+      "service_category": "Document Services",
+      "client_id": 1,
+      "client_name": "Grace Wanjiku Kimani",
+      "client_location": "Nairobi",
+      "lawyer_id": 6,
+      "lawyer_name": "Advocate James Kiprotich Sang",
+      "lawyer_location": "Nairobi",
+      "status": "completed",
+      "status_color": "#10b981",
+      "priority": "normal",
+      "description": "Commissioning of statutory declaration for business registration",
+      "base_price": 1500,
+      "additional_fees": 200,
+      "total_amount": 1700,
+      "currency": "KES",
+      "created_at": "2025-12-15T10:30:00Z",
+      "updated_at": "2025-12-16T12:00:00Z",
+      "due_date": "2025-12-17T10:30:00Z",
+      "completed_at": "2025-12-16T11:30:00Z",
+      "documents_required": ["ID Copy", "Business Registration Documents"],
+      "documents_provided": ["ID Copy", "Business Registration Documents"],
+      "notes": "Client requested expedited service",
+      "rating": 5,
+      "review": "Excellent service! Advocate Sang was very professional and efficient."
+    },
+    {
+      "id": 2,
+      "service_id": 2,
+      "service_name": "Contract Drafting & Review",
+      "service_category": "Commercial Law",
+      "client_id": 2,
+      "client_name": "David Kiprop Cheruiyot",
+      "client_location": "Eldoret",
+      "lawyer_id": 8,
+      "lawyer_name": "Advocate Samuel Kipkoech Rono",
+      "lawyer_location": "Nakuru",
+      "status": "in_progress",
+      "status_color": "#3b82f6",
+      "priority": "high",
+      "description": "Review of agricultural land lease agreement",
+      "base_price": 5000,
+      "additional_fees": 500,
+      "total_amount": 5500,
+      "currency": "KES",
+      "created_at": "2025-12-18T14:20:00Z",
+      "updated_at": "2025-12-21T09:15:00Z",
+      "due_date": "2025-12-25T14:20:00Z",
+      "documents_required": ["Land Lease Draft", "Land Ownership Documents"],
+      "documents_provided": ["Land Lease Draft"],
+      "notes": "Client needs amendments for water rights protection",
+      "progress_percentage": 75
+    },
+    {
+      "id": 3,
+      "service_id": 6,
+      "service_name": "Employment Contract",
+      "service_category": "Employment Law",
+      "client_id": 3,
+      "client_name": "Mary Atieno Oduya",
+      "client_location": "Kisumu",
+      "lawyer_id": 10,
+      "lawyer_name": "Advocate Michael Kiprotich Bett",
+      "lawyer_location": "Eldoret",
+      "status": "pending",
+      "status_color": "#f59e0b",
+      "priority": "normal",
+      "description": "Drafting of teaching staff employment contract",
+      "base_price": 3500,
+      "additional_fees": 750,
+      "total_amount": 4250,
+      "currency": "KES",
+      "created_at": "2025-12-20T09:15:00Z",
+      "updated_at": "2025-12-20T16:45:00Z",
+      "due_date": "2025-12-23T09:15:00Z",
+      "documents_required": ["School Policies", "TSC Guidelines", "Job Descriptions"],
+      "documents_provided": [],
+      "notes": "Awaiting clarification on probation period terms"
+    }
+  ],
+
+  "service_categories": [
+    {
+      "id": 1,
+      "name": "Document Services",
+      "description": "Official document preparation and notarization services",
+      "icon": "FileText",
+      "services_count": 3
+    },
+    {
+      "id": 2,
+      "name": "Commercial Law",
+      "description": "Business contracts, corporate law, and commercial disputes",
+      "icon": "Briefcase",
+      "services_count": 4
+    },
+    {
+      "id": 3,
+      "name": "Property Law",
+      "description": "Real estate transactions, conveyancing, and property disputes",
+      "icon": "Home",
+      "services_count": 5
+    },
+    {
+      "id": 4,
+      "name": "Family Law",
+      "description": "Divorce, child custody, succession, and family matters",
+      "icon": "Users",
+      "services_count": 3
+    },
+    {
+      "id": 5,
+      "name": "Employment Law",
+      "description": "Employment contracts, labor disputes, and workplace issues",
+      "icon": "UserCheck",
+      "services_count": 3
+    },
+    {
+      "id": 6,
+      "name": "Criminal Law",
+      "description": "Criminal defense, constitutional law, and human rights",
+      "icon": "Shield",
+      "services_count": 2
+    },
+    {
+      "id": 7,
+      "name": "Corporate Law",
+      "description": "Company registration, mergers, and corporate governance",
+      "icon": "Building",
+      "services_count": 4
+    }
+  ],
+
+  "test_accounts": {
+    "admin": {
+      "email": "admin@haki-yetu.co.ke",
+      "password": "AdminPass123!",
+      "role": "admin",
+      "name": "System Administrator"
+    },
+    "client_test": {
+      "email": "grace.kimani@email.com",
+      "password": "TestPass123!",
+      "role": "client",
+      "name": "Grace Wanjiku Kimani"
+    },
+    "lawyer_test": {
+      "email": "james.sang@lawfirm.co.ke",
+      "password": "LawyerPass123!",
+      "role": "advocate",
+      "name": "Advocate James Kiprotich Sang"
+    }
+  },
+
+  "mock_api_responses": {
+    "auth_login_success": {
+      "access_token": "mock_jwt_token_12345",
+      "user": {
+        "id": 1,
+        "name": "Grace Wanjiku Kimani",
+        "email": "grace.kimani@email.com",
+        "role": "client"
+      }
+    },
+    "auth_login_error": {
+      "error": "Invalid credentials"
+    },
+    "conversations_list": [
+      {
+        "id": 1,
+        "participant": {
+          "name": "Advocate James Kiprotich Sang",
+          "role": "advocate",
+          "avatar": null
+        },
+        "lastMessage": "I have reviewed your affidavit draft. It looks good and ready for commissioning.",
+        "lastMessageTime": "2025-12-21T10:30:00Z",
+        "unreadCount": 2,
+        "serviceName": "Affidavit Commissioning"
+      }
+    ],
+    "messages_list": [
+      {
+        "id": 1,
+        "sender": { "name": "Advocate James Kiprotich Sang", "role": "advocate" },
+        "content": "Hello Grace, thank you for booking my affidavit commissioning service.",
+        "timestamp": "2025-12-15T10:30:00Z",
+        "isMine": false
+      }
+    ]
+  },
+
+  "ui_test_scenarios": {
+    "responsive_design": [
+      {
+        "device": "Mobile (375px)",
+        "viewport": "375x667",
+        "expected": "Single column layouts, touch-friendly buttons, stacked navigation"
+      },
+      {
+        "device": "Tablet (768px)",
+        "viewport": "768x1024",
+        "expected": "Two-column layouts, hybrid touch/mouse interactions"
+      },
+      {
+        "device": "Desktop (1440px)",
+        "viewport": "1440x900",
+        "expected": "Multi-column layouts, full mouse interactions, hover states"
+      }
+    ],
+    "chat_interface": [
+      {
+        "scenario": "Message Bubbles",
+        "test": "Send/receive messages display correctly with proper alignment",
+        "expected": "Sent messages right-aligned (blue), received messages left-aligned (gray)"
+      },
+      {
+        "scenario": "Real-time Updates",
+        "test": "New messages appear instantly without page refresh",
+        "expected": "Messages appear immediately, auto-scroll to bottom"
+      },
+      {
+        "scenario": "Mobile Chat",
+        "test": "Chat interface works on mobile devices",
+        "expected": "Responsive sidebar, touch-friendly message input"
+      }
+    ],
+    "notifications": [
+      {
+        "scenario": "Toast Notifications",
+        "test": "Toast alerts appear for various actions",
+        "expected": "Success/error/warning/info toasts with proper styling"
+      },
+      {
+        "scenario": "Notification Bell",
+        "test": "Bell icon shows unread count and dropdown works",
+        "expected": "Badge displays count, dropdown shows notifications, mark as read works"
+      }
+    ]
+  }
 }
