@@ -21,6 +21,7 @@ const OrderHistory = () => { // Define functional component for order history pa
       }
     };
     fetchHistory(); // Call the fetch function
+}, []); // Empty dependency array - run only on component mount
 
 
 
