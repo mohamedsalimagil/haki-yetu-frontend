@@ -8,4 +8,5 @@ const OrderHistory = () => { // Define functional component for order history pa
     const [loading, setLoading] = useState(true); // State for tracking loading status
 
     useEffect(() => { // Effect hook to fetch data on component mount
+        const fetchHistory = async () => { // Async function to fetch order history
 
