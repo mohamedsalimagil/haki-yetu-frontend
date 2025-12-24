@@ -7,6 +7,7 @@ import ServiceDetails from './pages/client/ServiceDetails';
 import Dashboard from './pages/client/Dashboard';
 import Checkout from './pages/client/Checkout';
 import OrderHistory from './pages/client/OrderHistory';
+import MyDocuments from './pages/client/MyDocuments';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/checkout/:bookingId" element={<Checkout />} />
         <Route path="/history" element={<OrderHistory />} />
+        <Route path="/documents" element={<MyDocuments />} />
 
 
         {/* We will add more routes later */}
