@@ -1,6 +1,12 @@
 import api from './api.js';
 
 const lawyerService = {
+  // NEW: Create lawyer profile (Day 2)
+  createProfile: async (profileData) => {
+    const response = await api.post('/lawyer/profile', profileData);
+    return response.data;
+  },
+
   // Get lawyer profile
   getProfile: async () => {
     const response = await api.get('/lawyer/profile');

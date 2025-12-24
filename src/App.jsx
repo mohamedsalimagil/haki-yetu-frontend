@@ -1,35 +1,60 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext'; // Import the provider
+import { AuthProvider } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import LawyerOnboarding from './pages/lawyer/LawyerOnboarding';
+import ProfileSettings from './pages/user/ProfileSettings';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
-// --- Placeholder Components for Day 1 (So the app doesn't crash) ---
+// --- Placeholder Components ---
 const Home = () => (
   <div style={{ textAlign: 'center', marginTop: '50px' }}>
     <h1>Welcome to Haki Yetu</h1>
-    <p>Day 1: Auth System Ready</p>
-    <a href="/login" style={{ color: 'blue', textDecoration: 'underline' }}>Go to Login</a>
+    <p>Empowering Legal Access in Kenya</p>
+    <div style={{ marginTop: '20px' }}>
+      <a href="/login" style={{ marginRight: '10px' }}>Login</a> | 
+      <a href="/register" style={{ marginLeft: '10px' }}>Register</a>
+    </div>
   </div>
 );
 
-const Dashboard = () => <h2>Dashboard (Coming Day 2)</h2>;
-// ------------------------------------------------------------------
+const Dashboard = () => (
+  <div style={{ padding: '20px' }}>
+    <h2>User Dashboard</h2>
+    <p>Welcome back! You can now access legal services.</p>
+    <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
+      <h3>Are you a Lawyer?</h3>
+      <p>Complete your professional profile to start helping clients.</p>
+      <a href="/lawyer/onboarding" style={{ 
+        display: 'inline-block', 
+        backgroundColor: '#007bff', 
+        color: 'white', 
+        padding: '10px 15px', 
+        borderRadius: '5px', 
+        textDecoration: 'none' 
+      }}>
+        Complete Lawyer Profile
+      </a>
+    </div>
+  </div>
+);
 
 function App() {
   return (
-    // 1. Wrap everything in AuthProvider so Login/Register can access context
     <AuthProvider>
-      {/* 2. Wrap routes in Router for navigation */}
       <Router>
         <Routes>
-          {/* Day 1 Routes */}
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           
-          {/* Placeholders */}
+          {/* Protected/Feature Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Home />} />
+          <Route path="/settings" element={<ProfileSettings />} />
+          <Route path="/lawyer/onboarding" element={<LawyerOnboarding />} />
           
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" />} />
