@@ -13,6 +13,9 @@ const OrderHistory = () => { // Define functional component for order history pa
                 // Fetching all orders for User 1
                 const response = await api.get('/marketplace/orders/user/1'); // API call to get orders for user ID 1
 
+                setOrders(response.data); // Update state with fetched orders
+                } catch (err) { // Catch block for error handling
+
 
 
 
