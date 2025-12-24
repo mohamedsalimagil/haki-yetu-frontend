@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, FileText, CheckCircle, XCircle, AlertCircle, Loader } from 'lucide-react';
 import clientService from '../../services/client.service';
 import RatingModal from '../../components/domain/RatingModal';
+import Pagination from '../../components/common/Pagination';
 import { useAuth } from '../../context/AuthContext';
 
 const ClientDashboard = () => {
@@ -10,11 +11,14 @@ const ClientDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [ratingModal, setRatingModal] = useState({
     isOpen: false,
     orderId: null,
     lawyerName: ''
   });
+
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchBookings();
@@ -108,6 +112,22 @@ const ClientDashboard = () => {
     console.log('Review submitted:', reviewData);
     // You could refresh the bookings data here if needed
   };
+
+  // Pagination logic
+  const totalItems = filteredBookings.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBookings = filteredBookings.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Reset to page 1 when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   if (loading) {
     return (
@@ -235,7 +255,7 @@ const ClientDashboard = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {filteredBookings.map((booking) => (
+              {currentBookings.map((booking) => (
                 <div key={booking.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -297,6 +317,19 @@ const ClientDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {filteredBookings.length > itemsPerPage && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
 
         {/* Rating Modal */}
         <RatingModal
