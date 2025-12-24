@@ -65,12 +65,13 @@ const ClientDashboard = () => {
   ];
 
   const handleRateService = (booking) => {
-    setRatingModal({
-      isOpen: true,
-      orderId: booking.id,
-      lawyerName: booking.lawyer_name
-    });
-  };
+  setRatingModal({
+    isOpen: true,
+    orderId: booking.id,
+    lawyerId: booking.lawyer_id, 
+    lawyerName: booking.lawyer_name
+  });
+};
 
   const handleRatingModalClose = () => {
     setRatingModal({

@@ -4,7 +4,9 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import lawyerService from '../../services/lawyer.service';
+import clientService from '../../services/client.service';
 import LawyerOfficesTab from '../../components/domain/LawyerOfficesTab';
+import StarRating from '../../components/common/StarRating';
 import { useAuth } from '../../context/AuthContext';
 import { Calendar, MapPin, DollarSign, Clock, CheckCircle, List } from 'lucide-react';
 
@@ -24,14 +26,19 @@ const LawyerDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      // Fetch both bookings (orders) and professional availability slots
-      const [profile, orders, earnings] = await Promise.all([
+      // Fetch profile, calendar events (orders), and financial summary
+      const [profile, orders, earnings, ratingData] = await Promise.all([
         lawyerService.getProfile(),
         lawyerService.getOrders(),
-        lawyerService.getEarningsSummary()
+        lawyerService.getEarningsSummary(),
+        clientService.getLawyerRating(user.id) // Get rating for self
       ]);
 
-      setStats(earnings);
+      setStats({
+        ...earnings,
+        average_rating: ratingData.average_rating,
+        total_reviews: ratingData.total_reviews
+      });
       setHistory(earnings.history || []);
 
       const calendarEvents = orders.map(order => ({
@@ -76,6 +83,13 @@ const LawyerDashboard = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Lawyer Dashboard</h1>
           <p className="mt-2 text-gray-600">Manage your schedule and track earnings</p>
+          {/* Show the actual rating summary */}
+          <div className="mt-2">
+            <StarRating
+              rating={stats.average_rating || 0}
+              totalReviews={stats.total_reviews || 0}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
