@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, FileText, CheckCircle, XCircle, AlertCircle, Loader } from 'lucide-react';
+import { Calendar, Clock, User, FileText, CheckCircle, XCircle, AlertCircle, Loader, Upload } from 'lucide-react';
 import clientService from '../../services/client.service';
 import RatingModal from '../../components/domain/RatingModal';
+import DocumentsTab from '../../components/domain/DocumentsTab';
+import Pagination from '../../components/common/Pagination';
 import { useAuth } from '../../context/AuthContext';
 
 const ClientDashboard = () => {
@@ -9,16 +11,14 @@ const ClientDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('all');
-  const [ratingModal, setRatingModal] = useState({
-    isOpen: false,
-    orderId: null,
-    lawyerName: ''
-  });
+  const [activeTab, setActiveTab] = useState('bookings');
+  const [bookingTab, setBookingTab] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ratingModal, setRatingModal] = useState({ isOpen: false, orderId: null, lawyerName: '' });
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const itemsPerPage = 10;
+
+  useEffect(() => { fetchBookings(); }, []);
 
   const fetchBookings = async () => {
     try {
@@ -27,7 +27,6 @@ const ClientDashboard = () => {
       setBookings(bookingsData);
     } catch (err) {
       setError('Failed to load your bookings');
-      console.error('Dashboard error:', err);
     } finally {
       setLoading(false);
     }
@@ -35,50 +34,28 @@ const ClientDashboard = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'in_progress':
-        return <Loader className="w-5 h-5 text-blue-500 animate-spin" />;
-      case 'pending':
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      case 'cancelled':
-        return <XCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return <AlertCircle className="w-5 h-5 text-gray-500" />;
+      case 'completed': return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'in_progress': return <Loader className="w-5 h-5 text-blue-500 animate-spin" />;
+      case 'pending': return <Clock className="w-5 h-5 text-yellow-500" />;
+      case 'cancelled': return <XCircle className="w-5 h-5 text-red-500" />;
+      default: return <AlertCircle className="w-5 h-5 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
+      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-KE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-KE', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  const filterBookings = (bookings, tab) => {
-    if (tab === 'all') return bookings;
-    return bookings.filter(booking => booking.status === tab);
-  };
-
-  const filteredBookings = filterBookings(bookings, activeTab);
+  const filterBookings = (bookings, tab) => tab === 'all' ? bookings : bookings.filter(b => b.status === tab);
+  const filteredBookings = filterBookings(bookings, bookingTab);
 
   const tabs = [
     { id: 'all', label: 'All Bookings', count: bookings.length },
@@ -108,6 +85,22 @@ const ClientDashboard = () => {
     console.log('Review submitted:', reviewData);
     // You could refresh the bookings data here if needed
   };
+
+  // Pagination logic
+  const totalItems = filteredBookings.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBookings = filteredBookings.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Reset to page 1 when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   if (loading) {
     return (
@@ -197,106 +190,158 @@ const ClientDashboard = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Main Tabs */}
         <div className="mb-6">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {tab.label} ({tab.count})
-                </button>
-              ))}
+              <button
+                onClick={() => setActiveTab('bookings')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'bookings'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <FileText className="w-4 h-4 inline mr-2" />
+                My Bookings
+              </button>
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'documents'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Upload className="w-4 h-4 inline mr-2" />
+                Documents
+              </button>
             </nav>
           </div>
         </div>
 
-        {/* Bookings List */}
-        <div className="bg-white rounded-lg shadow">
-          {filteredBookings.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {activeTab === 'all' ? 'No bookings yet' : `No ${activeTab.replace('_', ' ')} bookings`}
-              </h3>
-              <p className="text-gray-600">
-                {activeTab === 'all'
-                  ? 'When you book legal services, they will appear here.'
-                  : `You don't have any ${activeTab.replace('_', ' ')} bookings at the moment.`
-                }
-              </p>
+        {/* Content based on active tab */}
+        {activeTab === 'bookings' && (
+          <>
+            {/* Booking Status Tabs */}
+            <div className="mb-6">
+              <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setBookingTab(tab.id)}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        bookingTab === tab.id
+                          ? 'border-primary text-primary'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      {tab.label} ({tab.count})
+                    </button>
+                  ))}
+                </nav>
+              </div>
             </div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {filteredBookings.map((booking) => (
-                <div key={booking.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        {getStatusIcon(booking.status)}
-                        <div>
-                          <h3 className="text-lg font-medium text-gray-900">
-                            {booking.service_name}
-                          </h3>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {booking.description}
-                          </p>
-                        </div>
-                      </div>
 
-                      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <User className="w-4 h-4 mr-2" />
-                          Lawyer: {booking.lawyer_name}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Booked: {formatDate(booking.created_at)}
-                        </div>
-                        <div className="flex items-center">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
-                            {booking.status.replace('_', ' ').toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="ml-6 flex flex-col items-end space-y-2">
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600">Service Fee</p>
-                        <p className="text-lg font-semibold text-gray-900">
-                          KES {booking.base_price?.toLocaleString() || 'TBD'}
-                        </p>
-                      </div>
-
-                      {booking.status === 'completed' && (
-                        <button
-                          onClick={() => handleRateService(booking)}
-                          className="px-4 py-2 bg-primary text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                        >
-                          Rate Service
-                        </button>
-                      )}
-
-                      {booking.status === 'in_progress' && (
-                        <button className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
-                          Message Lawyer
-                        </button>
-                      )}
-                    </div>
-                  </div>
+            {/* Bookings List */}
+            <div className="bg-white rounded-lg shadow">
+              {filteredBookings.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {bookingTab === 'all' ? "You haven't booked any legal consultations yet" : `No ${bookingTab.replace('_', ' ')} bookings`}
+                  </h3>
+                  <p className="text-gray-600">
+                    {bookingTab === 'all'
+                      ? 'When you book legal services, they will appear here.'
+                      : `You don't have any ${bookingTab.replace('_', ' ')} bookings at the moment.`
+                    }
+                  </p>
                 </div>
-              ))}
+              ) : (
+                <div className="divide-y divide-gray-200">
+                  {currentBookings.map((booking) => (
+                    <div key={booking.id} className="p-6 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            {getStatusIcon(booking.status)}
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">
+                                {booking.service_name}
+                              </h3>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {booking.description}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <User className="w-4 h-4 mr-2" />
+                              Lawyer: {booking.lawyer_name}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              Booked: {formatDate(booking.created_at)}
+                            </div>
+                            <div className="flex items-center">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
+                                {booking.status.replace('_', ' ').toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="ml-6 flex flex-col items-end space-y-2">
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">Service Fee</p>
+                            <p className="text-lg font-semibold text-gray-900">
+                              KES {booking.base_price?.toLocaleString() || 'TBD'}
+                            </p>
+                          </div>
+
+                          {booking.status === 'completed' && (
+                            <button
+                              onClick={() => handleRateService(booking)}
+                              className="px-4 py-2 bg-primary text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                            >
+                              Rate Service
+                            </button>
+                          )}
+
+                          {booking.status === 'in_progress' && (
+                            <button className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                              Message Lawyer
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {/* Pagination */}
+            {filteredBookings.length > itemsPerPage && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'documents' && (
+          <DocumentsTab bookingId={null} />
+        )}
 
         {/* Rating Modal */}
         <RatingModal
