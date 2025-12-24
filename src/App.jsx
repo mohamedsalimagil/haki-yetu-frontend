@@ -6,6 +6,7 @@ import ServiceCatalog from './pages/client/ServiceCatalog';
 import ServiceDetails from './pages/client/ServiceDetails';
 import Dashboard from './pages/client/Dashboard';
 import Checkout from './pages/client/Checkout';
+import OrderHistory from './pages/client/OrderHistory';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/services/:id" element={<ServiceDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/checkout/:bookingId" element={<Checkout />} />
+        <Route path="/history" element={<OrderHistory />} />
 
 
         {/* We will add more routes later */}
