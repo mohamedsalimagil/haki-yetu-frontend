@@ -1,8 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { Search, User, Circle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import clientService from '../../services/client.service';
+import lawyerService from '../../services/lawyer.service';
 
-const ChatSidebar = ({ contacts, onSelectContact, activeContactId, onlineUsers }) => {
+const ChatSidebar = ({ onSelectContact, activeContactId, onlineUsers }) => {
+  const { user } = useAuth();
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchContacts();
+  }, [user]);
+
+  const fetchContacts = async () => {
+    try {
+      setLoading(true);
+      let contactsData = [];
+
+      if (user?.role === 'client') {
+        // Clients see their booked lawyers
+        const bookings = await clientService.getMyBookings();
+        contactsData = bookings.map(booking => ({
+          id: booking.lawyer_id,
+          name: booking.lawyer_name,
+          role: 'lawyer'
+        }));
+      } else if (user?.role === 'lawyer') {
+        // Lawyers see their clients
+        const orders = await lawyerService.getOrders();
+        contactsData = orders.map(order => ({
+          id: order.client_id,
+          name: order.client_name,
+          role: 'client'
+        }));
+      }
+
+      // Remove duplicates
+      const uniqueContacts = contactsData.filter((contact, index, self) =>
+        index === self.findIndex(c => c.id === contact.id)
+      );
+
+      setContacts(uniqueContacts);
+    } catch (error) {
+      console.error('Failed to fetch contacts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredContacts = contacts.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())

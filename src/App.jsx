@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, AuthContext } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import LawyerOnboarding from './pages/lawyer/LawyerOnboarding';
 import ProfileSettings from './pages/user/ProfileSettings';
+import ClientDashboard from './pages/client/ClientDashboard';
+import LawyerDashboard from './pages/lawyer/LawyerDashboard';
+import ChatPage from './pages/shared/ChatPage';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import Navbar from './components/layout/Navbar';
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return user ? (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main>{children}</main>
+    </div>
+  ) : (
+    <Navigate to="/login" />
+  );
+};
 
 // --- Placeholder Components ---
 const Home = () => (
@@ -50,12 +72,19 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          
-          {/* Protected/Feature Routes */}
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/client/dashboard" element={<ClientDashboard />} />
+            <Route path="/lawyer/dashboard" element={<LawyerDashboard />} />
+            <Route path="/chat" element={<ChatPage />} />
+          </Route>
+
+          {/* Other Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<ProfileSettings />} />
           <Route path="/lawyer/onboarding" element={<LawyerOnboarding />} />
-          
+
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
