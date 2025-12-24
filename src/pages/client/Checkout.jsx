@@ -67,74 +67,107 @@ const Checkout = () => { // Define functional component for checkout page
     }
   };
 
-  return ( // Return JSX for component
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"> {/* Full-screen centered container */}
-      <div className="bg-white max-w-md w-full rounded-2xl shadow-lg border border-gray-100 overflow-hidden"> {/* Checkout card */}
+ return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 lg:p-12">
+      <div className="bg-white max-w-5xl w-full rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col lg:flex-row">
         
-        {/* Header */} {/* Comment for header section */}
-        <div className="bg-primary p-6 text-white text-center"> {/* Header container */}
-          <h2 className="text-xl font-bold">Secure Checkout</h2> {/* Checkout title */}
-          <p className="text-blue-100 text-sm mt-1">Complete your booking</p> {/* Checkout subtitle */}
-        </div>
-
-        <div className="p-8"> {/* Main content area */}
+        {/* LEFT SIDE: Order Summary (Darker/Contrast) */}
+        <div className="lg:w-1/2 bg-slate-900 p-8 lg:p-12 text-white flex flex-col justify-between relative overflow-hidden">
+          {/* Decorative Circle */}
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-600 rounded-full opacity-20 blur-3xl"></div>
           
-          {/* Summary Box */} {/* Comment for summary section */}
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 flex justify-between items-center"> {/* Summary container */}
-            <div> {/* Amount display */}
-              <p className="text-xs text-gray-500 uppercase font-bold">Total to Pay</p> {/* Amount label */}
-              <p className="text-2xl font-bold text-gray-900">KES 1,500</p> {/* Hardcoded amount */}
+          <div className="relative z-10">
+            <h2 className="text-2xl font-bold mb-2">Order Summary</h2>
+            <p className="text-slate-400 text-sm">Review your booking details before payment.</p>
+            
+            <div className="mt-8 space-y-6">
+              <div className="flex justify-between items-center border-b border-slate-700 pb-4">
+                <span className="text-slate-300">Service</span>
+                <span className="font-medium">Legal Consultation</span> {/* You can fetch real name if needed */}
+              </div>
+              <div className="flex justify-between items-center border-b border-slate-700 pb-4">
+                <span className="text-slate-300">Booking Reference</span>
+                <span className="font-mono text-yellow-400">#{bookingId}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-slate-700 pb-4">
+                <span className="text-slate-300">Processing Time</span>
+                <span className="font-medium">Instant</span>
+              </div>
             </div>
-            <Lock className="w-5 h-5 text-gray-400" /> {/* Lock icon */}
           </div>
 
-          {/* Payment Form */} {/* Comment for payment form */}
-          {paymentStatus === 'success' ? ( // Conditional rendering for success
-            <div className="text-center py-8"> {/* Success screen container */}
-              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4"> {/* Success icon */}
-                <CheckCircle className="w-8 h-8" /> {/* Check circle icon */}
-              </div>
-              <h3 className="text-xl font-bold text-gray-900">Payment Successful!</h3> {/* Success message */}
-              <p className="text-gray-500 mt-2">Redirecting to dashboard...</p> {/* Redirect message */}
+          <div className="mt-8 relative z-10">
+            <div className="flex justify-between items-end">
+              <p className="text-slate-400">Total Due</p>
+              <p className="text-4xl font-bold text-white">KES 1,500</p>
             </div>
-          ) : ( // Else render payment form
-            <form onSubmit={handlePayment}> {/* Payment form */}
-              <div className="mb-6"> {/* Phone input container */}
-                <label className="block text-sm font-medium text-gray-700 mb-2">M-Pesa Number</label> {/* Input label */}
-                <div className="relative"> {/* Input wrapper for icon positioning */}
-                  <Smartphone className="absolute left-3 top-3 h-5 w-5 text-gray-400" /> {/* Phone icon */}
+          </div>
+        </div>
+
+        {/* RIGHT SIDE: Payment Form */}
+        <div className="lg:w-1/2 p-8 lg:p-12 bg-white relative">
+          
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900">Payment Details</h3>
+            <p className="text-sm text-gray-500">Secure transaction via M-Pesa</p>
+          </div>
+
+          {/* SUCCESS STATE */}
+          {paymentStatus === 'success' ? (
+             <div className="text-center py-12 animate-fade-in">
+               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                 <CheckCircle className="w-10 h-10" />
+               </div>
+               <h3 className="text-2xl font-bold text-gray-900 mb-2">Payment Confirmed!</h3>
+               <p className="text-gray-500">Your booking is secure. Redirecting...</p>
+             </div>
+          ) : (
+            <form onSubmit={handlePayment} className="space-y-6">
+              
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-2">M-Pesa Phone Number</label>
+                <div className="relative group">
+                  <Smartphone className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
                   <input 
                     type="text" 
-                    placeholder="2547XXXXXXXX" // Phone placeholder
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent" // Input styling
-                    value={phone} // Bind to phone state
-                    onChange={(e) => setPhone(e.target.value)} // Update state on change
-                    required // Make field required
+                    placeholder="2547XXXXXXXX"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none font-medium text-gray-900"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-2">Format: 254712345678</p> {/* Format helper text */}
               </div>
 
-              {/* Status Message Area */} {/* Comment for status display */}
-              {statusMessage && ( // Conditionally render status message
-                <div className={`p-3 rounded-lg text-sm text-center mb-4 ${paymentStatus === 'failed' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-700'}`}> {/* Dynamic styling */}
-                  {paymentStatus === 'processing' && <Loader className="w-4 h-4 inline mr-2 animate-spin" />} {/* Loading spinner */}
-                  {statusMessage} {/* Display status message */}
+              {/* Status Message Bubble */}
+              {statusMessage && (
+                <div className={`p-4 rounded-xl flex items-center text-sm ${
+                    paymentStatus === 'failed' ? 'bg-red-50 text-red-700 border border-red-100' : 
+                    paymentStatus === 'processing' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 
+                    'bg-gray-50 text-gray-600'
+                  }`}>
+                  {paymentStatus === 'processing' && <Loader className="w-4 h-4 mr-2 animate-spin" />}
+                  {statusMessage}
                 </div>
               )}
 
               <button 
-                type="submit" // Submit button type
-                disabled={loading || paymentStatus === 'processing'} // Disable during processing
-                className="w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition disabled:opacity-50 flex justify-center items-center" // Button styling
+                type="submit" 
+                disabled={loading || paymentStatus === 'processing'}
+                className="w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-600/20"
               >
-                {loading ? 'Processing...' : 'Pay with M-Pesa'} {/* Dynamic button text */}
+                {loading ? 'Initiating Push...' : 'Pay Now'}
               </button>
+              
+              <div className="flex items-center justify-center space-x-2 text-xs text-gray-400 mt-6">
+                 <Lock className="w-3 h-3" />
+                 <span>Encrypted & Secure Payment</span>
+              </div>
             </form>
           )}
-        </div> {/* End main content */}
-      </div> {/* End checkout card */}
-    </div> // End full-screen container
+        </div>
+      </div>
+    </div>
   );
 };
 
