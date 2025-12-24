@@ -10,5 +10,9 @@ const OrderHistory = () => { // Define functional component for order history pa
     useEffect(() => { // Effect hook to fetch data on component mount
         const fetchHistory = async () => { // Async function to fetch order history
             try { // Try block for error handling
+                // Fetching all orders for User 1
+                const response = await api.get('/marketplace/orders/user/1'); // API call to get orders for user ID 1
+
+
 
 
