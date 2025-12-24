@@ -17,6 +17,9 @@ const OrderHistory = () => { // Define functional component for order history pa
                 } catch (err) { // Catch block for error handling
                   console.error("Failed to load history"); // Log error to console
                 } finally { // Finally block to clean up
+                  setLoading(false); // Set loading to false regardless of success/failure
+      }
+    };
 
 
 
