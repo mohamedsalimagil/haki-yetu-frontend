@@ -26,25 +26,40 @@ const ServiceDetails = () => { // Define functional component for service detail
     fetchService();// Call the fetch function
   }, [id]);// Dependency array - re-run when ID changes
 
-  const handleBooking = async ({ date, time }) => {
+const handleBooking = async ({ date, time }) => {
     setOrdering(true);
+    
+    // 1. SAFETY: Ensure we have strings
+    // If 'date' is a Date object, convert it. If it's a string, keep it.
+    const dateStr = typeof date === 'object' ? date.toISOString().split('T')[0] : date;
+    
+    // Ensure time is just HH:MM (remove seconds if they exist)
+    const timeStr = time.length > 5 ? time.substring(0, 5) : time;
+
+    const payload = {
+      client_id: 1, 
+      lawyer_id: 1, 
+      service_id: parseInt(id),
+      date: dateStr,
+      time: timeStr
+    };
+
+    console.log("🚀 Sending Payload:", payload); // Look at this in Console (F12)
+
     try {
-      const payload = {
-        client_id: 1, // Hardcoded for now
-        lawyer_id: 1, // Hardcoded for now (assuming service implies a lawyer)
-        date: date,
-        time: time
-      };
-      
       const response = await api.post('/marketplace/bookings', payload);
       alert(`Success! Reference: ${response.data.booking_reference}`);
       navigate(`/checkout/${response.data.booking_id}`);
+      
     } catch (err) {
-      // Handle the "Slot taken" error specifically
-      if (err.response && err.response.status === 409) {
-        alert("That time slot is already taken. Please try another.");
+      console.error("❌ Booking Failed:", err);
+      
+      // 2. BETTER ERROR MESSAGE: Show exactly what the backend said
+      if (err.response) {
+        // This will print "Invalid date or time format" or "Service ID required"
+        alert(`Server Error: ${err.response.data.error || err.response.statusText}`);
       } else {
-        alert("Failed to create booking.");
+        alert("Network Error: Could not reach the server.");
       }
     } finally {
       setOrdering(false);
