@@ -15,6 +15,8 @@ const OrderHistory = () => { // Define functional component for order history pa
 
                 setOrders(response.data); // Update state with fetched orders
                 } catch (err) { // Catch block for error handling
+                    console.error("Failed to load history"); // Log error to console
+
 
 
 
