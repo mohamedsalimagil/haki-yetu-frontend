@@ -23,6 +23,10 @@ const OrderHistory = () => { // Define functional component for order history pa
     fetchHistory(); // Call the fetch function
 }, []); // Empty dependency array - run only on component mount
 
+// Filter Logic
+const filteredOrders = orders.filter(order => { // Filter orders based on filter state
+
+
 
 
 
