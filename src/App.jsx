@@ -7,6 +7,7 @@ import LawyerRegistration from './pages/auth/LawyerRegistration';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import ClientDashboard from './pages/client/ClientDashboard';
 import Home from './pages/Home';
+import Chat from './pages/Chat';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Route path="/profile" element={<UserProfileSettings />} />
       <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
       <Route path="/dashboard/client" element={<ClientDashboard />} />
+      <Route path="/chat" element={<Chat />} />
       <Route path="/" element={<Home />} />
     </Routes>
   );
