@@ -20,6 +20,9 @@ const OrderHistory = () => { // Define functional component for order history pa
                   setLoading(false); // Set loading to false regardless of success/failure
       }
     };
+    fetchHistory(); // Call the fetch function
+
+
 
 
 
