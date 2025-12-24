@@ -102,25 +102,25 @@ const LawyerDashboard = () => {
           <p className="mt-2 text-gray-600">Manage your schedule and bookings</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Calendar View</h2>
-            <div className="flex flex-wrap gap-4 mb-4">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Calendar View</h2>
+            <div className="flex flex-wrap gap-3 sm:gap-4 mb-4">
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Pending</span>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-yellow-500 rounded mr-2 flex-shrink-0"></div>
+                <span className="text-xs sm:text-sm text-gray-600">Pending</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">In Progress</span>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded mr-2 flex-shrink-0"></div>
+                <span className="text-xs sm:text-sm text-gray-600">In Progress</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Completed</span>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded mr-2 flex-shrink-0"></div>
+                <span className="text-xs sm:text-sm text-gray-600">Completed</span>
               </div>
               <div className="flex items-center">
-                <div className="w-4 h-4 bg-red-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Cancelled</span>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded mr-2 flex-shrink-0"></div>
+                <span className="text-xs sm:text-sm text-gray-600">Cancelled</span>
               </div>
             </div>
           </div>
