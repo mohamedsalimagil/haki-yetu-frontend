@@ -4,13 +4,16 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import lawyerService from '../../services/lawyer.service';
+import LawyerOfficesTab from '../../components/domain/LawyerOfficesTab';
 import { useAuth } from '../../context/AuthContext';
+import { Calendar, MapPin } from 'lucide-react';
 
 const LawyerDashboard = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('calendar');
 
   useEffect(() => {
     fetchDashboardData();
@@ -102,47 +105,84 @@ const LawyerDashboard = () => {
           <p className="mt-2 text-gray-600">Manage your schedule and bookings</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Calendar View</h2>
-            <div className="flex flex-wrap gap-4 mb-4">
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Pending</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">In Progress</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Completed</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-red-500 rounded mr-2"></div>
-                <span className="text-sm text-gray-600">Cancelled</span>
+        {/* Main Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'calendar'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Calendar className="w-4 h-4 inline mr-2" />
+                Schedule & Calendar
+              </button>
+              <button
+                onClick={() => setActiveTab('offices')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'offices'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <MapPin className="w-4 h-4 inline mr-2" />
+                Office Locations
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Content based on active tab */}
+        {activeTab === 'calendar' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Calendar View</h2>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                  <span className="text-sm text-gray-600">Pending</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                  <span className="text-sm text-gray-600">In Progress</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                  <span className="text-sm text-gray-600">Completed</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                  <span className="text-sm text-gray-600">Cancelled</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            }}
-            initialView="dayGridMonth"
-            events={events}
-            eventClick={handleEventClick}
-            dateClick={handleDateClick}
-            height="auto"
-            aspectRatio={1.5}
-            eventDisplay="block"
-            dayMaxEvents={true}
-            moreLinkClick="popover"
-          />
-        </div>
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+              }}
+              initialView="dayGridMonth"
+              events={events}
+              eventClick={handleEventClick}
+              dateClick={handleDateClick}
+              height="auto"
+              aspectRatio={1.5}
+              eventDisplay="block"
+              dayMaxEvents={true}
+              moreLinkClick="popover"
+            />
+          </div>
+        )}
+
+        {activeTab === 'offices' && (
+          <LawyerOfficesTab />
+        )}
       </div>
     </div>
   );
