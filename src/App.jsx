@@ -1,24 +1,41 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext'; // Import the provider
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import UserProfileSettings from './pages/auth/UserProfileSettings';
-import LawyerRegistration from './pages/auth/LawyerRegistration';
-import LawyerDashboard from './pages/lawyer/LawyerDashboard';
-import ClientDashboard from './pages/client/ClientDashboard';
-import Home from './pages/Home';
+
+// --- Placeholder Components for Day 1 (So the app doesn't crash) ---
+const Home = () => (
+  <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <h1>Welcome to Haki Yetu</h1>
+    <p>Day 1: Auth System Ready</p>
+    <a href="/login" style={{ color: 'blue', textDecoration: 'underline' }}>Go to Login</a>
+  </div>
+);
+
+const Dashboard = () => <h2>Dashboard (Coming Day 2)</h2>;
+// ------------------------------------------------------------------
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/register/lawyer" element={<LawyerRegistration />} />
-      <Route path="/profile" element={<UserProfileSettings />} />
-      <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
-      <Route path="/dashboard/client" element={<ClientDashboard />} />
-      <Route path="/" element={<Home />} />
-    </Routes>
+    // 1. Wrap everything in AuthProvider so Login/Register can access context
+    <AuthProvider>
+      {/* 2. Wrap routes in Router for navigation */}
+      <Router>
+        <Routes>
+          {/* Day 1 Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {/* Placeholders */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Home />} />
+          
+          {/* Catch-all redirect */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

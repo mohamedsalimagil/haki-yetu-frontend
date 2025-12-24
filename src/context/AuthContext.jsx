@@ -1,89 +1,64 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import { createContext, useState, useEffect } from "react";
+import AuthService from "../services/auth.service"; // Import the service
 
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on app start
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
+    // In a real app, you might validate the token with the backend here
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { access_token, user: userData } = response.data;
-
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-
-      setUser(userData);
-      return { success: true };
+      const response = await AuthService.login(email, password);
+      // Backend returns: { access_token: "...", user: {...} }
+      if (response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        setToken(response.data.access_token);
+        setUser(response.data.user);
+        return { success: true };
+      }
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Login failed' };
+      console.error("Login Error", error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || "Login failed" 
+      };
     }
   };
 
   const register = async (userData) => {
     try {
-      const response = await api.post('/auth/register', userData);
-      const { access_token, user } = response.data;
-
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-
-      setUser(user);
-      return { success: true };
+      const response = await AuthService.register(userData);
+      if (response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        setToken(response.data.access_token);
+        setUser(response.data.user);
+        return { success: true };
+      }
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Registration failed' };
+      console.error("Registration Error", error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || "Registration failed" 
+      };
     }
   };
 
-  const updateProfile = (updatedUserData) => {
-    const updatedUser = { ...user, ...updatedUserData };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
-  };
-
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    delete api.defaults.headers.common['Authorization'];
+    AuthService.logout();
+    setToken(null);
     setUser(null);
   };
 
-  const value = {
-    user,
-    login,
-    register,
-    updateProfile,
-    logout,
-    loading
-  };
-
   return (
-    <AuthContext.Provider value={value}>
-      {children}
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
