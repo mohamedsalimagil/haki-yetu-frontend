@@ -9,4 +9,6 @@ const OrderHistory = () => { // Define functional component for order history pa
 
     useEffect(() => { // Effect hook to fetch data on component mount
         const fetchHistory = async () => { // Async function to fetch order history
+            try { // Try block for error handling
+
 
