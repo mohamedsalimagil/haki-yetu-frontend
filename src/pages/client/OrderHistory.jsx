@@ -7,3 +7,5 @@ const OrderHistory = () => { // Define functional component for order history pa
     const [filter, setFilter] = useState('all'); // State for filter: all, completed, pending
     const [loading, setLoading] = useState(true); // State for tracking loading status
 
+    useEffect(() => { // Effect hook to fetch data on component mount
+
