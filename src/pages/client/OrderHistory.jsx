@@ -4,3 +4,5 @@ import { Search, Filter, FileText, Check, XCircle } from 'lucide-react'; // Impo
 
 const OrderHistory = () => { // Define functional component for order history page
     const [orders, setOrders] = useState([]); // State for storing user's orders
+    const [filter, setFilter] = useState('all'); // State for filter: all, completed, pending
+
