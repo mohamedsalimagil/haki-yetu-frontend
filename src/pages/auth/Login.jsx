@@ -3,7 +3,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -12,9 +12,14 @@ const Login = () => {
     e.preventDefault();
     const result = await login(formData.email, formData.password);
     if (result.success) {
-      navigate("/dashboard"); // Redirect on success
+      // Redirect based on user role
+      if (result.user?.role === 'lawyer') {
+        navigate("/lawyer/dashboard");
+      } else {
+        navigate("/client/dashboard");
+      }
     } else {
-      setError(result.error);
+      setError(result.message);
     }
   };
 

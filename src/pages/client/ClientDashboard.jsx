@@ -23,10 +23,11 @@ const ClientDashboard = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const bookingsData = await clientService.getMyBookings();
-      setBookings(bookingsData);
+      const response = await clientService.getMyBookings();
+      setBookings(response.data?.orders || []);
     } catch (err) {
       setError('Failed to load your bookings');
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -262,7 +263,7 @@ const ClientDashboard = () => {
                 </div>
               ) : (
                 <div className="divide-y divide-gray-200">
-                  {currentBookings.map((booking) => (
+                  {Array.isArray(currentBookings) && currentBookings.map((booking) => (
                     <div key={booking.id} className="p-6 hover:bg-gray-50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -312,9 +313,15 @@ const ClientDashboard = () => {
                             </button>
                           )}
 
-                          {booking.status === 'in_progress' && (
+                          {(booking.status === 'Paid' || booking.status === 'Confirmed') && (
                             <button className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
                               Message Lawyer
+                            </button>
+                          )}
+
+                          {booking.status !== 'Paid' && booking.status !== 'Confirmed' && (
+                            <button className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors">
+                              Book Consultation to Chat
                             </button>
                           )}
                         </div>

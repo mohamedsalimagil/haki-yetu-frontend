@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       // Day 7: Connect socket on successful login
       socketService.connect(access_token);
 
-      return { success: true };
+      return { success: true, user };
     } catch (error) {
       console.error("Login failed", error);
       return {
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

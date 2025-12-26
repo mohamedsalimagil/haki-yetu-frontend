@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:5000"; // Flask Backend URL
+// MUST BE EMPTY STRING to trigger the proxy
+const API_URL = ""; 
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Add a request interceptor to attach the Token to every request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");

@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Toaster, toast } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import LawyerOnboarding from './pages/lawyer/LawyerOnboarding';
@@ -9,24 +10,38 @@ import ClientDashboard from './pages/client/ClientDashboard';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import ChatPage from './pages/shared/ChatPage';
 import ForgotPassword from './pages/auth/ForgotPassword';
-import Navbar from './components/layout/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import socketService from './services/socket.service';
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useContext(AuthContext);
+// Notification Handler Component
+const NotificationHandler = () => {
+  const location = useLocation();
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    const socket = socketService.socket;
+    if (!socket) return;
 
-  return user ? (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main>{children}</main>
-    </div>
-  ) : (
-    <Navigate to="/login" />
-  );
+    const handleNotification = (data) => {
+      // Suppress if user is on chat page
+      if (location.pathname === '/chat') {
+        return;
+      }
+
+      // Show toast notification
+      toast.success(`${data.from}: ${data.text}`, {
+        duration: 4000,
+        position: 'top-right',
+      });
+    };
+
+    socket.on('new_notification', handleNotification);
+
+    return () => {
+      socket.off('new_notification', handleNotification);
+    };
+  }, [location.pathname]);
+
+  return null;
 };
 
 // --- Placeholder Components ---
@@ -66,6 +81,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <NotificationHandler />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -78,16 +94,18 @@ function App() {
             <Route path="/client/dashboard" element={<ClientDashboard />} />
             <Route path="/lawyer/dashboard" element={<LawyerDashboard />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat/:lawyerId" element={<ChatPage />} />
+            <Route path="/settings" element={<ProfileSettings />} />
+            <Route path="/lawyer/onboarding" element={<LawyerOnboarding />} />
           </Route>
 
           {/* Other Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<ProfileSettings />} />
-          <Route path="/lawyer/onboarding" element={<LawyerOnboarding />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        <Toaster />
       </Router>
     </AuthProvider>
   );
