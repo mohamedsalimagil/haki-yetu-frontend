@@ -2,15 +2,27 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+
+// --- IMPORT REAL PAGES ---
+import Home from './pages/Home'; // <--- Now using the Real Landing Page
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import LawyerOnboarding from './pages/lawyer/LawyerOnboarding';
-import ProfileSettings from './pages/user/ProfileSettings';
+import ForgotPassword from './pages/auth/ForgotPassword';
+
+// --- DASHBOARDS ---
 import ClientDashboard from './pages/client/ClientDashboard';
+import ClientOnboarding from './pages/client/ClientOnboarding';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
+import LawyerOnboarding from './pages/lawyer/LawyerOnboarding';
+import AvailabilitySettings from './pages/lawyer/AvailabilitySettings';
+import ProfileSettings from './pages/user/ProfileSettings';
+
+// --- SHARED FEATURES ---
 import ChatPage from './pages/shared/ChatPage';
 import Marketplace from './pages/shared/Marketplace';
-import ForgotPassword from './pages/auth/ForgotPassword';
+import VerificationPending from './pages/shared/VerificationPending';
+
+// --- UTILS ---
 import ProtectedRoute from './components/ProtectedRoute';
 import socketService from './services/socket.service';
 
@@ -25,8 +37,6 @@ const NotificationHandler = () => {
     const handleNotification = (data) => {
       // Suppress if user is on the specific chat they are currently viewing
       if (location.pathname.startsWith('/chat')) {
-        // Could be enhanced to check if the notification is from the same conversation
-        // For now, suppress all notifications while on any chat page
         return;
       }
 
@@ -34,6 +44,12 @@ const NotificationHandler = () => {
       toast.success(`${data.from}: ${data.text}`, {
         duration: 4000,
         position: 'top-right',
+        icon: '🔔',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
       });
     };
 
@@ -46,39 +62,6 @@ const NotificationHandler = () => {
 
   return null;
 };
-
-// --- Placeholder Components ---
-const Home = () => (
-  <div style={{ textAlign: 'center', marginTop: '50px' }}>
-    <h1>Welcome to Haki Yetu</h1>
-    <p>Empowering Legal Access in Kenya</p>
-    <div style={{ marginTop: '20px' }}>
-      <a href="/login" style={{ marginRight: '10px' }}>Login</a> | 
-      <a href="/register" style={{ marginLeft: '10px' }}>Register</a>
-    </div>
-  </div>
-);
-
-const Dashboard = () => (
-  <div style={{ padding: '20px' }}>
-    <h2>User Dashboard</h2>
-    <p>Welcome back! You can now access legal services.</p>
-    <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h3>Are you a Lawyer?</h3>
-      <p>Complete your professional profile to start helping clients.</p>
-      <a href="/lawyer/onboarding" style={{ 
-        display: 'inline-block', 
-        backgroundColor: '#007bff', 
-        color: 'white', 
-        padding: '10px 15px', 
-        borderRadius: '5px', 
-        textDecoration: 'none' 
-      }}>
-        Complete Lawyer Profile
-      </a>
-    </div>
-  </div>
-);
 
 function App() {
   return (
@@ -95,15 +78,18 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/client/dashboard" element={<ClientDashboard />} />
+            <Route path="/client/onboarding" element={<ClientOnboarding />} />
             <Route path="/lawyer/dashboard" element={<LawyerDashboard />} />
+            <Route path="/lawyer/onboarding" element={<LawyerOnboarding />} />
+            <Route path="/lawyer/availability" element={<AvailabilitySettings />} />
+
+            <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/chat/:lawyerId" element={<ChatPage />} />
-            <Route path="/settings" element={<ProfileSettings />} />
-            <Route path="/lawyer/onboarding" element={<LawyerOnboarding />} />
-          </Route>
 
-          {/* Other Routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/settings" element={<ProfileSettings />} />
+            <Route path="/verification-pending" element={<VerificationPending />} />
+          </Route>
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" />} />

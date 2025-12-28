@@ -1,192 +1,147 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import ChatSidebar from '../../components/domain/chat/ChatSidebar';
 import MessageWindow from '../../components/domain/chat/MessageWindow';
 import socketService from '../../services/socket.service';
-import chatService from '../../services/chat.service';
-import clientService from '../../services/client.service';
-import lawyerService from '../../services/lawyer.service';
-import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 const ChatPage = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [contacts, setContacts] = useState([]); // Fetch from API
+  const { user, token } = useAuth();
   const [activeContact, setActiveContact] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const [socketConnected, setSocketConnected] = useState(false);
-  const [showContacts, setShowContacts] = useState(true); // Mobile: show contacts or messages
+  // Initialize with the real current state, not just false
+  const [socketConnected, setSocketConnected] = useState(socketService.socket?.connected || false);
+  const [showSidebar, setShowSidebar] = useState(true);
 
-  // Deep link protection: Check for active bookings
+  // --- 1. CONNECTION & LISTENER ---
   useEffect(() => {
-    const checkAccess = async () => {
-      if (!user) return;
+    if (!token) return;
 
-      try {
-        let hasActiveBooking = false;
-
-        if (user.role === 'client') {
-          const bookings = await clientService.getMyBookings();
-          hasActiveBooking = bookings.some(booking =>
-            booking.status === 'Paid' || booking.status === 'Confirmed'
-          );
-        } else if (user.role === 'lawyer') {
-          // Lawyers can access chat if they have any clients/orders
-          const orders = await lawyerService.getOrders();
-          hasActiveBooking = orders.length > 0;
-        }
-
-        if (!hasActiveBooking) {
-          toast.error('Access denied. Please book a consultation first.');
-          navigate('/');
-        }
-      } catch (error) {
-        console.error('Error checking access:', error);
-        toast.error('Error verifying access. Please try again.');
-        navigate('/');
-      }
-    };
-
-    checkAccess();
-  }, [user, navigate]);
-
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const response = await api.get('/chat/contacts');
-        setContacts(response.data.contacts);
-      } catch (error) {
-        console.error("Failed to load contacts:", error);
-      }
-    };
-
-    fetchContacts();
-  }, []);
-
-  useEffect(() => {
+    // Connect if needed
+    if (!socketService.socket) {
+      socketService.connect(token);
+    }
     const socket = socketService.socket;
-    if (!socket) return;
 
-    const handleConnect = () => setSocketConnected(true);
-    const handleDisconnect = () => setSocketConnected(false);
-    const handleReceiveMessage = (data) => {
-      setMessages((prev) => [...prev, {
-        sender_id: data.sender_id,
-        content: data.message,
-        created_at: data.timestamp
-      }]);
+    // Update state immediately if already connected
+    if (socket.connected) setSocketConnected(true);
+
+    // Event Handlers
+    const onConnect = () => {
+      console.log("🟢 Socket Connected Event");
+      setSocketConnected(true);
+      joinTestLobby(); // Re-join on reconnect
     };
-    const handleConnectError = (err) => {
-      console.error('Socket connection rejected by server:', err.message);
+    
+    const onDisconnect = () => {
+      console.log("🔴 Socket Disconnected Event");
       setSocketConnected(false);
     };
 
-    socket.on('connect', handleConnect);
-    socket.on('disconnect', handleDisconnect);
-    socket.on('receive_message', handleReceiveMessage);
-    socket.on('connect_error', handleConnectError);
+    const onMessage = (newMsg) => {
+      console.log("📩 INBOUND:", newMsg);
+      setMessages((prev) => {
+        // Prevent duplicates
+        const exists = prev.some(m => 
+          m.content === (newMsg.text || newMsg.content) && 
+          Math.abs(new Date(m.created_at) - new Date()) < 2000
+        );
+        if (exists) return prev;
 
-    // Check initial connection status
-    setSocketConnected(socket.connected);
+        return [...prev, {
+          ...newMsg,
+          sender_id: newMsg.sender_id,
+          content: newMsg.text || newMsg.content || newMsg.message,
+          created_at: new Date().toISOString()
+        }];
+      });
+    };
+
+    // Attach Listeners
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('receive_message', onMessage);
+
+    // Join the lobby immediately
+    joinTestLobby();
 
     return () => {
-      socket.off('connect', handleConnect);
-      socket.off('disconnect', handleDisconnect);
-      socket.off('receive_message', handleReceiveMessage);
-      socket.off('connect_error', handleConnectError);
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('receive_message', onMessage);
     };
-  }, []);
+  }, [token]);
 
-  // Join room when activeContact changes
-  useEffect(() => {
-    if (activeContact && user) {
-      const room = `chat_${Math.min(user.id, activeContact.id)}_${Math.max(user.id, activeContact.id)}`;
+  // --- 2. JOIN STRATEGY ---
+  const joinTestLobby = () => {
+    if (socketService.socket) {
+      // Force everyone into one room for the test
+      const room = "test_lobby";
+      console.log(`🔌 Joining Global Room: ${room}`);
       socketService.socket.emit('join_room', { room });
     }
-  }, [activeContact, user]);
-
-  const fetchMessages = async () => {
-    if (!activeContact) return;
-    try {
-      const response = await chatService.getMessages(activeContact.id);
-      const data = response.data?.messages || response.data || [];
-      setMessages(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Failed to fetch messages:", error);
-      setMessages([]);
-    }
   };
 
+  // --- 3. SEND STRATEGY ---
   const handleSendMessage = (text) => {
-    const room = `chat_${Math.min(user.id, activeContact.id)}_${Math.max(user.id, activeContact.id)}`;
-    const messageData = {
-      room,
+    if (!text) return;
+
+    // We use the same room name as we joined
+    const room = "test_lobby"; 
+
+    const payload = {
+      room, 
       sender_id: user.id,
+      // We use a fake recipient ID because in a global lobby it doesn't matter
+      recipient_id: 999, 
       message: text,
+      content: text,
       timestamp: new Date().toISOString()
     };
-    socketService.socket.emit('send_message', messageData);
 
-    // Optimistic Update
-    setMessages(prev => [...prev, { sender_id: user.id, content: text, created_at: messageData.timestamp }]);
+    console.log("📤 Sending:", payload);
+    socketService.socket?.emit('send_message', payload);
+
+    // Optimistic Update (Show it on my screen immediately)
+    setMessages(prev => [...prev, {
+      sender_id: user.id,
+      content: text,
+      created_at: new Date().toISOString()
+    }]);
   };
 
-  // Mobile: Handle contact selection
-  const handleSelectContact = (contact) => {
+  // --- 4. VIEW HELPERS ---
+  const handleContactSelect = (contact) => {
+    // We accept the contact selection just to switch the view, 
+    // but we ignore the ID and stay in the "test_lobby"
     setActiveContact(contact);
-    setShowContacts(false); // Switch to message view on mobile
+    setShowSidebar(false);
+    // Clear messages to give a clean slate for the test
+    setMessages([]);
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* Desktop: Always show both */}
-      <div className="hidden md:flex w-full">
-        <ChatSidebar
-          contacts={contacts}
-          onSelectContact={setActiveContact}
+    <div className="flex h-[calc(100vh-64px)] bg-gray-50 overflow-hidden font-sans">
+      <div className={`w-full md:w-80 flex-shrink-0 flex-col bg-white border-r border-gray-200 ${showSidebar ? 'flex' : 'hidden md:flex'}`}>
+        <ChatSidebar 
+          onSelectContact={handleContactSelect}
           activeContactId={activeContact?.id}
-          onlineUsers={onlineUsers}
-        />
-        <MessageWindow
-          activeContact={activeContact}
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          currentUserId={user.id}
-          onRefreshMessages={fetchMessages}
-          socketConnected={socketConnected}
+          mobileView={true} 
+          onBack={() => {}} 
         />
       </div>
-
-      {/* Mobile: Toggle between contacts and messages */}
-      <div className="flex md:hidden w-full">
-        {showContacts ? (
-          <div className="w-full">
-            <ChatSidebar
-              contacts={contacts}
-              onSelectContact={handleSelectContact}
-              activeContactId={activeContact?.id}
-              onlineUsers={onlineUsers}
-              mobileView={true}
-              onBack={() => setShowContacts(false)}
-            />
-          </div>
-        ) : (
-          <div className="w-full">
-            <MessageWindow
-              activeContact={activeContact}
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              currentUserId={user.id}
-              onRefreshMessages={fetchMessages}
-              socketConnected={socketConnected}
-              mobileView={true}
-              onBackToContacts={() => setShowContacts(true)}
-            />
-          </div>
-        )}
+      <div className={`flex-1 flex-col bg-white ${!showSidebar ? 'flex' : 'hidden md:flex'}`}>
+        {/* Red Bar Removed as requested */}
+        
+        <MessageWindow 
+          activeContact={activeContact}
+          socket={socketService.socket}
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          currentUserId={user?.id}
+          socketConnected={socketConnected}
+          mobileView={!showSidebar}
+          onBackToContacts={() => { setActiveContact(null); setShowSidebar(true); }}
+        />
       </div>
     </div>
   );

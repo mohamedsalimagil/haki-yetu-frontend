@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// MUST BE EMPTY STRING to trigger the proxy
-const API_URL = ""; 
+// FIXED: Point directly to the Backend Port (5000)
+const API_URL = "http://127.0.0.1:5000"; 
 
 const api = axios.create({
   baseURL: API_URL,

@@ -1,38 +1,46 @@
-import { io } from 'socket.io-client';
+import io from 'socket.io-client';
 
-// MUST BE EMPTY STRING to trigger the proxy
-const SOCKET_URL = '';
+// Connect to your Flask Backend URL (Port 5000)
+const SOCKET_URL = 'http://127.0.0.1:5000';
 
 class SocketService {
   socket = null;
 
   connect(token) {
-    // Disconnect existing connection if any
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-    }
+    if (this.socket) return;
 
     this.socket = io(SOCKET_URL, {
-      auth: { token },
-      transports: ['websocket'],
+      auth: { token }, // We send the JWT to prove who we are
+      transports: ['websocket'], // Force modern connection
     });
 
     this.socket.on('connect', () => {
-      console.log('Connected to Socket server');
+      console.log('✅ Connected to WebSocket Server');
     });
 
-    this.socket.on('connect_error', (err) => {
-      console.error('Socket connection error:', err.message);
+    this.socket.on('disconnect', () => {
+      console.log('❌ Disconnected from WebSocket');
     });
-
-    return this.socket;
   }
 
   disconnect() {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
+    }
+  }
+
+  sendMessage(messageData) {
+    if (this.socket) {
+      this.socket.emit('send_message', messageData);
+    }
+  }
+
+  onMessageReceived(callback) {
+    if (this.socket) {
+      this.socket.on('receive_message', (msg) => {
+        callback(msg);
+      });
     }
   }
 }

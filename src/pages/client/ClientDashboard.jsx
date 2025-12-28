@@ -1,372 +1,363 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, FileText, CheckCircle, XCircle, AlertCircle, Loader, Upload } from 'lucide-react';
-import clientService from '../../services/client.service';
-import RatingModal from '../../components/domain/RatingModal';
-import DocumentsTab from '../../components/domain/DocumentsTab';
-import Pagination from '../../components/common/Pagination';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Users, 
+  Clock, 
+  CheckCircle, 
+  AlertCircle, 
+  Video, 
+  Search, 
+  Plus, 
+  Settings, 
+  History, 
+  Shield, 
+  Bell, 
+  ChevronRight 
+} from 'lucide-react';
 
 const ClientDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('bookings');
-  const [bookingTab, setBookingTab] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [ratingModal, setRatingModal] = useState({ isOpen: false, orderId: null, lawyerName: '' });
 
-  const itemsPerPage = 10;
-
-  useEffect(() => { fetchBookings(); }, []);
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true);
-      const response = await clientService.getMyBookings();
-      setBookings(response.data?.orders || []);
-    } catch (err) {
-      setError('Failed to load your bookings');
-      setBookings([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed': return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'in_progress': return <Loader className="w-5 h-5 text-blue-500 animate-spin" />;
-      case 'pending': return <Clock className="w-5 h-5 text-yellow-500" />;
-      case 'cancelled': return <XCircle className="w-5 h-5 text-red-500" />;
-      default: return <AlertCircle className="w-5 h-5 text-gray-500" />;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-KE', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-  const filterBookings = (bookings, tab) => tab === 'all' ? bookings : bookings.filter(b => b.status === tab);
-  const filteredBookings = filterBookings(bookings, bookingTab);
-
-  const tabs = [
-    { id: 'all', label: 'All Bookings', count: bookings.length },
-    { id: 'pending', label: 'Pending', count: bookings.filter(b => b.status === 'pending').length },
-    { id: 'in_progress', label: 'In Progress', count: bookings.filter(b => b.status === 'in_progress').length },
-    { id: 'completed', label: 'Completed', count: bookings.filter(b => b.status === 'completed').length },
-  ];
-
-  const handleRateService = (booking) => {
-  setRatingModal({
-    isOpen: true,
-    orderId: booking.id,
-    lawyerId: booking.lawyer_id, 
-    lawyerName: booking.lawyer_name
-  });
-};
-
-  const handleRatingModalClose = () => {
-    setRatingModal({
-      isOpen: false,
-      orderId: null,
-      lawyerName: ''
+  // Navigation Handlers
+  const goToMarketplace = () => navigate('/marketplace');
+  const goToChat = () => navigate('/chat');
+  
+  const showComingSoon = (feature) => {
+    toast.success(`${feature} module coming in Phase 2!`, {
+      icon: '🚧',
+      style: { borderRadius: '10px', background: '#333', color: '#fff' },
     });
   };
 
-  const handleReviewSubmitted = (reviewData) => {
-    // Update the booking status or refresh data if needed
-    console.log('Review submitted:', reviewData);
-    // You could refresh the bookings data here if needed
-  };
+  // --- MOCK DATA ---
+  const stats = [
+    { label: 'Pending Actions', value: '2', icon: AlertCircle, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: 'Upcoming Consultations', value: '1', icon: Video, color: 'text-blue-500', bg: 'bg-blue-50' },
+    { label: 'Completed Orders', value: '14', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
+  ];
 
-  // Pagination logic
-  const totalItems = filteredBookings.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentBookings = filteredBookings.slice(startIndex, endIndex);
+  const quickServices = [
+    { title: 'Remote Notarization', icon: CheckCircle, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { title: 'Draft Contract', icon: FileText, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { title: 'Book Advocate', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { title: 'Land Search', icon: Search, color: 'text-purple-600', bg: 'bg-purple-50' },
+  ];
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // Reset to page 1 when tab changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchBookings}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-blue-700"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const recentActivity = [
+    { service: 'Affidavit of Service', id: '#2034', date: 'Today, 9:41AM', status: 'Ready', statusColor: 'bg-green-100 text-green-700' },
+    { service: 'Virtual Consultation', id: '#2031', date: 'Tomorrow, 2:00PM', status: 'Scheduled', statusColor: 'bg-blue-100 text-blue-700' },
+    { service: 'Land Search - Nairobi', id: '#2028', date: 'Oct 24, 2023', status: 'Processing', statusColor: 'bg-orange-100 text-orange-700' },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Client Dashboard</h1>
-          <p className="mt-2 text-gray-600">Track your legal service bookings and orders</p>
-          <div className="mt-4 flex items-center space-x-4">
-            <div className="flex items-center">
-              <User className="w-5 h-5 text-gray-400 mr-2" />
-              <span className="text-gray-700">Welcome back, {user?.name || 'Client'}</span>
+    <div className="min-h-screen bg-gray-50 flex font-sans">
+      
+      {/* --- LEFT SIDEBAR --- */}
+      <aside className="w-64 bg-white border-r border-gray-200 hidden lg:flex flex-col justify-between fixed h-full z-10">
+        <div>
+          {/* Logo */}
+          <div className="h-20 flex items-center px-8 border-b border-gray-100">
+            <div className="bg-blue-600 p-1.5 rounded-lg mr-3">
+              <Shield className="text-white w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="font-bold text-gray-900 text-lg">Haki Yetu</h1>
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider">Client Portal</p>
             </div>
           </div>
+
+          {/* Navigation Links */}
+          <nav className="p-4 space-y-1 mt-6">
+            <button className="flex items-center gap-3 w-full px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-medium transition">
+              <LayoutDashboard size={20} />
+              Dashboard
+            </button>
+            <button onClick={() => showComingSoon('Documents')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+              <FileText size={20} />
+              My Documents
+            </button>
+            <button onClick={goToChat} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+              <Video size={20} />
+              Consultations
+            </button>
+            <button onClick={() => showComingSoon('History')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+              <History size={20} />
+              Order History
+            </button>
+            <button onClick={() => navigate('/settings')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+              <Settings size={20} />
+              Settings
+            </button>
+          </nav>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <FileText className="w-8 h-8 text-blue-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Bookings</p>
-                <p className="text-2xl font-bold text-gray-900">{bookings.length}</p>
-              </div>
+        {/* Bottom Badge */}
+        <div className="p-6">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+            <div className="flex items-center gap-2 mb-2">
+              <Shield size={16} className="text-blue-600" />
+              <span className="text-xs font-bold text-blue-800 uppercase">Verified Secure</span>
             </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <Clock className="w-8 h-8 text-yellow-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {bookings.filter(b => b.status === 'pending').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <Loader className="w-8 h-8 text-blue-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">In Progress</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {bookings.filter(b => b.status === 'in_progress').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-500" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {bookings.filter(b => b.status === 'completed').length}
-                </p>
-              </div>
-            </div>
+            <p className="text-xs text-blue-600/80 leading-relaxed">
+              Your data is encrypted. All advocates are LSK verified.
+            </p>
           </div>
         </div>
+      </aside>
 
-        {/* Main Tabs */}
-        <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('bookings')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'bookings'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <FileText className="w-4 h-4 inline mr-2" />
-                My Bookings
-              </button>
-              <button
-                onClick={() => setActiveTab('documents')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'documents'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Upload className="w-4 h-4 inline mr-2" />
-                Documents
-              </button>
-            </nav>
+      {/* --- MAIN CONTENT AREA --- */}
+      <main className="flex-1 lg:ml-64">
+        
+        {/* Top Header */}
+        <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-20">
+          {/* Breadcrumbs */}
+          <div className="flex items-center text-sm text-gray-500">
+            <span>Haki Yetu</span>
+            <ChevronRight size={14} className="mx-2" />
+            <span className="font-medium text-gray-900">Dashboard</span>
           </div>
-        </div>
 
-        {/* Content based on active tab */}
-        {activeTab === 'bookings' && (
-          <>
-            {/* Booking Status Tabs */}
-            <div className="mb-6">
-              <div className="border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setBookingTab(tab.id)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        bookingTab === tab.id
-                          ? 'border-primary text-primary'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-6">
+            <div className="relative hidden md:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input 
+                type="text" 
+                placeholder="Search services..." 
+                className="bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 w-64"
+              />
+            </div>
+            
+            <button className="relative text-gray-500 hover:text-gray-700 transition">
+              <Bell size={20} />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+
+            <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-bold text-gray-900">{user?.first_name} {user?.last_name}</p>
+                <p className="text-xs text-gray-500">Individual Account</p>
+              </div>
+              <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden border border-gray-200">
+                <img src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=0D8ABC&color=fff`} alt="Profile" />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Dashboard Content */}
+        <div className="p-8">
+          
+          {/* Welcome Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                Jambo, {user?.first_name} <span className="text-2xl">👋</span>
+              </h1>
+              <p className="text-gray-500">
+                Here is your legal overview. You have <span className="font-semibold text-blue-600">2 pending actions</span> requiring attention.
+              </p>
+            </div>
+            <button 
+              onClick={goToMarketplace} 
+              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm font-medium"
+            >
+              <Plus size={18} />
+              Start New Request
+            </button>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">{stat.label}</p>
+                  <h3 className="text-3xl font-bold text-gray-900">{stat.value}</h3>
+                </div>
+                <div className={`p-3 rounded-full ${stat.bg}`}>
+                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Column: Quick Services & Recent Activity */}
+            <div className="lg:col-span-2 space-y-8">
+              
+              {/* Quick Services */}
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-base font-bold text-gray-800">Quick Services</h3>
+                  <button onClick={goToMarketplace} className="text-blue-600 text-sm font-medium hover:underline">
+                    View All Services
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {quickServices.map((service, index) => (
+                    <button 
+                      key={index} 
+                      onClick={goToMarketplace} 
+                      className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-blue-200 hover:shadow-md transition flex flex-col items-center text-center gap-4 group h-full"
                     >
-                      {tab.label} ({tab.count})
+                      <div className={`p-3 rounded-full ${service.bg} group-hover:scale-110 transition-transform`}>
+                        <service.icon className={`w-6 h-6 ${service.color}`} />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 leading-tight">{service.title}</span>
                     </button>
                   ))}
-                </nav>
+                </div>
               </div>
-            </div>
 
-            {/* Bookings List */}
-            <div className="bg-white rounded-lg shadow">
-              {loading ? (
-                <div className="divide-y divide-gray-200">
-                  {[...Array(5)].map((_, index) => (
-                    <SkeletonLoader key={index} type="booking-card" />
-                  ))}
+              {/* Recent Activity Table */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                  <h3 className="text-base font-bold text-gray-800">Recent Activity</h3>
+                  <button className="text-gray-400 hover:text-blue-600 transition">
+                    <LayoutDashboard size={18} />
+                  </button>
                 </div>
-              ) : filteredBookings.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {bookingTab === 'all' ? "You haven't booked any legal consultations yet" : `No ${bookingTab.replace('_', ' ')} bookings`}
-                  </h3>
-                  <p className="text-gray-600">
-                    {bookingTab === 'all'
-                      ? 'When you book legal services, they will appear here.'
-                      : `You don't have any ${bookingTab.replace('_', ' ')} bookings at the moment.`
-                    }
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {Array.isArray(currentBookings) && currentBookings.map((booking) => (
-                    <div key={booking.id} className="p-6 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3">
-                            {getStatusIcon(booking.status)}
-                            <div>
-                              <h3 className="text-lg font-medium text-gray-900">
-                                {booking.service_name}
-                              </h3>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {booking.description}
-                              </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                      <tr>
+                        <th className="px-6 py-4 font-medium">Service</th>
+                        <th className="px-6 py-4 font-medium">Order ID</th>
+                        <th className="px-6 py-4 font-medium">Date</th>
+                        <th className="px-6 py-4 font-medium">Status</th>
+                        <th className="px-6 py-4 font-medium">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {recentActivity.map((item, index) => (
+                        <tr key={index} className="hover:bg-gray-50 transition">
+                          <td className="px-6 py-4 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                              <FileText size={16} />
                             </div>
-                          </div>
-
-                          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <User className="w-4 h-4 mr-2" />
-                              Lawyer: {booking.lawyer_name}
-                            </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Calendar className="w-4 h-4 mr-2" />
-                              Booked: {formatDate(booking.created_at)}
-                            </div>
-                            <div className="flex items-center">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
-                                {booking.status.replace('_', ' ').toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="ml-6 flex flex-col items-end space-y-2">
-                          <div className="text-right">
-                            <p className="text-sm text-gray-600">Service Fee</p>
-                            <p className="text-lg font-semibold text-gray-900">
-                              KES {booking.base_price?.toLocaleString() || 'TBD'}
-                            </p>
-                          </div>
-
-                          {booking.status === 'completed' && (
-                            <button
-                              onClick={() => handleRateService(booking)}
-                              className="px-4 py-2 bg-primary text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                            <span className="font-medium text-gray-800 text-sm">{item.service}</span>
+                          </td>
+                          <td className="px-6 py-4 text-gray-500 text-sm">{item.id}</td>
+                          <td className="px-6 py-4 text-gray-500 text-sm">{item.date}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${item.statusColor}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button 
+                              onClick={() => showComingSoon('Order Details')} 
+                              className="text-blue-600 text-sm font-medium hover:underline"
                             >
-                              Rate Service
+                              View
                             </button>
-                          )}
-
-                          {(booking.status === 'Paid' || booking.status === 'Confirmed') && (
-                            <button className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
-                              Message Lawyer
-                            </button>
-                          )}
-
-                          {booking.status !== 'Paid' && booking.status !== 'Confirmed' && (
-                            <button className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors">
-                              Book Consultation to Chat
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              )}
+                <div className="p-4 border-t border-gray-100 text-center">
+                  <button 
+                    onClick={() => showComingSoon('Order History')}
+                    className="text-blue-600 text-sm font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
+                  >
+                    View Full History <Users size={14} />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Pagination */}
-            {filteredBookings.length > itemsPerPage && (
-              <div className="mt-6">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalItems={totalItems}
-                  itemsPerPage={itemsPerPage}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            )}
-          </>
-        )}
+            {/* Right Column: Widgets */}
+            <div className="space-y-6">
+               <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -mr-10 -mt-10"></div>
+                 
+                 <div className="flex justify-between items-start mb-6 relative z-10">
+                   <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Next Appointment</span>
+                   <div className="p-2 bg-slate-800 rounded-lg">
+                     <Video className="text-blue-400" size={16} />
+                   </div>
+                 </div>
+                 
+                 <h3 className="text-lg font-bold mb-1 relative z-10">Legal Consultation</h3>
+                 <p className="text-slate-400 text-xs mb-6 relative z-10">Property Dispute Resolution</p>
 
-        {activeTab === 'documents' && (
-          <DocumentsTab bookingId={null} />
-        )}
+                 <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 mb-6 flex items-center gap-4 border border-slate-700/50 relative z-10">
+                    <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center border border-slate-600 shrink-0">
+                      <span className="text-xs font-bold text-white">SM</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-white">Adv. Sarah Mwangi</p>
+                      <p className="text-slate-400 text-xs">High Court Advocate</p>
+                    </div>
+                 </div>
 
-        {/* Rating Modal */}
-        <RatingModal
-          isOpen={ratingModal.isOpen}
-          onClose={handleRatingModalClose}
-          orderId={ratingModal.orderId}
-          lawyerName={ratingModal.lawyerName}
-          onReviewSubmitted={handleReviewSubmitted}
-        />
-      </div>
+                 <div className="flex items-center gap-2 text-slate-300 text-xs mb-6 relative z-10">
+                   <Clock size={14} className="text-blue-400" />
+                   <span>Tomorrow, 2:00 PM - 2:30 PM</span>
+                 </div>
+
+                 <button 
+                   onClick={goToChat} 
+                   className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold text-sm transition shadow-lg shadow-blue-900/20 relative z-10"
+                 >
+                   Join Meeting Room
+                 </button>
+               </div>
+               
+               {/* Document Status Widget */}
+               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                 <h3 className="font-bold text-gray-800 mb-6 text-sm">Document Status</h3>
+                 <div className="space-y-6">
+                   <div>
+                     <div className="flex justify-between text-xs mb-2">
+                       <span className="text-gray-500">Completed</span>
+                       <span className="font-medium text-gray-800">14</span>
+                     </div>
+                     <div className="w-full bg-gray-100 rounded-full h-1.5">
+                       <div className="bg-green-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: '85%' }}></div>
+                     </div>
+                   </div>
+                   
+                   <div>
+                     <div className="flex justify-between text-xs mb-2">
+                       <span className="text-gray-500">In Review</span>
+                       <span className="font-medium text-gray-800">3</span>
+                     </div>
+                     <div className="w-full bg-gray-100 rounded-full h-1.5">
+                       <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: '25%' }}></div>
+                     </div>
+                   </div>
+
+                   <div>
+                     <div className="flex justify-between text-xs mb-2">
+                       <span className="text-gray-500">Action Required</span>
+                       <span className="font-medium text-gray-800">2</span>
+                     </div>
+                     <div className="w-full bg-gray-100 rounded-full h-1.5">
+                       <div className="bg-orange-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: '15%' }}></div>
+                     </div>
+                   </div>
+                 </div>
+                 <button 
+                   onClick={() => showComingSoon('My Documents')}
+                   className="w-full mt-8 py-2.5 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 transition"
+                 >
+                    View All Documents
+                 </button>
+               </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
