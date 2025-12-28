@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const ClientDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -248,7 +249,13 @@ const ClientDashboard = () => {
 
             {/* Bookings List */}
             <div className="bg-white rounded-lg shadow">
-              {filteredBookings.length === 0 ? (
+              {loading ? (
+                <div className="divide-y divide-gray-200">
+                  {[...Array(5)].map((_, index) => (
+                    <SkeletonLoader key={index} type="booking-card" />
+                  ))}
+                </div>
+              ) : filteredBookings.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">

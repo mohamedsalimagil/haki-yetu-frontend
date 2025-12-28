@@ -3,7 +3,7 @@ import { Send, User, Paperclip, FileText, Image as ImageIcon, X } from 'lucide-r
 import { useAuth } from '../../../context/AuthContext';
 import chatService from '../../../services/chat.service';
 
-const MessageWindow = ({ activeContact, socket, messages, onSendMessage, currentUserId, onRefreshMessages, socketConnected }) => {
+const MessageWindow = ({ activeContact, socket, messages, onSendMessage, currentUserId, onRefreshMessages, socketConnected, mobileView, onBackToContacts }) => {
   const [newMessage, setNewMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);

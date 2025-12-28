@@ -18,6 +18,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [socketConnected, setSocketConnected] = useState(false);
+  const [showContacts, setShowContacts] = useState(true); // Mobile: show contacts or messages
 
   // Deep link protection: Check for active bookings
   useEffect(() => {
@@ -133,22 +134,60 @@ const ChatPage = () => {
     setMessages(prev => [...prev, { sender_id: user.id, content: text, created_at: messageData.timestamp }]);
   };
 
+  // Mobile: Handle contact selection
+  const handleSelectContact = (contact) => {
+    setActiveContact(contact);
+    setShowContacts(false); // Switch to message view on mobile
+  };
+
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      <ChatSidebar
-        contacts={contacts}
-        onSelectContact={setActiveContact}
-        activeContactId={activeContact?.id}
-        onlineUsers={onlineUsers}
-      />
-      <MessageWindow
-        activeContact={activeContact}
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        currentUserId={user.id}
-        onRefreshMessages={fetchMessages}
-        socketConnected={socketConnected}
-      />
+      {/* Desktop: Always show both */}
+      <div className="hidden md:flex w-full">
+        <ChatSidebar
+          contacts={contacts}
+          onSelectContact={setActiveContact}
+          activeContactId={activeContact?.id}
+          onlineUsers={onlineUsers}
+        />
+        <MessageWindow
+          activeContact={activeContact}
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          currentUserId={user.id}
+          onRefreshMessages={fetchMessages}
+          socketConnected={socketConnected}
+        />
+      </div>
+
+      {/* Mobile: Toggle between contacts and messages */}
+      <div className="flex md:hidden w-full">
+        {showContacts ? (
+          <div className="w-full">
+            <ChatSidebar
+              contacts={contacts}
+              onSelectContact={handleSelectContact}
+              activeContactId={activeContact?.id}
+              onlineUsers={onlineUsers}
+              mobileView={true}
+              onBack={() => setShowContacts(false)}
+            />
+          </div>
+        ) : (
+          <div className="w-full">
+            <MessageWindow
+              activeContact={activeContact}
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              currentUserId={user.id}
+              onRefreshMessages={fetchMessages}
+              socketConnected={socketConnected}
+              mobileView={true}
+              onBackToContacts={() => setShowContacts(true)}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

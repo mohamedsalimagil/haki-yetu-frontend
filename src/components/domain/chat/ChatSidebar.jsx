@@ -37,9 +37,19 @@ const ChatSidebar = ({ onSelectContact }) => {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="w-1/3 border-r h-full flex flex-col bg-white">
+    <div className={`${mobileView ? 'w-full' : 'w-80'} border-r h-full flex flex-col bg-white`}>
       <div className="p-4 border-b">
-        <h2 className="text-xl font-bold mb-4">Messages</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Messages</h2>
+          {mobileView && onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <span className="text-sm">Back</span>
+            </button>
+          )}
+        </div>
         <input
           type="text"
           placeholder="Search contacts..."
@@ -57,10 +67,17 @@ const ChatSidebar = ({ onSelectContact }) => {
             <div
               key={contact.id}
               onClick={() => onSelectContact(contact)}
-              className="p-4 border-b hover:bg-gray-50 cursor-pointer flex items-center gap-3"
+              className={`p-4 border-b hover:bg-gray-50 cursor-pointer flex items-center gap-3 ${
+                activeContactId === contact.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''
+              }`}
             >
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                {contact.first_name?.[0] || 'U'}
+              <div className="relative">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                  {contact.first_name?.[0] || 'U'}
+                </div>
+                {onlineUsers?.includes(contact.id?.toString()) && (
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                )}
               </div>
               <div>
                 <h3 className="font-semibold text-gray-800">

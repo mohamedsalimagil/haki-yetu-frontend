@@ -9,6 +9,7 @@ import ProfileSettings from './pages/user/ProfileSettings';
 import ClientDashboard from './pages/client/ClientDashboard';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import ChatPage from './pages/shared/ChatPage';
+import Marketplace from './pages/shared/Marketplace';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import socketService from './services/socket.service';
@@ -22,8 +23,10 @@ const NotificationHandler = () => {
     if (!socket) return;
 
     const handleNotification = (data) => {
-      // Suppress if user is on chat page
-      if (location.pathname === '/chat') {
+      // Suppress if user is on the specific chat they are currently viewing
+      if (location.pathname.startsWith('/chat')) {
+        // Could be enhanced to check if the notification is from the same conversation
+        // For now, suppress all notifications while on any chat page
         return;
       }
 
