@@ -1,3 +1,100 @@
+# Haki Yetu API Documentation
+
+## Module: Auth & Lawyer Management
+
+### 1. Authentication
+
+#### Register User
+**Endpoint:** `POST /api/auth/register`
+**Description:** Registers a new Client or Lawyer.
+- **Body:**
+  ```json
+  {
+    "first_name": "Jomo",
+    "last_name": "Kenyatta",
+    "email": "jomo@kenyatta.co.ke",
+    "password": "securepassword123",
+    "role": "client" // or "lawyer"
+  }
+
+```
+
+* **Response (201 Created):**
+```json
+{
+  "message": "User registered successfully",
+  "token": "eyJhbGciOiJIUz...",
+  "user": { "id": 1, "role": "client" }
+}
+
+```
+
+
+
+#### Login
+
+**Endpoint:** `POST /api/auth/login`
+**Description:** Authenticates a user and returns a JWT.
+
+* **Body:**
+```json
+{
+  "email": "jomo@kenyatta.co.ke",
+  "password": "securepassword123"
+}
+
+```
+
+
+* **Response (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUz...",
+  "user": { "id": 1, "first_name": "Jomo", "role": "client" }
+}
+
+```
+
+
+
+#### Get Current Profile
+
+**Endpoint:** `GET /api/auth/me`
+**Headers:** `Authorization: Bearer <token>`
+**Description:** Returns the logged-in user's profile data.
+
+### 2. Lawyer Discovery
+
+#### List All Lawyers
+
+**Endpoint:** `GET /api/lawyers`
+**Description:** Fetches a list of verified lawyers for the directory.
+
+* **Query Params:** `?search=Nairobi`, `?specialization=Family`
+* **Response (200 OK):**
+```json
+[
+  {
+    "id": 5,
+    "name": "Wanjiku Mwangi",
+    "specialization": "Criminal Law",
+    "hourly_rate": 3000,
+    "avatar": "url_to_image"
+  }
+]
+
+```
+
+
+
+#### Get Lawyer Details
+
+**Endpoint:** `GET /api/lawyers/{id}`
+**Description:** Fetches detailed profile and availability for a specific lawyer.
+
+
+---
+
 # Haki Yetu Digital Platform - API Documentation
 
 ## Overview
@@ -162,7 +259,7 @@ Get user's orders (filtered by role).
     "service_name": "Affidavit Commissioning",
     "status": "in_progress",
     "created_at": "2024-01-15T10:30:00Z",
-    "lawyer_name": "Jane Doe"
+    "lawyer_name": "Wanjiku Mwangi"
   }
 ]
 ```
@@ -176,8 +273,8 @@ Get lawyer profile information.
 ```json
 {
   "id": 2,
-  "name": "Jane Doe",
-  "email": "jane@lawyer.com",
+  "name": "Wanjiku Mwangi",
+  "email": "wanjiku@mwangi-law.co.ke",
   "bio": "Experienced lawyer",
   "avatar": "https://cloudinary.com/avatar.jpg",
   "lsK_number": "LSK12345",
@@ -258,8 +355,8 @@ Get all users (admin only).
 [
   {
     "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
+    "name": "Jomo Kenyatta",
+    "email": "jomo@kenyatta.co.ke",
     "role": "client",
     "status": "active",
     "created_at": "2024-01-10T08:00:00Z"
