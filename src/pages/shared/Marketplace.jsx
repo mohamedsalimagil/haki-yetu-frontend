@@ -132,9 +132,8 @@ const Marketplace = () => {
   const locations = [...new Set(lawyers.map(lawyer => lawyer.location).filter(Boolean))];
 
   const handleBookNow = (lawyer) => {
-    // Navigate to booking flow
-    console.log('Book lawyer:', lawyer);
-    // This would navigate to a booking page with lawyer details
+    // Navigate to the Lawyer Profile page (Step 3)
+    navigate(`/lawyer/${lawyer.id}`);
   };
 
   const handleMessage = (lawyer) => {

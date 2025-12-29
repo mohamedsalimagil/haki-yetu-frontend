@@ -12,6 +12,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 // --- DASHBOARDS ---
 import ClientDashboard from './pages/client/ClientDashboard';
 import ClientOnboarding from './pages/client/ClientOnboarding';
+import LawyerProfile from './pages/client/LawyerProfile';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import LawyerOnboarding from './pages/lawyer/LawyerOnboarding';
 import AvailabilitySettings from './pages/lawyer/AvailabilitySettings';
@@ -21,6 +22,11 @@ import ProfileSettings from './pages/user/ProfileSettings';
 import ChatPage from './pages/shared/ChatPage';
 import Marketplace from './pages/shared/Marketplace';
 import VerificationPending from './pages/shared/VerificationPending';
+
+// --- BOOKING FLOW ---
+// TODO: Create these components
+// import PaymentPage from './pages/shared/PaymentPage';
+// import ConsultationConfirmation from './pages/shared/ConsultationConfirmation';
 
 // --- UTILS ---
 import ProtectedRoute from './components/ProtectedRoute';
@@ -84,6 +90,7 @@ function App() {
             <Route path="/lawyer/availability" element={<AvailabilitySettings />} />
 
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/lawyer/:id" element={<LawyerProfile />} /> {/* The Profile View */}
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/chat/:lawyerId" element={<ChatPage />} />
 
