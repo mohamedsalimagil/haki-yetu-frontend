@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// FIXED: Point directly to the Backend Port (5000)
-const API_URL = "http://127.0.0.1:5000"; 
+// CRITICAL CHANGE: Use relative path to trigger the Vite Proxy
+const API_URL = "/api";
 
 const api = axios.create({
   baseURL: API_URL,

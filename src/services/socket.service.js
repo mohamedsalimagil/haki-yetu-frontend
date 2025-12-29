@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 
-// Connect to your Flask Backend URL (Port 5000)
-const SOCKET_URL = 'http://127.0.0.1:5000';
+// Empty string = use current domain (proxy handles the routing)
+const SOCKET_URL = '';
 
 class SocketService {
   socket = null;
@@ -10,17 +10,14 @@ class SocketService {
     if (this.socket) return;
 
     this.socket = io(SOCKET_URL, {
-      auth: { token }, // We send the JWT to prove who we are
-      transports: ['websocket'], // Force modern connection
+      path: '/socket.io',
+      auth: { token },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
     });
 
-    this.socket.on('connect', () => {
-      console.log('✅ Connected to WebSocket Server');
-    });
-
-    this.socket.on('disconnect', () => {
-      console.log('❌ Disconnected from WebSocket');
-    });
+    this.socket.on('connect', () => console.log('✅ Socket Connected via Proxy'));
+    this.socket.on('connect_error', (err) => console.error('❌ Socket Error:', err));
   }
 
   disconnect() {
@@ -30,18 +27,16 @@ class SocketService {
     }
   }
 
-  sendMessage(messageData) {
-    if (this.socket) {
-      this.socket.emit('send_message', messageData);
-    }
+  emit(event, data) {
+    if (this.socket) this.socket.emit(event, data);
+  }
+
+  on(event, callback) {
+    if (this.socket) this.socket.on(event, callback);
   }
 
   onMessageReceived(callback) {
-    if (this.socket) {
-      this.socket.on('receive_message', (msg) => {
-        callback(msg);
-      });
-    }
+    this.on('receive_message', callback);
   }
 }
 
