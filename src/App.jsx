@@ -8,6 +8,7 @@ import Dashboard from './pages/client/Dashboard';
 import Checkout from './pages/client/Checkout';
 import OrderHistory from './pages/client/OrderHistory';
 import MyDocuments from './pages/client/MyDocuments';
+import AdminRoutes from './pages/admin/AdminRoutes';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/checkout/:bookingId" element={<Checkout />} />
         <Route path="/history" element={<OrderHistory />} />
         <Route path="/documents" element={<MyDocuments />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
 
 
         {/* We will add more routes later */}
