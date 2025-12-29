@@ -1,89 +1,105 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import socketService from '../services/socket.service'; // Day 7: Import Socket Service
 
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check if user is logged in on app start
   useEffect(() => {
-    // Check for existing session on app start
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Verify token and get user details
+          const response = await api.get('/auth/me');
+          setUser(response.data);
 
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-    setLoading(false);
+          // Day 7: Connect socket if user is confirmed
+          socketService.connect(token);
+        } catch (error) {
+          console.error("Auth check failed", error);
+          localStorage.removeItem('token');
+          socketService.disconnect(); // Ensure clean state
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   const login = async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { access_token, user: userData } = response.data;
+      const { access_token, user } = response.data;
 
       localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      setUser(user);
 
-      setUser(userData);
-      return { success: true };
+      // Day 7: Connect socket on successful login
+      socketService.connect(access_token);
+
+      return { success: true, user };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Login failed' };
+      console.error("Login failed", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed'
+      };
     }
   };
 
   const register = async (userData) => {
     try {
-      const response = await api.post('/auth/register', userData);
+      // Handle file upload if avatar is present
+      let response;
+      if (userData instanceof FormData) {
+          response = await api.post('/auth/register', userData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+      } else {
+          response = await api.post('/auth/register', userData);
+      }
+
       const { access_token, user } = response.data;
-
       localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-
       setUser(user);
+
+      // Day 7: Connect socket on successful registration
+      socketService.connect(access_token);
+
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Registration failed' };
+      console.error("Registration failed", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
+      };
     }
-  };
-
-  const updateProfile = (updatedUserData) => {
-    const updatedUser = { ...user, ...updatedUserData };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    delete api.defaults.headers.common['Authorization'];
     setUser(null);
-  };
 
-  const value = {
-    user,
-    login,
-    register,
-    updateProfile,
-    logout,
-    loading
+    // Day 7: Disconnect socket on logout
+    socketService.disconnect();
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+// --- THIS IS THE MISSING EXPORT THAT CAUSED THE ERROR ---
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+export { AuthContext };
