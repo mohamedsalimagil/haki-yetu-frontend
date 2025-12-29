@@ -1,32 +1,15 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import LandingPage from './pages/public/LandingPage';
-import ServiceCatalog from './pages/client/ServiceCatalog';
-import ServiceDetails from './pages/client/ServiceDetails';
-import Dashboard from './pages/client/Dashboard';
-import Checkout from './pages/client/Checkout';
-import OrderHistory from './pages/client/OrderHistory';
-import MyDocuments from './pages/client/MyDocuments';
-import AdminRoutes from './pages/admin/AdminRoutes';
 
 function App() {
   return (
-    <div className="font-sans antialiased text-gray-900">
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/services" element={<ServiceCatalog />} />
-        <Route path="/services/:id" element={<ServiceDetails />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/checkout/:bookingId" element={<Checkout />} />
-        <Route path="/history" element={<OrderHistory />} />
-        <Route path="/documents" element={<MyDocuments />} />
-        <Route path="/admin/*" element={<AdminRoutes />} />
-
-
-        {/* We will add more routes later */}
-      </Routes>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="text-center p-8 bg-white rounded-lg shadow-lg">
+        <h1 className="text-4xl font-bold text-primary mb-4">Haki Yetu Digital</h1>
+        <p className="text-gray-600">Frontend Environment Successfully Initialized.</p>
+        <button className="mt-6 px-6 py-2 bg-primary text-white rounded hover:bg-blue-800 transition">
+          Get Started
+        </button>
+      </div>
     </div>
   );
 }
