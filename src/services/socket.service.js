@@ -1,23 +1,36 @@
 import io from 'socket.io-client';
 
-// Empty string = use current domain (proxy handles the routing)
-const SOCKET_URL = '';
-
 class SocketService {
   socket = null;
 
   connect(token) {
-    if (this.socket) return;
+    if (this.socket?.connected) return;
 
-    this.socket = io(SOCKET_URL, {
-      path: '/socket.io',
-      auth: { token },
-      transports: ['websocket', 'polling'],
+    // Production Connection
+    this.socket = io('http://localhost:5000', {
+      transports: ['websocket'],
+      autoConnect: true,
       reconnection: true,
+      auth: { token } // standardized auth handshake
     });
 
-    this.socket.on('connect', () => console.log('✅ Socket Connected via Proxy'));
-    this.socket.on('connect_error', (err) => console.error('❌ Socket Error:', err));
+    this.socket.on('connect', () => {
+      console.log("🔌 Socket Connected");
+      // Explicitly emit authenticate event as required by backend events.py
+      this.socket.emit('authenticate', { token });
+    });
+
+    this.socket.on('authenticated', (data) => {
+      console.log("✅ Socket Authenticated:", data);
+    });
+
+    this.socket.on('authentication_error', (err) => {
+      console.error("❌ Socket Auth Failed:", err);
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log("🔴 Socket Disconnected");
+    });
   }
 
   disconnect() {
@@ -25,18 +38,6 @@ class SocketService {
       this.socket.disconnect();
       this.socket = null;
     }
-  }
-
-  emit(event, data) {
-    if (this.socket) this.socket.emit(event, data);
-  }
-
-  on(event, callback) {
-    if (this.socket) this.socket.on(event, callback);
-  }
-
-  onMessageReceived(callback) {
-    this.on('receive_message', callback);
   }
 }
 

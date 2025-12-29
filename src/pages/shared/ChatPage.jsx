@@ -1,33 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import ChatSidebar from '../../components/domain/chat/ChatSidebar';
-import MessageWindow from '../../components/domain/chat/MessageWindow';
-import socketService from '../../services/socket.service';
-import chatService from '../../services/chat.service';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import socketService from '../../services/socket.service';
+import { Send, AlertCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const ChatPage = () => {
   const { user, token } = useAuth();
   const [activeContact, setActiveContact] = useState(null);
+  const [messageText, setMessageText] = useState("");
   const [messages, setMessages] = useState([]);
-  const [socketConnected, setSocketConnected] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // --- 1. CONNECTION & LISTENER ---
+  // MOCK DATA: In Production, this comes from Person B's endpoint (GET /api/conversations)
+  // We include 'conversation_id' here to satisfy the strict backend contract.
+  const contacts = [
+    {
+      id: 1,
+      conversation_id: 101, // This ID must exist in DB for chat to work
+      name: "Adv. Wanjiku Kimani",
+      role: "Corporate Law",
+      avatar: "WK",
+      online: true
+    },
+    {
+      id: 2,
+      conversation_id: null, // Simulate a contact with NO active booking/conversation
+      name: "Adv. Peter Omondi",
+      role: "Civil Litigation",
+      avatar: "PO",
+      online: false
+    },
+  ];
+
+  // --- 1. CONNECT & LISTEN ---
   useEffect(() => {
     if (!token) return;
 
-    if (!socketService.socket) {
-      socketService.connect(token);
-    }
+    socketService.connect(token);
     const socket = socketService.socket;
 
     const onConnect = () => {
       console.log("🟢 Connected to Socket");
-      setSocketConnected(true);
+      setIsConnected(true);
     };
     const onDisconnect = () => {
       console.log("🔴 Disconnected");
-      setSocketConnected(false);
+      setIsConnected(false);
     };
 
     // THE UNIVERSAL LISTENER (Catches everything)
@@ -59,7 +78,7 @@ const ChatPage = () => {
     };
 
     if (socket) {
-      setSocketConnected(socket.connected);
+      setIsConnected(socket.connected);
       socket.on('connect', onConnect);
       socket.on('disconnect', onDisconnect);
 
@@ -82,91 +101,127 @@ const ChatPage = () => {
     };
   }, [token]);
 
-  // --- 2. JOIN ROOM ---
+  // --- 2. JOIN CONVERSATION (Strict Mode) ---
   useEffect(() => {
     if (!activeContact || !user || !socketService.socket) return;
 
-    const userId = parseInt(user.id);
-    const contactId = parseInt(activeContact.id);
-    // Secure Room Name
-    const room = `chat_${Math.min(userId, contactId)}_${Math.max(userId, contactId)}`;
-
-    const joinRoom = () => {
-      console.log(`🔌 Joining Room: ${room}`);
-      // Join using both common event names
-      socketService.socket.emit('join_room', { room });
-      socketService.socket.emit('join', { room });
-    };
-
-    if (socketService.socket.connected) {
-      joinRoom();
-    } else {
-      socketService.socket.on('connect', joinRoom);
+    if (activeContact.conversation_id) {
+        // Emit 'join_conversation' as required by events.py
+        socketService.socket.emit('join_conversation', {
+            conversation_id: activeContact.conversation_id,
+            user_id: user.id
+        });
+        setMessages([]); // Clear view on switch
     }
-
-    // Clear previous chat when switching
-    setMessages([]);
-
-    return () => {
-      socketService.socket?.off('connect', joinRoom);
-    };
   }, [activeContact, user]);
 
+  // --- 3. AUTO SCROLL ---
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  // --- 3. SEND MESSAGE ---
-  const handleSendMessage = (text) => {
-    if (!activeContact) return;
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!messageText.trim() || !activeContact) return;
 
-    const userId = parseInt(user.id);
-    const contactId = parseInt(activeContact.id);
-    const room = `chat_${Math.min(userId, contactId)}_${Math.max(userId, contactId)}`;
+    // Guard: Cannot chat without a conversation ID (Backend Requirement)
+    if (!activeContact.conversation_id) {
+        toast.error("No active booking/conversation found with this user.");
+        return;
+    }
 
+    // Emit 'send_message' matching events.py signature
     const payload = {
-      room,
-      sender_id: userId,
-      recipient_id: contactId,
-      message: text,
-      content: text,
-      text: text, // Redundant keys to satisfy any backend requirement
-      timestamp: new Date().toISOString()
+      conversation_id: activeContact.conversation_id,
+      sender_id: user.id,
+      message: messageText,
+      message_type: 'text'
     };
 
-    console.log("📤 Sending Payload:", payload);
-
-    // SEND TO ALL POSSIBLE ENDPOINTS
-    socketService.socket?.emit('send_message', payload);
-    socketService.socket?.emit('message', payload);
-
-    // Optimistic Update
-    setMessages(prev => [...prev, {
-      sender_id: userId,
-      content: text,
-      created_at: new Date().toISOString()
-    }]);
+    socketService.socket.emit('send_message', payload);
+    setMessageText("");
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-gray-50 overflow-hidden font-sans">
-      <div className={`w-full md:w-80 flex-shrink-0 flex-col bg-white border-r border-gray-200 ${showSidebar ? 'flex' : 'hidden md:flex'}`}>
-        <ChatSidebar
-          onSelectContact={(c) => { setActiveContact(c); setShowSidebar(false); }}
-          activeContactId={activeContact?.id}
-          mobileView={true}
-          onBack={() => {}}
-        />
+    <div className="flex h-[calc(100vh-64px)] bg-gray-50 font-sans">
+
+      {/* SIDEBAR */}
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-100">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Messages</h2>
+          <div className="relative">
+             <input type="text" placeholder="Search..." className="w-full bg-gray-50 border p-2 rounded text-sm" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {contacts.map((contact) => (
+            <div
+              key={contact.id}
+              onClick={() => setActiveContact(contact)}
+              className={`p-4 flex gap-3 cursor-pointer hover:bg-blue-50 transition ${activeContact?.id === contact.id ? 'bg-blue-50 border-r-4 border-blue-600' : ''}`}
+            >
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                  {contact.avatar}
+                </div>
+                {contact.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>}
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm text-gray-900">{contact.name}</h3>
+                <p className="text-xs text-gray-400">{contact.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className={`flex-1 flex-col bg-white ${!showSidebar ? 'flex' : 'hidden md:flex'}`}>
-        <MessageWindow
-          activeContact={activeContact}
-          socket={socketService.socket}
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          currentUserId={user?.id}
-          socketConnected={socketConnected}
-          mobileView={!showSidebar}
-          onBackToContacts={() => { setActiveContact(null); setShowSidebar(true); }}
-        />
-      </div>
+
+      {/* CHAT WINDOW */}
+      {activeContact ? (
+        <div className="flex-1 flex flex-col bg-white">
+          <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10">
+             <h3 className="font-bold text-gray-900">{activeContact.name}</h3>
+             {!activeContact.conversation_id && (
+                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded flex items-center gap-1">
+                     <AlertCircle size={12}/> No Active Booking
+                 </span>
+             )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            {messages.map((msg, index) => {
+              const isMe = msg.sender_id === user.id;
+              return (
+                <div key={index} className={`flex mb-4 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[70%] p-3 rounded-xl text-sm ${isMe ? 'bg-blue-600 text-white' : 'bg-white border'}`}>
+                    <p>{msg.content}</p>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form onSubmit={handleSendMessage} className="p-4 bg-white border-t">
+            <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder={activeContact.conversation_id ? "Type a message..." : "Booking required to chat"}
+                  disabled={!activeContact.conversation_id}
+                  className="flex-1 bg-gray-50 border rounded-lg px-4 py-2 text-sm disabled:cursor-not-allowed"
+                />
+                <button type="submit" disabled={!activeContact.conversation_id} className="p-2 bg-blue-600 text-white rounded-lg disabled:opacity-50">
+                    <Send size={18} />
+                </button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center bg-gray-50 text-gray-500">
+           Select a conversation
+        </div>
+      )}
     </div>
   );
 };
