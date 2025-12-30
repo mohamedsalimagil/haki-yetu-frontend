@@ -2,7 +2,10 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // Layouts
-import Navbar from './components/layout/Navbar'; 
+import Navbar from './components/layout/Navbar';
+
+// Guards
+import VerificationGuard from './components/auth/VerificationGuard';
 
 // Auth & Public Pages
 import LandingPage from './pages/public/LandingPage';
@@ -43,11 +46,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification-pending" element={<PendingVerification />} />
-        
+
         {/* --- Lawyer Routes (Person A) --- */}
         <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
-        <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
-        
+
         {/* --- Client Onboarding Routes (Person B) --- */}
         <Route path="/client/onboarding" element={<ClientOnboarding />} />
         <Route path="/client/verification-pending" element={<ClientVerificationPending />} />
@@ -56,21 +58,22 @@ function App() {
         <Route path="/services" element={<ServiceCatalog />} />
         <Route path="/services/:id" element={<ServiceDetails />} />
         <Route path="/checkout/:bookingId" element={<Checkout />} />
-        
-        {/* --- Client Dashboard --- */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/client" element={<Dashboard />} />
-        
+
+        {/* --- Verification Protected Routes --- */}
+        <Route path="/" element={<VerificationGuard />}>
+          <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/client" element={<Dashboard />} />
+          <Route path="/chat" element={<Chat />} />
+        </Route>
+
         <Route path="/history" element={<OrderHistory />} />
         <Route path="/documents" element={<MyDocuments />} />
         <Route path="/profile" element={<UserProfileSettings />} />
 
         {/* --- Admin Routes (Person C) --- */}
         {/* This wildcard matches anything starting with /admin and delegates it to AdminRoutes */}
-        <Route path="/admin/*" element={<AdminRoutes />} /> 
-
-        {/* --- Shared --- */}
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
       </Routes>
     </>
   );
