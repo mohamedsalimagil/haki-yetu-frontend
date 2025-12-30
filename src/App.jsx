@@ -57,7 +57,7 @@ function App() {
         {/* --- Client Marketplace Routes (Person B) --- */}
         <Route path="/services" element={<ServiceCatalog />} />
         <Route path="/services/:id" element={<ServiceDetails />} />
-        <Route path="/checkout/:bookingId" element={<Checkout />} />
+        <Route path="/checkout/:orderId" element={<Checkout />} />
 
         {/* --- Verification Protected Routes --- */}
         <Route path="/" element={<VerificationGuard />}>

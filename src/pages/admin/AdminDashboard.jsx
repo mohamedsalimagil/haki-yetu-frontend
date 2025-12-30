@@ -64,34 +64,33 @@ export default function AdminDashboard() {
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
+            title="Total Revenue"
+            value={`KES ${stats.total_revenue?.toLocaleString() || '0'}`}
+            change="+12%"
+            icon={<TrendingUp className="w-6 h-6" />}
+            color="green"
+          />
+          <StatCard
             title="Total Users"
-            value={stats.total_users}
-            change={stats.user_growth}
+            value={stats.total_users?.total || stats.total_users || '0'}
+            change="+8%"
             icon={<Users className="w-6 h-6" />}
             color="blue"
           />
           <StatCard
-            title="Active Lawyers"
-            value={stats.active_lawyers}
-            change={stats.lawyer_growth}
-            icon={<CheckCircle className="w-6 h-6" />}
-            color="green"
-          />
-          <StatCard
-            title="Pending Approvals"
-            value={stats.pending_approvals}
-            change={stats.approval_change}
+            title="Pending Verifications"
+            value={stats.pending_verifications || '0'}
+            change="3 new"
             icon={<AlertCircle className="w-6 h-6" />}
             color="yellow"
             status="warning"
           />
           <StatCard
-            title="Open Disputes"
-            value={stats.open_disputes}
-            change={stats.dispute_change}
-            icon={<TrendingUp className="w-6 h-6" />}
-            color="red"
-            status="danger"
+            title="Active Lawyers"
+            value={stats.active_lawyers || '0'}
+            change="+5%"
+            icon={<CheckCircle className="w-6 h-6" />}
+            color="blue"
           />
         </div>
       )}

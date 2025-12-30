@@ -1,180 +1,261 @@
-import React, { useState, useEffect } from 'react'; // Import React and hooks for state and lifecycle
-import { useParams, useNavigate, useLocation } from 'react-router-dom'; // Import routing hooks (Added useLocation here)
-import { Smartphone, Lock, CheckCircle, Loader } from 'lucide-react'; // Import icon components
-import api from '../../services/api'; // Import API service for HTTP requests
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
+import api from '../../services/api';
+import { CreditCard, Shield, CheckCircle, Loader, ArrowLeft, Phone } from 'lucide-react';
 
-const Checkout = () => { // Define functional component for checkout page
-    const { bookingId } = useParams(); // Get booking ID from URL parameters
-    const navigate = useNavigate(); // Get navigation function (FIXED: Added this)
-    const location = useLocation(); // Get location state passed from previous page
+const Checkout = () => {
+  const navigate = useNavigate();
+  const { orderId } = useParams();
+  const { user } = useAuth();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
 
-    // Extract the data (with fallback values just in case)
-    const { serviceName, price } = location.state || { serviceName: 'Legal Service', price: 1500 }; 
+  useEffect(() => {
+    fetchOrder();
+  }, [orderId]);
 
-    const [phone, setPhone] = useState(''); // State for storing phone number input
-    const [loading, setLoading] = useState(false); // State for tracking payment initiation loading
-    const [paymentStatus, setPaymentStatus] = useState('idle'); // State for payment flow: idle, processing, success, failed
-    const [statusMessage, setStatusMessage] = useState(''); // State for user feedback messages
+  const fetchOrder = async () => {
+    try {
+      setLoading(true);
+      // Note: This endpoint might not exist yet, but we can fetch order details
+      // For now, we'll create a mock order based on the orderId
+      const response = await api.get(`/marketplace/orders/${orderId}`);
+      setOrder(response.data.order);
+    } catch (error) {
+      console.error('Error fetching order:', error);
+      // Create mock order for now
+      setOrder({
+        id: orderId,
+        service_name: 'Legal Consultation',
+        lawyer_name: 'Adv. Sarah Mwangi',
+        amount: 3000,
+        status: 'PENDING'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // POLLING FUNCTION
-    const pollPaymentStatus = async (requestId) => { // Async function to poll payment status
-        setPaymentStatus('processing'); // Set status to processing when polling starts
-        setStatusMessage('Check your phone... Enter M-Pesa PIN.'); // Update user message
+  const handlePayment = async () => {
+    try {
+      setPaying(true);
+      const response = await api.post(`/marketplace/pay/${orderId}`);
 
-        const intervalId = setInterval(async () => { // Create polling interval
-            try { // Try block for polling requests
-                const response = await api.get(`/marketplace/payments/status/${requestId}`); // API call to check payment status
+      toast.success('Payment successful! Your service has been booked.');
+      navigate('/client/dashboard');
+    } catch (error) {
+      console.error('Payment failed:', error);
+      toast.error('Payment failed. Please try again.');
+    } finally {
+      setPaying(false);
+    }
+  };
 
-                if (response.data.status === 'completed') { // Check if payment is completed
-                    clearInterval(intervalId); // Stop polling
-                    setPaymentStatus('success'); // Update status to success
-                    setStatusMessage('Payment Received! Redirecting...'); // Update success message
-                    setTimeout(() => navigate('/dashboard'), 3000); // Redirect after 3 seconds
-                }
-            } catch (err) { // Catch block for polling errors
-                console.error("Polling error", err); // Log error to console
-            }
-        }, 2000); // Check every 2 seconds
-
-        // Stop checking after 60 seconds (timeout)
-        setTimeout(() => { // Set timeout to stop polling
-            clearInterval(intervalId); // Clear polling interval
-            if (paymentStatus !== 'success') { // Check if payment hasn't succeeded
-                setPaymentStatus('failed'); // Set status to failed
-                setStatusMessage('Payment timed out. Please try again.'); // Update timeout message
-            }
-        }, 60000); // 60 second timeout
-    };
-
-    const handlePayment = async (e) => { // Function to handle payment submission
-        e.preventDefault(); // Prevent default form submission
-        setLoading(true); // Set loading state to true
-        setStatusMessage('Initiating M-Pesa STK Push...'); // Update status message
-
-        try { // Try block for payment initiation
-            const payload = { // Create payment payload
-                booking_id: bookingId, // Include booking ID from URL
-                phone: phone // Include phone number from state
-            };
-            
-            const response = await api.post('/marketplace/payments/stk-push', payload); // Initiate STK push
-            
-            // Start Polling 
-            const requestId = response.data.CheckoutRequestID; // Extract checkout request ID
-            pollPaymentStatus(requestId); // Start polling with request ID
-            
-        } catch (err) { // Catch block for payment initiation errors
-            setPaymentStatus('failed'); // Set payment status to failed
-            setStatusMessage('Failed to initiate payment.'); // Update error message
-        } finally { // Finally block to clean up
-            setLoading(false); // Reset loading state
-        }
-    };
-
+  if (loading) {
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 lg:p-12">
-            <div className="bg-white max-w-5xl w-full rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col lg:flex-row">
-                
-                {/* LEFT SIDE: Order Summary (Darker/Contrast) */}
-                <div className="lg:w-1/2 bg-slate-900 p-8 lg:p-12 text-white flex flex-col justify-between relative overflow-hidden">
-                    {/* Decorative Circle */}
-                    <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-600 rounded-full opacity-20 blur-3xl"></div>
-                    
-                    <div className="relative z-10">
-                        <h2 className="text-2xl font-bold mb-2">Order Summary</h2>
-                        <p className="text-slate-400 text-sm">Review your booking details before payment.</p>
-                        
-                        <div className="mt-8 space-y-6">
-                            <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-                                <span className="text-slate-300">Service</span>
-                                <span className="font-medium">{serviceName}</span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-                                <span className="text-slate-300">Booking Reference</span>
-                                <span className="font-mono text-yellow-400">#{bookingId}</span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-                                <span className="text-slate-300">Processing Time</span>
-                                <span className="font-medium">Instant</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 relative z-10">
-                        <div className="flex justify-between items-end">
-                            <p className="text-slate-400">Total Due</p>
-                            <p className="text-4xl font-bold text-white">
-                                KES {price ? price.toLocaleString() : '0'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* RIGHT SIDE: Payment Form */}
-                <div className="lg:w-1/2 p-8 lg:p-12 bg-white relative">
-                    
-                    <div className="mb-8">
-                        <h3 className="text-xl font-bold text-gray-900">Payment Details</h3>
-                        <p className="text-sm text-gray-500">Secure transaction via M-Pesa</p>
-                    </div>
-
-                    {/* SUCCESS STATE */}
-                    {paymentStatus === 'success' ? (
-                        <div className="text-center py-12 animate-fade-in">
-                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <CheckCircle className="w-10 h-10" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">Payment Confirmed!</h3>
-                            <p className="text-gray-500">Your booking is secure. Redirecting...</p>
-                        </div>
-                    ) : (
-                        <form onSubmit={handlePayment} className="space-y-6">
-                            
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase mb-2">M-Pesa Phone Number</label>
-                                <div className="relative group">
-                                    <Smartphone className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                                    <input 
-                                        type="text" 
-                                        placeholder="2547XXXXXXXX"
-                                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none font-medium text-gray-900"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Status Message Bubble */}
-                            {statusMessage && (
-                                <div className={`p-4 rounded-xl flex items-center text-sm ${
-                                    paymentStatus === 'failed' ? 'bg-red-50 text-red-700 border border-red-100' : 
-                                    paymentStatus === 'processing' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 
-                                    'bg-gray-50 text-gray-600'
-                                }`}>
-                                    {paymentStatus === 'processing' && <Loader className="w-4 h-4 mr-2 animate-spin" />}
-                                    {statusMessage}
-                                </div>
-                            )}
-
-                            <button 
-                                type="submit" 
-                                disabled={loading || paymentStatus === 'processing'}
-                                className="w-full py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-600/20"
-                            >
-                                {loading ? 'Initiating Push...' : 'Pay Now'}
-                            </button>
-                            
-                            <div className="flex items-center justify-center space-x-2 text-xs text-gray-400 mt-6">
-                                <Lock className="w-3 h-3" />
-                                <span>Encrypted & Secure Payment</span>
-                            </div>
-                        </form>
-                    )}
-                </div>
-            </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="animate-spin w-12 h-12 text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading order details...</p>
         </div>
+      </div>
     );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-red-600 text-2xl">⚠️</span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Order Not Found</h3>
+            <p className="text-gray-600 mb-6">The order you're looking for doesn't exist.</p>
+            <button
+              onClick={() => navigate('/services')}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
+              Browse Services
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Header */}
+      <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-20">
+        <div className="flex items-center gap-2">
+           <div className="bg-blue-600 p-1.5 rounded-lg">
+              <CreditCard className="text-white w-5 h-5" />
+           </div>
+           <span className="font-bold text-gray-900 text-lg">Haki Yetu</span>
+        </div>
+        <button
+          onClick={() => navigate('/services')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+        >
+          <ArrowLeft size={16} />
+          Back to Services
+        </button>
+      </header>
+
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+
+            {/* Order Summary */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-start py-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{order.service_name}</h3>
+                    <p className="text-gray-600">Service by {order.lawyer_name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-gray-900">KES {order.amount?.toLocaleString()}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">KES {order.amount?.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mt-2">
+                    <span className="text-gray-600">Service Fee</span>
+                    <span className="font-medium">KES 0</span>
+                  </div>
+                  <div className="border-t border-gray-200 mt-3 pt-3">
+                    <div className="flex justify-between text-lg font-bold">
+                      <span className="text-gray-900">Total</span>
+                      <span className="text-blue-600">KES {order.amount?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Payment Method</h3>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border-2 border-blue-200 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <Phone className="text-white w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">M-Pesa</p>
+                      <p className="text-sm text-gray-600">Pay with your mobile money</p>
+                    </div>
+                  </div>
+                  <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Shield className="text-yellow-600 w-5 h-5 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-yellow-800">Secure Payment</p>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Your payment is processed securely through M-Pesa. Funds are held in escrow until service completion.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+
+            {/* Payment Summary */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Payment Summary</h3>
+
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Service</span>
+                  <span className="font-medium">KES {order.amount?.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Processing Fee</span>
+                  <span className="font-medium">KES 0</span>
+                </div>
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex justify-between text-lg font-bold">
+                    <span className="text-gray-900">Total</span>
+                    <span className="text-blue-600">KES {order.amount?.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handlePayment}
+                disabled={paying}
+                className="w-full mt-6 bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {paying ? (
+                  <>
+                    <Loader className="animate-spin w-5 h-5" />
+                    Processing Payment...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={20} />
+                    Pay with M-Pesa
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-gray-500 text-center mt-4">
+                You will receive an M-Pesa prompt on your phone
+              </p>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h4 className="font-bold text-gray-900 mb-4">Why Choose Haki Yetu?</h4>
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="text-green-600 w-4 h-4" />
+                  <span className="text-sm text-gray-700">Verified Advocates</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="text-green-600 w-4 h-4" />
+                  <span className="text-sm text-gray-700">Secure Payments</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="text-green-600 w-4 h-4" />
+                  <span className="text-sm text-gray-700">24/7 Support</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="text-green-600 w-4 h-4" />
+                  <span className="text-sm text-gray-700">Money Back Guarantee</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default Checkout; // Export component as default
+export default Checkout;

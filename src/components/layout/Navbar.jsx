@@ -13,8 +13,6 @@ const Navbar = () => {
     navigate('/');
   };
 
-  if (!user) return null; // Don't show navbar if not logged in
-
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,38 +24,60 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            {user.role === 'client' && (
+            {!user ? (
+              // Not logged in - show login button
               <Link
-                to="/marketplace"
-                className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
+                to="/login"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
-                <User className="w-5 h-5" />
-                <span>Find a Lawyer</span>
+                Login
               </Link>
+            ) : (
+              // Logged in - show user controls
+              <>
+                {user.role === 'client' && (
+                  <>
+                    <Link
+                      to="/services"
+                      className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <span>Services</span>
+                    </Link>
+                    <Link
+                      to="/marketplace"
+                      className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <span>Find a Lawyer</span>
+                    </Link>
+                  </>
+                )}
+
+                <Link
+                  to="/chat"
+                  className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  <span>Messages</span>
+                </Link>
+
+                <NotificationBell />
+
+                <div className="flex items-center space-x-2 text-gray-700">
+                  <User className="w-5 h-5" />
+                  <span>{user.name}</span>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-red-600 transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </>
             )}
-
-            <Link
-              to="/chat"
-              className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
-            >
-              <MessageSquare className="w-5 h-5" />
-              <span>Messages</span>
-            </Link>
-
-            <NotificationBell />
-
-            <div className="flex items-center space-x-2 text-gray-700">
-              <User className="w-5 h-5" />
-              <span>{user.name}</span>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-700 hover:text-red-600 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
           </div>
         </div>
       </div>

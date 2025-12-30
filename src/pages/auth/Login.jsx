@@ -31,6 +31,8 @@ const Login = () => {
         toast.success('Welcome back!');
         if (result.user?.role === 'lawyer') {
           navigate("/lawyer/dashboard");
+        } else if (result.user?.role === 'admin') {
+          navigate("/admin");
         } else {
           navigate("/client/dashboard");
         }

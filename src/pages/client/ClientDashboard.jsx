@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import api from '../../services/api';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -22,11 +23,13 @@ import {
 const ClientDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Navigation Handlers
   const goToMarketplace = () => navigate('/marketplace');
   const goToChat = () => navigate('/chat');
-  
+
   const showComingSoon = (feature) => {
     toast.success(`${feature} module coming in Phase 2!`, {
       icon: '🚧',
@@ -34,11 +37,40 @@ const ClientDashboard = () => {
     });
   };
 
-  // --- MOCK DATA ---
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/marketplace/orders/mine');
+      setOrders(response.data.orders || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      // Keep empty array if API fails
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format orders for display
+  const recentActivity = orders.slice(0, 3).map(order => ({
+    service: order.service_name || 'Legal Service',
+    id: `#${order.id}`,
+    date: new Date(order.created_at || Date.now()).toLocaleDateString(),
+    status: order.status,
+    statusColor: order.status === 'PAID' ? 'bg-green-100 text-green-700' :
+                order.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
+                'bg-blue-100 text-blue-700'
+  }));
+
+  // Calculate stats from orders
   const stats = [
-    { label: 'Pending Actions', value: '2', icon: AlertCircle, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: 'Pending Actions', value: orders.filter(o => o.status === 'PENDING').length.toString(), icon: AlertCircle, color: 'text-orange-500', bg: 'bg-orange-50' },
     { label: 'Upcoming Consultations', value: '1', icon: Video, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Completed Orders', value: '14', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
+    { label: 'Completed Orders', value: orders.filter(o => o.status === 'PAID').length.toString(), icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
   ];
 
   const quickServices = [
@@ -46,12 +78,6 @@ const ClientDashboard = () => {
     { title: 'Draft Contract', icon: FileText, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { title: 'Book Advocate', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
     { title: 'Land Search', icon: Search, color: 'text-purple-600', bg: 'bg-purple-50' },
-  ];
-
-  const recentActivity = [
-    { service: 'Affidavit of Service', id: '#2034', date: 'Today, 9:41AM', status: 'Ready', statusColor: 'bg-green-100 text-green-700' },
-    { service: 'Virtual Consultation', id: '#2031', date: 'Tomorrow, 2:00PM', status: 'Scheduled', statusColor: 'bg-blue-100 text-blue-700' },
-    { service: 'Land Search - Nairobi', id: '#2028', date: 'Oct 24, 2023', status: 'Processing', statusColor: 'bg-orange-100 text-orange-700' },
   ];
 
   return (
