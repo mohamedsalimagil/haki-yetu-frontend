@@ -28,14 +28,22 @@ const ClientOnboarding = () => {
       return;
     }
 
-    // Get form data from the form
-    const formData = new FormData(e.target);
-    formData.append('id_front', idFront);
-    formData.append('id_back', idBack);
+    // Get form data and create FormData with specific snake_case keys
+    const formDataObj = new FormData(e.target);
+    const submitData = new FormData();
+
+    // Append form fields with specific snake_case keys
+    submitData.append('phone', formDataObj.get('phone') || '');
+    submitData.append('address', formDataObj.get('address') || '');
+    submitData.append('county', formDataObj.get('county') || '');
+    submitData.append('document_number', formDataObj.get('documentNumber') || '');
+    submitData.append('dob', formDataObj.get('dob') || '');
+    submitData.append('id_front', idFront);
+    submitData.append('id_back', idBack);
 
     setLoading(true);
     try {
-      await api.post('/client/kyc', formData, {
+      await api.post('/client/kyc', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -44,6 +52,7 @@ const ClientOnboarding = () => {
       navigate('/client/verification-pending');
     } catch (error) {
       console.error('Error submitting KYC:', error);
+      console.error('Server response:', error.response?.data);
       toast.error('Failed to submit documents. Please try again.');
     } finally {
       setLoading(false);
