@@ -14,7 +14,10 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/register/lawyer" element={<LawyerRegistration />} />
+      
+      {/* ✅ UPDATED: Changed path to match the redirect from Register.jsx */}
+      <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
+      
       <Route path="/profile" element={<UserProfileSettings />} />
       <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
       <Route path="/dashboard/client" element={<ClientDashboard />} />

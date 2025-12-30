@@ -17,7 +17,6 @@ const Register = () => {
     password: ''
   });
 
-  // 1. GET BOTH REGISTER AND LOGIN FUNCTIONS
   const { register, login } = useAuth();
   const navigate = useNavigate();
 
@@ -43,12 +42,9 @@ const Register = () => {
       console.log('Attempting registration...');
       const regResponse = await register(payload);
 
-      // CRITICAL FIX: Stop if registration returned an error or failed
-      // This handles cases where the Context returns { success: false } or undefined
+      // Stop if registration returned an error or failed
       if (!regResponse || regResponse.success === false) {
          console.error("Registration failed, stopping flow.");
-         // The error toast is usually handled by the catch block or context
-         // If not, throw one here:
          throw new Error(regResponse?.message || "Registration failed.");
       }
 
@@ -65,11 +61,12 @@ const Register = () => {
       
       toast.success(`Welcome to Haki Yetu! Registered as a ${role}.`);
       
-      // 4. REDIRECT BASED ON ROLE
+      // 3. REDIRECT BASED ON ROLE (The Critical Fix)
       if (role === 'client') {
-        navigate('/client/onboarding'); // <--- UPDATED
+        // Direct clients to the dashboard (prevents blank screen)
+        navigate('/dashboard/client'); 
       } else {
-        // Redirect Lawyers to Onboarding Step 2
+        // Direct Lawyers to the multi-step onboarding form
         navigate('/lawyer/onboarding');
       }
       
@@ -214,7 +211,6 @@ const Register = () => {
               />
             </div>
 
-            {/* --- INSERT THIS NEW BLOCK --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
               <input
@@ -227,7 +223,6 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-            {/* ----------------------------- */}
 
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
