@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 import { 
   LayoutDashboard, FileText, Briefcase, Calendar, MessageSquare, 
   User, Settings, Plus, Video, Clock, 
@@ -10,6 +11,25 @@ import {
 const LawyerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+      try {
+        const response = await api.get('/lawyer/profile');
+        if (response.data.profile.verification_status === 'pending') {
+          navigate('/verification-pending');
+        } else if (response.data.profile.verification_status === 'verified') {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error checking verification status:', error);
+        setLoading(false);
+      }
+    };
+
+    checkVerificationStatus();
+  }, [navigate]);
 
   // --- MOCK DATA FOR UI ---
   const stats = [
@@ -29,6 +49,14 @@ const LawyerDashboard = () => {
     { name: 'Sarah Njoroge', text: 'Attached the ID document you requested...', time: '2m ago', avatar: 'https://ui-avatars.com/api/?name=Sarah+Njoroge&background=random' },
     { name: 'John Kibet', text: 'Can we reschedule our meeting?', time: '1h ago', avatar: 'https://ui-avatars.com/api/?name=John+Kibet&background=random' },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans flex text-slate-800">
