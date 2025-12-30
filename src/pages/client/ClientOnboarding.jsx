@@ -28,6 +28,14 @@ const ClientOnboarding = () => {
       return;
     }
 
+    // Get JWT token from localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Session expired. Please log in again.');
+      navigate('/login');
+      return;
+    }
+
     // Get form data and create FormData with specific snake_case keys
     const formDataObj = new FormData(e.target);
     const submitData = new FormData();
@@ -46,6 +54,7 @@ const ClientOnboarding = () => {
       await api.post('/client/kyc', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer ' + token,
         },
       });
       toast.success('Documents submitted for verification!');
