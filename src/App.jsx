@@ -1,39 +1,27 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import LandingPage from './pages/public/LandingPage';
-import ServiceCatalog from './pages/client/ServiceCatalog';
-import ServiceDetails from './pages/client/ServiceDetails';
-import Dashboard from './pages/client/Dashboard';
-import Checkout from './pages/client/Checkout';
-import OrderHistory from './pages/client/OrderHistory';
-import MyDocuments from './pages/client/MyDocuments';
-import AdminRoutes from './pages/admin/AdminRoutes';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import UserProfileSettings from './pages/auth/UserProfileSettings';
+import LawyerRegistration from './pages/auth/LawyerRegistration';
+import LawyerDashboard from './pages/lawyer/LawyerDashboard';
+import ClientDashboard from './pages/client/ClientDashboard';
+import Home from './pages/Home';
+import Chat from './pages/Chat';
 
 function App() {
   return (
-    <div className="font-sans antialiased text-gray-900">
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/services" element={<ServiceCatalog />} />
-        <Route path="/services/:id" element={<ServiceDetails />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/checkout/:bookingId" element={<Checkout />} />
-        <Route path="/history" element={<OrderHistory />} />
-        <Route path="/documents" element={<MyDocuments />} />
-        <Route path="/admin/*" element={<AdminRoutes />} />
-
-
-        {/* We will add more routes later */}
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/register/lawyer" element={<LawyerRegistration />} />
+      <Route path="/profile" element={<UserProfileSettings />} />
+      <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
+      <Route path="/dashboard/client" element={<ClientDashboard />} />
+      <Route path="/chat" element={<Chat />} />
+      <Route path="/" element={<Home />} />
+    </Routes>
   );
 }
 
 export default App;
-
-
-
-
-
