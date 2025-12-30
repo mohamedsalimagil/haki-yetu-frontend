@@ -63,8 +63,8 @@ const Register = () => {
       
       // 3. REDIRECT BASED ON ROLE (The Critical Fix)
       if (role === 'client') {
-        // Direct clients to the dashboard (prevents blank screen)
-        navigate('/dashboard/client'); 
+        // Direct clients to onboarding for verification
+        navigate('/client/onboarding');
       } else {
         // Direct Lawyers to the multi-step onboarding form
         navigate('/lawyer/onboarding');

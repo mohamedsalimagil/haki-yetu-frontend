@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import api from '../../services/api';
 import { Shield, Lock, Upload, Calendar, MapPin, ChevronRight, FileText, CheckCircle, User } from 'lucide-react';
 
 const ClientOnboarding = () => {
@@ -20,18 +21,33 @@ const ClientOnboarding = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!idFront || !idBack) {
       toast.error('Please upload both sides of your ID');
       return;
     }
+
+    // Get form data from the form
+    const formData = new FormData(e.target);
+    formData.append('id_front', idFront);
+    formData.append('id_back', idBack);
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await api.post('/client/kyc', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      toast.success('Documents submitted for verification!');
+      navigate('/client/verification-pending');
+    } catch (error) {
+      console.error('Error submitting KYC:', error);
+      toast.error('Failed to submit documents. Please try again.');
+    } finally {
       setLoading(false);
-      navigate('/verification-pending'); // Redirect to success page
-    }, 1500);
+    }
   };
 
   return (

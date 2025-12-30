@@ -16,12 +16,14 @@ import LawyerRegistration from './pages/auth/LawyerRegistration';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 
 // Client/Marketplace Module (Person B)
-import Dashboard from './pages/client/Dashboard'; 
+import Dashboard from './pages/client/Dashboard';
 import ServiceCatalog from './pages/client/ServiceCatalog';
 import ServiceDetails from './pages/client/ServiceDetails';
 import Checkout from './pages/client/Checkout';
 import OrderHistory from './pages/client/OrderHistory';
 import MyDocuments from './pages/client/MyDocuments';
+import ClientOnboarding from './pages/client/ClientOnboarding';
+import ClientVerificationPending from './pages/client/ClientVerificationPending';
 
 // Admin Module (Person C)
 import AdminRoutes from './pages/admin/AdminRoutes';
@@ -46,6 +48,10 @@ function App() {
         <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
         <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
         
+        {/* --- Client Onboarding Routes (Person B) --- */}
+        <Route path="/client/onboarding" element={<ClientOnboarding />} />
+        <Route path="/client/verification-pending" element={<ClientVerificationPending />} />
+
         {/* --- Client Marketplace Routes (Person B) --- */}
         <Route path="/services" element={<ServiceCatalog />} />
         <Route path="/services/:id" element={<ServiceDetails />} />
