@@ -3,7 +3,18 @@ import { Send, User, Paperclip, FileText, X } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import chatService from '../../../services/chat.service';
 
-const MessageWindow = ({ activeContact, socket, messages, onSendMessage, currentUserId, onRefreshMessages, socketConnected, mobileView, onBackToContacts }) => {
+// 1. Added activeConversationId to props
+const MessageWindow = ({ 
+  activeContact, 
+  activeConversationId, 
+  socket, 
+  messages, 
+  onSendMessage, 
+  currentUserId, 
+  onRefreshMessages, 
+  mobileView, 
+  onBackToContacts 
+}) => {
   const [newMessage, setNewMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -27,9 +38,13 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
     if (!socket) return;
     const handleConnect = () => setIsActuallyConnected(true);
     const handleDisconnect = () => setIsActuallyConnected(false);
+    
+    // Check initial state
+    setIsActuallyConnected(socket.connected);
+
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
-    setIsActuallyConnected(socket.connected);
+    
     return () => {
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
@@ -52,6 +67,14 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
   const handleSend = async (e) => {
     e.preventDefault();
     if ((!newMessage.trim() && !selectedFile) || isUploading) return;
+
+    // Safety Check: We need a conversation ID to send anything now
+    if (!activeConversationId) {
+      console.error("No active conversation ID found");
+      alert("Error: Cannot send message without an active conversation.");
+      return;
+    }
+
     setIsUploading(true);
 
     try {
@@ -60,10 +83,12 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
         try {
           const formData = new FormData();
           formData.append('file', selectedFile);
-          formData.append('receiver_id', String(activeContact.id));
+          formData.append('conversation_id', activeConversationId); 
+          
           await chatService.uploadFile(formData);
           if (onRefreshMessages) onRefreshMessages();
         } catch (error) {
+          console.error("File upload error:", error);
           alert("Failed to upload file.");
           setIsUploading(false);
           return;
@@ -74,8 +99,9 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
       if (newMessage.trim()) {
         const textToSend = newMessage.trim();
         
-        // FIX: Only pass the STRING to the parent.
-        // The parent (ChatPage) handles the socket.emit and state update.
+        // Pass the text to parent. 
+        // NOTE: Ensure parent (Chat.jsx) emits: 
+        // { conversation_id: activeConversationId, message: textToSend }
         onSendMessage(textToSend); 
       }
 
@@ -93,11 +119,12 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
   // Helper to render message content
   const renderMessageContent = (input) => {
     if (!input) return null;
-    const text = String(input); // Safety cast
+    const text = String(input);
 
     if (text.startsWith('FILE:')) {
       const filename = text.replace('FILE:', '');
       const isImage = filename.match(/\.(jpeg|jpg|gif|png|webp)$/i);
+      // Ensure this URL matches your backend config
       const url = `http://127.0.0.1:5000/chat/uploads/${filename}`;
 
       if (isImage) {
@@ -123,46 +150,51 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
   if (!activeContact) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50 text-gray-400">
-        Select a contact to start chatting
+        Select a conversation to start chatting
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      {/* Mobile Header */}
-      {mobileView && (
-        <div className="bg-white p-3 border-b flex items-center shadow-sm">
+      {/* Header */}
+      <div className="bg-white p-4 border-b flex items-center shadow-sm">
+        {mobileView && (
            <button onClick={onBackToContacts} className="mr-3 text-blue-600 font-bold text-sm">Back</button>
-           <span className="font-bold text-gray-800">{activeContact.first_name}</span>
+        )}
+        
+        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 text-gray-500 overflow-hidden">
+          {activeContact.avatar ? (
+            <img src={activeContact.avatar} alt={activeContact.first_name} className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-6 h-6" />
+          )}
         </div>
-      )}
-
-      {/* Desktop Header */}
-      {!mobileView && (
-        <div className="bg-white p-4 border-b flex items-center shadow-sm">
-          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 text-gray-500">
-            {activeContact.avatar ? (
-              <img src={activeContact.avatar} alt={activeContact.name} className="w-full h-full rounded-full object-cover" />
+        <div>
+          <h2 className="font-semibold text-gray-800">
+            {activeContact.first_name || activeContact.name} {activeContact.last_name || ''}
+          </h2>
+          <div className="flex items-center">
+            {isActuallyConnected ? (
+              <p className="text-xs text-green-500 flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                Socket Connected
+              </p>
             ) : (
-              <User className="w-6 h-6" />
+              <p className="text-xs text-orange-400 flex items-center">
+                <span className="w-2 h-2 bg-orange-400 rounded-full mr-1"></span>
+                Connecting...
+              </p>
             )}
           </div>
-          <div>
-            <h2 className="font-semibold text-gray-800">{activeContact.first_name} {activeContact.last_name}</h2>
-            <p className="text-xs text-green-500 flex items-center">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-              Online
-            </p>
-          </div>
         </div>
-      )}
+      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {Array.isArray(messages) && messages.map((msg, idx) => {
-          const isMe = msg.sender_id === currentUserId;
-          // Handle potential missing content gracefully
+          // Robust check for sender_id (handles int/string mismatch)
+          const isMe = String(msg.sender_id) === String(currentUserId);
           const content = msg.content || msg.message || msg.text || ""; 
           
           return (
@@ -176,7 +208,9 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
               >
                 {renderMessageContent(content)}
                 <span className={`text-[10px] mt-1 block ${isMe ? 'text-blue-100' : 'text-gray-400'}`}>
-                  {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                  {msg.sent_at 
+                    ? new Date(msg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                    : (msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')}
                 </span>
               </div>
             </div>
@@ -185,7 +219,7 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
+      {/* Input Area */}
       <div className="bg-white p-4 border-t">
         {selectedFile && (
           <div className="mb-3 p-2 bg-gray-50 border rounded-lg flex items-center justify-between">
@@ -195,7 +229,7 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
         )}
         <form onSubmit={handleSend} className="flex gap-2 items-center">
           <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
-          <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-gray-400 hover:bg-gray-50 rounded-full">
+          <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-gray-400 hover:bg-gray-50 rounded-full transition-colors">
             <Paperclip className="w-5 h-5" />
           </button>
           <input
@@ -203,9 +237,14 @@ const MessageWindow = ({ activeContact, socket, messages, onSendMessage, current
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={isUploading ? "Uploading..." : "Type your message..."}
-            className="flex-1 px-4 py-3 bg-gray-100 rounded-full focus:ring-2 focus:ring-blue-500 outline-none"
+            className="flex-1 px-4 py-3 bg-gray-100 rounded-full focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            disabled={isUploading}
           />
-          <button type="submit" disabled={isUploading} className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md">
+          <button 
+            type="submit" 
+            disabled={isUploading || (!newMessage.trim() && !selectedFile)} 
+            className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md disabled:bg-gray-300 transition-colors"
+          >
             <Send className="w-5 h-5" />
           </button>
         </form>
