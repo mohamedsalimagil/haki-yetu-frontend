@@ -40,14 +40,26 @@ const ClientOnboarding = () => {
     const formDataObj = new FormData(e.target);
     const submitData = new FormData();
 
+    // Debug: Log form data for troubleshooting
+    console.log('Form data entries:');
+    for (let [key, value] of formDataObj.entries()) {
+      console.log(key, value);
+    }
+
     // Append form fields with specific snake_case keys
     submitData.append('phone', formDataObj.get('phone') || '');
     submitData.append('address', formDataObj.get('address') || '');
     submitData.append('county', formDataObj.get('county') || '');
-    submitData.append('document_number', formDataObj.get('documentNumber') || '');
+    submitData.append('document_number', formDataObj.get('documentNumber') || formDataObj.get('document_number') || '');
     submitData.append('dob', formDataObj.get('dob') || '');
     submitData.append('id_front', idFront);
     submitData.append('id_back', idBack);
+
+    // Debug: Log submit data
+    console.log('Submit data entries:');
+    for (let [key, value] of submitData.entries()) {
+      console.log(key, typeof value === 'string' ? value : value.name);
+    }
 
     setLoading(true);
     try {
@@ -62,6 +74,7 @@ const ClientOnboarding = () => {
     } catch (error) {
       console.error('Error submitting KYC:', error);
       console.error('Server response:', error.response?.data);
+      console.error('Backend Validation Error:', error.response?.data);
       toast.error('Failed to submit documents. Please try again.');
     } finally {
       setLoading(false);
@@ -110,22 +123,22 @@ const ClientOnboarding = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Document Number</label>
-                  <input type="text" placeholder="e.g. 12345678" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
+                  <input type="text" name="documentNumber" placeholder="e.g. 12345678" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                   <div className="relative">
-                    <input type="date" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
+                    <input type="date" name="dob" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
                     <Calendar className="absolute right-3 top-3 text-gray-400 w-5 h-5 pointer-events-none" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number (M-Pesa enabled)</label>
-                  <input type="tel" placeholder="+254 7XX XXX XXX" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
+                  <input type="tel" name="phone" placeholder="+254 7XX XXX XXX" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">County of Residence</label>
-                  <select className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <select name="county" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
                     <option>Nairobi City</option>
                     <option>Mombasa</option>
                     <option>Kisumu</option>
@@ -136,7 +149,7 @@ const ClientOnboarding = () => {
               {/* Address */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Physical Address</label>
-                <input type="text" placeholder="e.g. Westlands, Chiromo Road, Mirage Towers" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <input type="text" name="address" placeholder="e.g. Westlands, Chiromo Road, Mirage Towers" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none" required />
               </div>
 
               {/* Uploads */}
