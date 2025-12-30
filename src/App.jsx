@@ -1,29 +1,70 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+
+// Layouts
+import Navbar from './components/layout/Navbar'; 
+
+// Auth & Public Pages
+import LandingPage from './pages/public/LandingPage';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import UserProfileSettings from './pages/auth/UserProfileSettings';
+
+// Lawyer Module (Person A)
 import LawyerRegistration from './pages/auth/LawyerRegistration';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
-import ClientDashboard from './pages/client/ClientDashboard';
-import Home from './pages/Home';
+
+// Client/Marketplace Module (Person B)
+import Dashboard from './pages/client/Dashboard'; 
+import ServiceCatalog from './pages/client/ServiceCatalog';
+import ServiceDetails from './pages/client/ServiceDetails';
+import Checkout from './pages/client/Checkout';
+import OrderHistory from './pages/client/OrderHistory';
+import MyDocuments from './pages/client/MyDocuments';
+
+// Admin Module (Person C)
+import AdminRoutes from './routes/AdminRoutes'; // Ensure this file exists, or point to your Admin wrapper
+
+// Shared
 import Chat from './pages/Chat';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+    <>
+      {/* Navbar appears on all pages (Note: You might want to hide this for /admin routes later) */}
+      <Navbar />
       
-      {/* ✅ UPDATED: Changed path to match the redirect from Register.jsx */}
-      <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
-      
-      <Route path="/profile" element={<UserProfileSettings />} />
-      <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
-      <Route path="/dashboard/client" element={<ClientDashboard />} />
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/" element={<Home />} />
-    </Routes>
+      <Routes>
+        {/* --- Public Routes --- */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* --- Lawyer Routes (Person A) --- */}
+        <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
+        <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
+        
+        {/* --- Client Marketplace Routes (Person B) --- */}
+        <Route path="/services" element={<ServiceCatalog />} />
+        <Route path="/services/:id" element={<ServiceDetails />} />
+        <Route path="/checkout/:bookingId" element={<Checkout />} />
+        
+        {/* --- Client Dashboard --- */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/client" element={<Dashboard />} />
+        
+        <Route path="/history" element={<OrderHistory />} />
+        <Route path="/documents" element={<MyDocuments />} />
+        <Route path="/profile" element={<UserProfileSettings />} />
+
+        {/* --- Admin Routes (Person C) --- */}
+        {/* This wildcard matches anything starting with /admin and delegates it to AdminRoutes */}
+        <Route path="/admin/*" element={<AdminRoutes />} />
+
+        {/* --- Shared --- */}
+        <Route path="/chat" element={<Chat />} />
+      </Routes>
+    </>
   );
 }
 
