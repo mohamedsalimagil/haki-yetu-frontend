@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
+import api from '../../../services/api'; // Ensure you have your axios instance here
 
 const LawyerRegistrationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -31,7 +33,24 @@ const LawyerRegistrationForm = () => {
   const [newSpecialization, setNewSpecialization] = useState('');
   const [newLanguage, setNewLanguage] = useState('');
 
-  const { register } = useAuth();
+  // ✅ 1. Get User and Navigate
+  const { register, user } = useAuth();
+  const navigate = useNavigate();
+
+  // ✅ 2. Auto-Skip Step 1 if User is Logged In
+  useEffect(() => {
+    if (user) {
+      // Pre-fill data
+      setFormData((prev) => ({
+        ...prev,
+        name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+        email: user.email || '',
+        phone: user.phone || ''
+      }));
+      // Jump to Step 2
+      setCurrentStep(2);
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,6 +95,9 @@ const LawyerRegistrationForm = () => {
   };
 
   const validateStep = (step) => {
+    // If user is logged in, skip validation for Step 1
+    if (step === 1 && user) return true;
+
     switch (step) {
       case 1:
         if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
@@ -114,19 +136,15 @@ const LawyerRegistrationForm = () => {
     setCurrentStep(currentStep - 1);
   };
 
+  // ✅ 3. The Critical Fix: Handle Submit Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Prepare registration data
-    const registrationData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      role: 'advocate',
-      phone: formData.phone,
-      lawyer_profile: {
+    try {
+      // Prepare the profile payload
+      const lawyerProfileData = {
         lsk_number: formData.lskNumber,
         bio: formData.bio,
         specializations: formData.specializations,
@@ -136,19 +154,50 @@ const LawyerRegistrationForm = () => {
         education: formData.education,
         certifications: formData.certifications,
         bar_admission: formData.barAdmission
+      };
+
+      if (user) {
+        // --- SCENARIO A: User is already logged in (The Fix) ---
+        // We do NOT call register(). We call the endpoint to create/update the profile.
+        console.log("Submitting lawyer profile for existing user...");
+        
+        // Note: Ensure this endpoint matches your backend route in app/lawyer/routes.py
+        // Commonly: /api/lawyer/profile or /api/lawyer/onboarding
+        await api.post('/lawyer/profile', lawyerProfileData);
+
+        toast.success("Profile submitted for verification!");
+        navigate('/verification-pending'); // Send them to verification pending page
+      
+      } else {
+        // --- SCENARIO B: Brand new user (Fallback) ---
+        // This runs if they somehow accessed this form without logging in first
+        const registrationData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: 'lawyer', // Changed from 'advocate' to match your system
+          phone: formData.phone,
+          lawyer_profile: lawyerProfileData
+        };
+
+        const result = await register(registrationData);
+
+        if (!result.success) {
+          throw new Error(result.error || "Registration failed");
+        } else {
+          toast.success('Registration successful!');
+          navigate('/verification-pending');
+        }
       }
-    };
 
-    const result = await register(registrationData);
-
-    if (!result.success) {
-      setError(result.error);
-    } else {
-      // Registration successful, redirect or show success message
-      alert('Registration submitted! Your account will be reviewed by an administrator.');
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.message || err.message || 'Submission failed';
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const renderStepIndicator = () => (
@@ -158,7 +207,7 @@ const LawyerRegistrationForm = () => {
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
               step <= currentStep
-                ? 'bg-primary text-white'
+                ? 'bg-blue-600 text-white' // Updated color to match theme
                 : 'bg-gray-200 text-gray-600'
             }`}
           >
@@ -167,7 +216,7 @@ const LawyerRegistrationForm = () => {
           {step < 3 && (
             <div
               className={`w-12 h-1 mx-2 ${
-                step < currentStep ? 'bg-primary' : 'bg-gray-200'
+                step < currentStep ? 'bg-blue-600' : 'bg-gray-200'
               }`}
             />
           )}
@@ -189,7 +238,7 @@ const LawyerRegistrationForm = () => {
           name="name"
           type="text"
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="Enter your full legal name"
           value={formData.name}
           onChange={handleChange}
@@ -205,7 +254,7 @@ const LawyerRegistrationForm = () => {
           name="email"
           type="email"
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="Enter your professional email"
           value={formData.email}
           onChange={handleChange}
@@ -221,7 +270,7 @@ const LawyerRegistrationForm = () => {
           name="phone"
           type="tel"
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="+254 XXX XXX XXX"
           value={formData.phone}
           onChange={handleChange}
@@ -237,7 +286,7 @@ const LawyerRegistrationForm = () => {
           name="password"
           type="password"
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="Create a secure password"
           value={formData.password}
           onChange={handleChange}
@@ -253,7 +302,7 @@ const LawyerRegistrationForm = () => {
           name="confirmPassword"
           type="password"
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="Confirm your password"
           value={formData.confirmPassword}
           onChange={handleChange}
@@ -275,7 +324,7 @@ const LawyerRegistrationForm = () => {
           name="lskNumber"
           type="text"
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="e.g., LSK/1234/2020"
           value={formData.lskNumber}
           onChange={handleChange}
@@ -292,7 +341,7 @@ const LawyerRegistrationForm = () => {
           name="bio"
           rows={4}
           required
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="Describe your legal expertise, experience, and practice areas..."
           value={formData.bio}
           onChange={handleChange}
@@ -307,7 +356,7 @@ const LawyerRegistrationForm = () => {
         <div className="flex space-x-2 mb-2">
           <input
             type="text"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="e.g., Corporate Law"
             value={newSpecialization}
             onChange={(e) => setNewSpecialization(e.target.value)}
@@ -316,7 +365,7 @@ const LawyerRegistrationForm = () => {
           <button
             type="button"
             onClick={addSpecialization}
-            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Add
           </button>
@@ -325,13 +374,13 @@ const LawyerRegistrationForm = () => {
           {formData.specializations.map((spec, index) => (
             <span
               key={index}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary bg-opacity-10 text-primary"
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
             >
               {spec}
               <button
                 type="button"
                 onClick={() => removeSpecialization(spec)}
-                className="ml-1 text-primary hover:text-red-600"
+                className="ml-1 text-blue-800 hover:text-red-600"
               >
                 ×
               </button>
@@ -350,7 +399,7 @@ const LawyerRegistrationForm = () => {
             name="yearsOfExperience"
             type="number"
             min="0"
-            className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="e.g., 5"
             value={formData.yearsOfExperience}
             onChange={handleChange}
@@ -365,7 +414,7 @@ const LawyerRegistrationForm = () => {
             id="location"
             name="location"
             type="text"
-            className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="e.g., Nairobi"
             value={formData.location}
             onChange={handleChange}
@@ -380,7 +429,7 @@ const LawyerRegistrationForm = () => {
         <div className="flex space-x-2 mb-2">
           <input
             type="text"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="e.g., English"
             value={newLanguage}
             onChange={(e) => setNewLanguage(e.target.value)}
@@ -389,7 +438,7 @@ const LawyerRegistrationForm = () => {
           <button
             type="button"
             onClick={addLanguage}
-            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Add
           </button>
@@ -427,7 +476,7 @@ const LawyerRegistrationForm = () => {
           id="education"
           name="education"
           rows={3}
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="List your educational background and qualifications..."
           value={formData.education}
           onChange={handleChange}
@@ -442,7 +491,7 @@ const LawyerRegistrationForm = () => {
           id="certifications"
           name="certifications"
           rows={3}
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="List any relevant certifications, awards, or professional memberships..."
           value={formData.certifications}
           onChange={handleChange}
@@ -457,7 +506,7 @@ const LawyerRegistrationForm = () => {
           id="barAdmission"
           name="barAdmission"
           type="text"
-          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           placeholder="Date and place of bar admission"
           value={formData.barAdmission}
           onChange={handleChange}
@@ -509,7 +558,7 @@ const LawyerRegistrationForm = () => {
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Previous
               </button>
@@ -521,7 +570,7 @@ const LawyerRegistrationForm = () => {
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-6 py-2 bg-primary border border-transparent rounded-md text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="px-6 py-2 bg-blue-600 border border-transparent rounded-md text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Next
               </button>
@@ -539,7 +588,7 @@ const LawyerRegistrationForm = () => {
           <div className="text-center pt-4">
             <span className="text-sm text-gray-600">
               Already have an account?{' '}
-              <Link to="/login" className="font-medium text-primary hover:text-blue-500">
+              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign in
               </Link>
             </span>

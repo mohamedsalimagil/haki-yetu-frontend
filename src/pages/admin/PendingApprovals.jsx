@@ -31,7 +31,9 @@ export default function PendingApprovals() {
     try {
       setProcessLoading(true);
       await adminService.approveLawyerApplication(applicationId);
+      // Refresh list
       fetchApplications();
+      // Close modal
       setSelectedApp(null);
     } catch (error) {
       console.error('Failed to approve application:', error);
@@ -54,7 +56,9 @@ export default function PendingApprovals() {
       await adminService.rejectLawyerApplication(applicationId, {
         reason: rejectionReason,
       });
+      // Refresh list
       fetchApplications();
+      // Close modal & reset state
       setSelectedApp(null);
       setRejectionReason('');
     } catch (error) {

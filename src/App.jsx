@@ -9,6 +9,7 @@ import LandingPage from './pages/public/LandingPage';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import UserProfileSettings from './pages/auth/UserProfileSettings';
+import PendingVerification from './pages/auth/PendingVerification';
 
 // Lawyer Module (Person A)
 import LawyerRegistration from './pages/auth/LawyerRegistration';
@@ -23,7 +24,7 @@ import OrderHistory from './pages/client/OrderHistory';
 import MyDocuments from './pages/client/MyDocuments';
 
 // Admin Module (Person C)
-import AdminRoutes from './routes/AdminRoutes'; // Ensure this file exists, or point to your Admin wrapper
+import AdminRoutes from './pages/admin/AdminRoutes';
 
 // Shared
 import Chat from './pages/Chat';
@@ -39,6 +40,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verification-pending" element={<PendingVerification />} />
         
         {/* --- Lawyer Routes (Person A) --- */}
         <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
@@ -59,7 +61,7 @@ function App() {
 
         {/* --- Admin Routes (Person C) --- */}
         {/* This wildcard matches anything starting with /admin and delegates it to AdminRoutes */}
-        <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="/admin/*" element={<AdminRoutes />} /> 
 
         {/* --- Shared --- */}
         <Route path="/chat" element={<Chat />} />
