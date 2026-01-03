@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Filter, Search } from 'lucide-react';
-import adminService from '../../services/admin.service';
+import adminService from '../../services/adminService';
 import DataTable from '../../components/domain/admin/DataTable';
 import Pagination from '../../components/common/Pagination';
 

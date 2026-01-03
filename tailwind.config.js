@@ -7,8 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#1a365d", // Professional Navy Blue
+        primary: "#1E40AF", // Navy Blue from Figma
+        accent: "#FACC15", // Amber accent from Figma
+        'bg-slate': "#F9FAFB", // Light slate background from Figma
         secondary: "#c53030", // Accent Red for 'Urgency'
+        pending: "#FACC15", // Amber for pending states
+        background: "#F9FAFB", // Light gray background
       }
     },
   },

@@ -71,14 +71,20 @@ const Register = () => {
       }
       
     } catch (err) {
-      console.error(err);
+      console.error('Registration error:', err);
+      console.error('Full Axios Error Object:', err);
+      if (err.response) {
+        console.log('Status:', err.response.status);
+        console.log('Headers:', err.response.headers);
+        console.error('Error response data:', err.response.data);
+      }
       // Handle duplicates or other errors
-      const errorMessage = err.response?.data?.message || err.message || 'Registration failed';
-      
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Registration failed';
+
       if (errorMessage.includes('already exists') || errorMessage.includes('IntegrityError')) {
          toast.error('This email is already registered. Please login.');
       } else {
-         toast.error(errorMessage);
+         toast.error(`Registration failed: ${errorMessage}`);
       }
     } finally {
       setIsLoading(false);

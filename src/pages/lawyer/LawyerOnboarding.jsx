@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { 
-  Shield, CheckCircle, Upload, Lock, Globe, 
-  HelpCircle, ChevronRight, Briefcase, Gavel, 
-  FileText, Users, Home, X, FileCheck 
+import lawyerService from '../../services/lawyer.service';
+import {
+  Shield, CheckCircle, Upload, Lock, Globe,
+  HelpCircle, ChevronRight, Briefcase, Gavel,
+  FileText, Users, Home, X, FileCheck
 } from 'lucide-react';
 
 const LawyerOnboarding = () => {
@@ -14,6 +15,10 @@ const LawyerOnboarding = () => {
   const [selectedSpecializations, setSelectedSpecializations] = useState([]);
   const [certificateFile, setCertificateFile] = useState(null); // Store selected file
   const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    lskNumber: '',
+    yearOfAdmission: ''
+  });
 
   const specializations = [
     { id: 'family', label: 'Family Law', icon: Users },
@@ -56,21 +61,44 @@ const LawyerOnboarding = () => {
   };
   // ---------------------------
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    
+
     if (!certificateFile) {
         toast.error("Please upload your Practicing Certificate to continue.");
         return;
     }
 
+    if (!formData.lskNumber.trim() || !formData.yearOfAdmission.trim()) {
+        toast.error("Please fill in all required fields.");
+        return;
+    }
+
+    if (selectedSpecializations.length === 0) {
+        toast.error("Please select at least one area of specialization.");
+        return;
+    }
+
     setLoading(true);
-    // Simulate upload/verification delay
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const profileData = new FormData();
+      profileData.append('lsk_number', formData.lskNumber);
+      profileData.append('year_of_admission', formData.yearOfAdmission);
+      profileData.append('specializations', JSON.stringify(selectedSpecializations));
+      profileData.append('practicing_certificate', certificateFile);
+
+      await lawyerService.updateProfile(profileData);
+
       toast.success('Profile submitted for Admin Verification!');
-      navigate('/verification-pending'); // <--- UPDATED
-    }, 1500);
+      navigate('/verification-pending');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to update profile';
+      toast.error(`Profile update failed: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -123,12 +151,28 @@ const LawyerOnboarding = () => {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">LSK Practice Number</label>
-                      <input type="text" placeholder="e.g. P.105/1234/2023" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                      <input
+                        type="text"
+                        name="lskNumber"
+                        placeholder="e.g. P.105/1234/2023"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={formData.lskNumber}
+                        onChange={(e) => setFormData({ ...formData, lskNumber: e.target.value })}
+                        required
+                      />
                       <p className="text-xs text-gray-400 mt-1">Used to verify your status with the Law Society of Kenya.</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Year of Admission</label>
-                      <input type="text" placeholder="YYYY" className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                      <input
+                        type="text"
+                        name="yearOfAdmission"
+                        placeholder="YYYY"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={formData.yearOfAdmission}
+                        onChange={(e) => setFormData({ ...formData, yearOfAdmission: e.target.value })}
+                        required
+                      />
                     </div>
                   </div>
                 </div>

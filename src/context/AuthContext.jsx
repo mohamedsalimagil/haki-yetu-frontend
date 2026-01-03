@@ -15,11 +15,15 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           // Verify token and get user details
-          const response = await api.get('/auth/me');
-          setUser(response.data);
+          const response = await api.get('/api/auth/me');
+          const userData = response.data;
 
-          // Day 7: Connect socket if user is confirmed
-          socketService.connect(token);
+          // Only connect socket if user is verified (not during onboarding)
+          if (userData.verification_status === 'verified') {
+            socketService.connect(token);
+          }
+
+          setUser(userData);
         } catch (error) {
           console.error("Auth check failed", error);
           localStorage.removeItem('token');
@@ -34,8 +38,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/api/auth/login', { email, password });
       const { access_token, user } = response.data;
+
+      // --- NEW LOGIC: BLOCK PENDING USERS ---
+      // If the user is a client and is pending, DO NOT let them log in.
+      if (user.role === 'client' && (user.status === 'pending' || user.verification_status === 'pending')) {
+        // We throw a specific object so the Login component recognizes it
+        throw {
+          response: {
+            data: {
+              error: "ACCOUNT_PENDING",
+              message: "Your account is currently under verification. Please wait for admin approval."
+            }
+          }
+        };
+      }
+      // --------------------------------------
 
       localStorage.setItem('token', access_token);
       setUser(user);
@@ -43,13 +62,12 @@ export const AuthProvider = ({ children }) => {
       // Day 7: Connect socket on successful login
       socketService.connect(access_token);
 
-      return { success: true, user };
+      // Return user to help with navigation in Login.jsx
+      return user;
+
     } catch (error) {
-      console.error("Login failed", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Login failed'
-      };
+      console.error("Login failed:", error);
+      throw error;
     }
   };
 
@@ -58,11 +76,11 @@ export const AuthProvider = ({ children }) => {
       // Handle file upload if avatar is present
       let response;
       if (userData instanceof FormData) {
-          response = await api.post('/auth/register', userData, {
+          response = await api.post('/api/auth/register', userData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
       } else {
-          response = await api.post('/auth/register', userData);
+          response = await api.post('/api/auth/register', userData, { withCredentials: true });
       }
 
       const { access_token, user } = response.data;

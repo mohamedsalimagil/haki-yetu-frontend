@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
@@ -7,11 +7,13 @@ import { CreditCard, Shield, CheckCircle, Loader, ArrowLeft, Phone } from 'lucid
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { orderId } = useParams();
   const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   useEffect(() => {
     fetchOrder();
@@ -20,35 +22,140 @@ const Checkout = () => {
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      // Note: This endpoint might not exist yet, but we can fetch order details
-      // For now, we'll create a mock order based on the orderId
-      const response = await api.get(`/marketplace/orders/${orderId}`);
-      setOrder(response.data.order);
+      
+      // Check if order data was passed via location state (from NotarizationFlow)
+      if (location.state) {
+        const { service, amount, timeSlot, document } = location.state;
+        setOrder({
+          id: orderId,
+          service_name: service || 'Document Notarization',
+          lawyer_name: 'Haki Yetu Platform',
+          amount: amount || 600,
+          timeSlot: timeSlot,
+          document: document,
+          status: 'PENDING'
+        });
+        setLoading(false);
+        return;
+      }
+
+      // For notarization service, use static data (no API endpoint needed)
+      if (orderId === 'notarization') {
+        setOrder({
+          id: 'notarization',
+          service_name: 'Document Notarization',
+          lawyer_name: 'LSK Accredited Advocate',
+          amount: 600,
+          status: 'PENDING'
+        });
+        setLoading(false);
+        return;
+      }
+
+      // For other services, try to fetch from API
+      try {
+        const response = await api.get(`/marketplace/orders/${orderId}`);
+        setOrder(response.data.order);
+      } catch (apiError) {
+        // If API fails, create default order
+        console.log('Using default order data');
+        setOrder({
+          id: orderId,
+          service_name: 'Legal Service',
+          lawyer_name: 'Haki Yetu Platform',
+          amount: 3000,
+          status: 'PENDING'
+        });
+      }
     } catch (error) {
       console.error('Error fetching order:', error);
-      // Create mock order for now
-      setOrder({
-        id: orderId,
-        service_name: 'Legal Consultation',
-        lawyer_name: 'Adv. Sarah Mwangi',
-        amount: 3000,
-        status: 'PENDING'
-      });
+      toast.error('Failed to load order details');
     } finally {
       setLoading(false);
     }
   };
 
   const handlePayment = async () => {
+    // Validate phone number
+    if (!phoneNumber) {
+      toast.error('Please enter your M-Pesa phone number');
+      return;
+    }
+
+    // Format phone number (remove spaces, ensure 254 prefix)
+    let formattedPhone = phoneNumber.replace(/\s/g, '');
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '254' + formattedPhone.substring(1);
+    } else if (formattedPhone.startsWith('+254')) {
+      formattedPhone = formattedPhone.substring(1);
+    } else if (!formattedPhone.startsWith('254')) {
+      formattedPhone = '254' + formattedPhone;
+    }
+
+    // Validate phone format
+    if (!/^254\d{9}$/.test(formattedPhone)) {
+      toast.error('Please enter a valid Kenyan phone number (e.g., 0712345678)');
+      return;
+    }
+
+    // CRITICAL: Check if user is logged in before payment
+    const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    if (!token) {
+      toast.error('Your session has expired. Please login to complete payment.');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
     try {
       setPaying(true);
-      const response = await api.post(`/marketplace/pay/${orderId}`);
+      
+      // Use the correct M-Pesa STK Push endpoint with explicit Authorization header
+      // Payload keys MUST match backend snake_case schema
+      const response = await api.post(
+        '/api/payment/mpesa/stkpush',
+        {
+          phone_number: formattedPhone,  // Backend expects snake_case
+          amount: Math.round(Number(order.amount)), // Backend expects integer
+          account_reference: order.service_name || 'HAKIYETU', // Backend expects snake_case
+          description: `Payment for ${order.service_name || 'Haki Yetu'}` // Backend expects 'description' not 'transactionDesc'
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      toast.success('Payment successful! Your service has been booked.');
-      navigate('/client/dashboard');
+      toast.success('Payment request sent! Please check your phone for M-Pesa prompt.', {
+        duration: 5000,
+        icon: '📱'
+      });
+      
+      // Navigate to success page after showing toast
+      setTimeout(() => {
+        navigate('/client/dashboard', { 
+          state: { 
+            paymentInitiated: true,
+            orderId: order.id 
+          } 
+        });
+      }, 2000);
+
     } catch (error) {
       console.error('Payment failed:', error);
-      toast.error('Payment failed. Please try again.');
+      
+      // Handle authorization errors specifically
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        navigate('/login', { state: { from: location.pathname } });
+        return;
+      }
+      
+      const errorMessage = error.response?.data?.message || 'Payment failed. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setPaying(false);
     }
@@ -164,6 +271,28 @@ const Checkout = () => {
                   <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
+                </div>
+
+                {/* Phone Number Input */}
+                <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    M-Pesa Phone Number
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="0712345678"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Enter the phone number registered with M-Pesa
+                  </p>
                 </div>
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">

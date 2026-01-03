@@ -7,7 +7,7 @@ const clientService = {
    * Note: Updated to match your current implementation endpoint.
    */
   getMyBookings: async () => {
-    const response = await api.get('/marketplace/orders');
+    const response = await api.get('/api/marketplace/orders');
     return response.data;
   },
 
@@ -16,7 +16,7 @@ const clientService = {
    * Fetches the client's user profile.
    */
   getProfile: async () => {
-    const response = await api.get('/auth/profile');
+    const response = await api.get('/api/auth/profile');
     return response.data;
   },
 
@@ -27,7 +27,7 @@ const clientService = {
    */
   submitReview: async (reviewData) => {
     try {
-      const response = await api.post('/lawyer/reviews', reviewData);
+      const response = await api.post('/api/lawyer/reviews', reviewData);
       return response.data;
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -39,7 +39,7 @@ const clientService = {
    * Fetches the average rating and total review count for a specific lawyer.
    */
   getLawyerRating: async (lawyerId) => {
-    const response = await api.get(`/lawyer/${lawyerId}/rating`);
+    const response = await api.get(`/api/lawyer/${lawyerId}/rating`);
     return response.data; // Expected: { average_rating, total_reviews }
   },
 
@@ -47,7 +47,7 @@ const clientService = {
    * Fetches all public reviews/comments for a specific lawyer.
    */
   getLawyerReviews: async (lawyerId) => {
-    const response = await api.get(`/lawyer/${lawyerId}/reviews`);
+    const response = await api.get(`/api/lawyer/${lawyerId}/reviews`);
     return response.data.reviews || [];
   }
 };

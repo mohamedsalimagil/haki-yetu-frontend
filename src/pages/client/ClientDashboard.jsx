@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
+import SkeletonLoader from '../../components/common/SkeletonLoader';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -23,12 +24,14 @@ import {
 const ClientDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
+  const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Navigation Handlers
   const goToMarketplace = () => navigate('/marketplace');
   const goToChat = () => navigate('/chat');
+  const resumeOnboarding = () => navigate('/client/onboarding');
 
   const showComingSoon = (feature) => {
     toast.success(`${feature} module coming in Phase 2!`, {
@@ -38,39 +41,61 @@ const ClientDashboard = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchCases();
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchCases = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/marketplace/orders/mine');
-      setOrders(response.data.orders || []);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+      setError(null);
+      const response = await api.get('/api/case/cases');
+      setCases(response.data.cases || []);
+    } catch (err) {
+      console.error('Error fetching cases:', err);
+      setError(err.response?.data?.message || 'Failed to load cases');
       // Keep empty array if API fails
-      setOrders([]);
+      setCases([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Format orders for display
-  const recentActivity = orders.slice(0, 3).map(order => ({
-    service: order.service_name || 'Legal Service',
-    id: `#${order.id}`,
-    date: new Date(order.created_at || Date.now()).toLocaleDateString(),
-    status: order.status,
-    statusColor: order.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                order.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
-                'bg-blue-100 text-blue-700'
+  // Format cases for display
+  const recentActivity = (cases || []).slice(0, 3).map(caseItem => ({
+    service: caseItem?.case_title || caseItem?.title || 'Legal Case',
+    id: `#${caseItem?.id || 'N/A'}`,
+    date: caseItem?.next_hearing_date 
+      ? new Date(caseItem.next_hearing_date).toLocaleDateString('en-GB')
+      : new Date(caseItem?.created_at || Date.now()).toLocaleDateString('en-GB'),
+    status: caseItem?.status || 'Open',
+    statusColor: caseItem?.status === 'Closed' ? 'bg-gray-100 text-gray-700' :
+                caseItem?.status === 'Pending' ? 'bg-orange-100 text-orange-700' :
+                'bg-green-100 text-green-700'
   }));
 
-  // Calculate stats from orders
+  // Calculate stats from cases
   const stats = [
-    { label: 'Pending Actions', value: orders.filter(o => o.status === 'PENDING').length.toString(), icon: AlertCircle, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { label: 'Upcoming Consultations', value: '1', icon: Video, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Completed Orders', value: orders.filter(o => o.status === 'PAID').length.toString(), icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
+    { 
+      label: 'Active Cases', 
+      value: (cases?.filter(c => c?.status === 'Open' || c?.status === 'Active') || []).length.toString(), 
+      icon: AlertCircle, 
+      color: 'text-orange-500', 
+      bg: 'bg-orange-50' 
+    },
+    { 
+      label: 'Upcoming Consultations', 
+      value: '1', 
+      icon: Video, 
+      color: 'text-blue-500', 
+      bg: 'bg-blue-50' 
+    },
+    { 
+      label: 'Completed Cases', 
+      value: (cases?.filter(c => c?.status === 'Closed' || c?.status === 'Completed') || []).length.toString(), 
+      icon: CheckCircle, 
+      color: 'text-green-500', 
+      bg: 'bg-green-50' 
+    },
   ];
 
   const quickServices = [
@@ -81,8 +106,8 @@ const ClientDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex font-sans">
-      
+    <div className="min-h-screen bg-background flex font-sans">
+
       {/* --- LEFT SIDEBAR --- */}
       <aside className="w-64 bg-white border-r border-gray-200 hidden lg:flex flex-col justify-between fixed h-full z-10">
         <div>
@@ -103,15 +128,15 @@ const ClientDashboard = () => {
               <LayoutDashboard size={20} />
               Dashboard
             </button>
-            <button onClick={() => showComingSoon('Documents')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+            <button onClick={() => navigate('/documents')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
               <FileText size={20} />
               My Documents
             </button>
-            <button onClick={goToChat} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+            <button onClick={() => navigate('/client/consultations')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
               <Video size={20} />
               Consultations
             </button>
-            <button onClick={() => showComingSoon('History')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+            <button onClick={() => navigate('/history')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
               <History size={20} />
               Order History
             </button>
@@ -182,16 +207,16 @@ const ClientDashboard = () => {
           {/* Welcome Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-                Jambo, {user?.first_name} <span className="text-2xl">👋</span>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                Jambo, {user?.first_name || 'User'} <span className="text-3xl">👋</span>
               </h1>
-              <p className="text-gray-500">
-                Here is your legal overview. You have <span className="font-semibold text-blue-600">2 pending actions</span> requiring attention.
+              <p className="text-gray-600 text-lg">
+                Here is your legal overview. You have <span className="font-semibold text-primary">{cases?.filter(c => c?.status === 'Open')?.length || 0} active cases</span>.
               </p>
             </div>
-            <button 
-              onClick={goToMarketplace} 
-              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-sm font-medium"
+            <button
+              onClick={goToMarketplace}
+              className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-sm font-medium"
             >
               <Plus size={18} />
               Start New Request
@@ -245,59 +270,110 @@ const ClientDashboard = () => {
               {/* Recent Activity Table */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                  <h3 className="text-base font-bold text-gray-800">Recent Activity</h3>
+                  <h3 className="text-base font-bold text-gray-800">Active Cases</h3>
                   <button className="text-gray-400 hover:text-blue-600 transition">
                     <LayoutDashboard size={18} />
                   </button>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                      <tr>
-                        <th className="px-6 py-4 font-medium">Service</th>
-                        <th className="px-6 py-4 font-medium">Order ID</th>
-                        <th className="px-6 py-4 font-medium">Date</th>
-                        <th className="px-6 py-4 font-medium">Status</th>
-                        <th className="px-6 py-4 font-medium">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {recentActivity.map((item, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition">
-                          <td className="px-6 py-4 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-                              <FileText size={16} />
-                            </div>
-                            <span className="font-medium text-gray-800 text-sm">{item.service}</span>
-                          </td>
-                          <td className="px-6 py-4 text-gray-500 text-sm">{item.id}</td>
-                          <td className="px-6 py-4 text-gray-500 text-sm">{item.date}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${item.statusColor}`}>
-                              {item.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <button 
-                              onClick={() => showComingSoon('Order Details')} 
-                              className="text-blue-600 text-sm font-medium hover:underline"
-                            >
-                              View
-                            </button>
-                          </td>
+
+                {/* Loading State */}
+                {loading && (
+                  <div className="p-6">
+                    <SkeletonLoader count={3} />
+                  </div>
+                )}
+
+                {/* Error State */}
+                {error && !loading && (
+                  <div className="p-6 text-center">
+                    <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+                    <p className="text-gray-600 mb-2">{error}</p>
+                    <p className="text-xs text-gray-500">Please ensure Flask backend is running at http://127.0.0.1:5000</p>
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {!loading && !error && recentActivity.length === 0 && (
+                  <div className="p-12 text-center">
+                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">No Active Cases</h3>
+                    <p className="text-sm text-gray-600 mb-4">Start by requesting a legal service</p>
+                    <button
+                      onClick={goToMarketplace}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                    >
+                      Browse Services
+                    </button>
+                  </div>
+                )}
+
+                {/* Data Table */}
+                {!loading && !error && recentActivity.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="px-6 py-4 font-medium">Case Title</th>
+                          <th className="px-6 py-4 font-medium">Case ID</th>
+                          <th className="px-6 py-4 font-medium">Next Hearing</th>
+                          <th className="px-6 py-4 font-medium">Status</th>
+                          <th className="px-6 py-4 font-medium">Chat</th>
+                          <th className="px-6 py-4 font-medium">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="p-4 border-t border-gray-100 text-center">
-                  <button 
-                    onClick={() => showComingSoon('Order History')}
-                    className="text-blue-600 text-sm font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
-                  >
-                    View Full History <Users size={14} />
-                  </button>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {recentActivity.map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50 transition">
+                            <td className="px-6 py-4 flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                                <FileText size={16} />
+                              </div>
+                              <span className="font-medium text-gray-800 text-sm">{item?.service || 'Case'}</span>
+                            </td>
+                            <td className="px-6 py-4 text-gray-500 text-sm">{item?.id || 'N/A'}</td>
+                            <td className="px-6 py-4 text-gray-500 text-sm">{item?.date || 'N/A'}</td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${item?.statusColor || 'bg-gray-100 text-gray-700'}`}>
+                                {item?.status || 'Unknown'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              {item?.status === 'Open' || item?.status === 'Active' ? (
+                                <button
+                                  onClick={() => navigate(`/chat?caseId=${item.id.replace('#', '')}`)}
+                                  className="flex items-center gap-1 text-blue-600 text-sm font-medium hover:underline"
+                                >
+                                  <Video size={14} />
+                                  Chat
+                                </button>
+                              ) : (
+                                <span className="text-gray-400 text-sm">-</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={() => showComingSoon('Case Details')}
+                                className="text-blue-600 text-sm font-medium hover:underline"
+                              >
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {!loading && !error && recentActivity.length > 0 && (
+                  <div className="p-4 border-t border-gray-100 text-center">
+                    <button 
+                      onClick={() => showComingSoon('Case History')}
+                      className="text-blue-600 text-sm font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
+                    >
+                      View All Cases <Users size={14} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

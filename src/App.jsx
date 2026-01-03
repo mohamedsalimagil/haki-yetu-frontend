@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 
 // Layouts
 import Navbar from './components/layout/Navbar';
@@ -9,17 +10,27 @@ import VerificationGuard from './components/auth/VerificationGuard';
 
 // Auth & Public Pages
 import LandingPage from './pages/public/LandingPage';
+import AboutPage from './pages/public/AboutPage';
+import ServicesPage from './pages/public/ServicesPage';
+import AdvocateDirectory from './pages/public/AdvocateDirectory';
+import PricingPage from './pages/public/PricingPage';
+import NotarizationFlow from './pages/public/NotarizationFlow';
+import DocumentGenerator from './pages/public/DocumentGenerator'; // Public version
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import UserProfileSettings from './pages/auth/UserProfileSettings';
 import PendingVerification from './pages/auth/PendingVerification';
 
-// Lawyer Module (Person A)
+// Lawyer Module
 import LawyerRegistration from './pages/auth/LawyerRegistration';
 import LawyerDashboard from './pages/lawyer/LawyerDashboard';
+import NotarizationQueue from './pages/lawyer/NotarizationQueue';
+import LawyerEarnings from './pages/lawyer/LawyerEarnings';
+import InAppChat from './pages/lawyer/InAppChat';
 
-// Client/Marketplace Module (Person B)
+// Client Module
 import Dashboard from './pages/client/Dashboard';
+import ClientDashboard from './pages/client/ClientDashboard';
 import ServiceCatalog from './pages/client/ServiceCatalog';
 import ServiceDetails from './pages/client/ServiceDetails';
 import Checkout from './pages/client/Checkout';
@@ -27,53 +38,125 @@ import OrderHistory from './pages/client/OrderHistory';
 import MyDocuments from './pages/client/MyDocuments';
 import ClientOnboarding from './pages/client/ClientOnboarding';
 import ClientVerificationPending from './pages/client/ClientVerificationPending';
+import LawyerProfileView from './pages/client/LawyerProfileView';
+import ReferralDashboard from './pages/client/ReferralDashboard';
+import AISummarizer from './pages/client/AISummarizer';
+import ClientProfileSettings from './pages/client/ClientProfileSettings';
+import FeedbackForm from './pages/client/FeedbackForm';
+import DocumentPartyDetails from './pages/client/DocumentPartyDetails';
+import ClientDocumentGenerator from './pages/client/DocumentGenerator'; // Client version (renamed to avoid conflict)
+import ConsultationSuccess from './pages/client/ConsultationSuccess';
+import BookingPage from './pages/client/BookingPage';
+import Consultations from './pages/client/Consultations';
 
-// Admin Module (Person C)
+// --- NEW IMPORTS (These were missing!) ---
+import InitiateDispute from './pages/client/disputes/InitiateDispute';
+import DisputeForm from './pages/client/disputes/DisputeForm';
+import DisputeSuccess from './pages/client/disputes/DisputeSuccess';
+import DisputeList from './pages/client/disputes/DisputeList';
+import ReopenDispute from './pages/client/disputes/ReopenDispute';
+import ReopenSuccess from './pages/client/disputes/ReopenSuccess';
+import DisputeResolutionCenter from './pages/admin/DisputeResolutionCenter';
+import AdminNotificationCenter from './pages/admin/AdminNotificationCenter';
+// ------------------------------------------
+
+// Admin Module
 import AdminRoutes from './pages/admin/AdminRoutes';
 
 // Shared
 import Chat from './pages/Chat';
 
 function App() {
+  const { user } = useAuth();
+
   return (
     <>
-      {/* Navbar appears on all pages (Note: You might want to hide this for /admin routes later) */}
       <Navbar />
-      
+
       <Routes>
         {/* --- Public Routes --- */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/drafting" element={<DocumentGenerator />} />
+        <Route path="/advocates" element={<AdvocateDirectory />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/services/notarization" element={<NotarizationFlow />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification-pending" element={<PendingVerification />} />
 
-        {/* --- Lawyer Routes (Person A) --- */}
+        {/* --- Lawyer Routes --- */}
         <Route path="/lawyer/onboarding" element={<LawyerRegistration />} />
+        <Route path="/lawyer/dashboard" element={<LawyerDashboard />} />
+        <Route path="/lawyer/queue" element={<NotarizationQueue />} />
+        <Route path="/lawyer/queue/review/:id" element={<div className="p-8 text-center">Review Page - Coming Soon</div>} />
+        <Route path="/lawyer/earnings" element={<LawyerEarnings />} />
+        <Route path="/lawyer/messages" element={<InAppChat />} />
+        <Route path="/lawyer/availability" element={<div className="p-8 text-center">Availability Settings - Coming Soon</div>} />
+        <Route path="/lawyer/:id" element={<LawyerProfileView />} />
 
-        {/* --- Client Onboarding Routes (Person B) --- */}
+        {/* --- Client Onboarding Routes --- */}
         <Route path="/client/onboarding" element={<ClientOnboarding />} />
         <Route path="/client/verification-pending" element={<ClientVerificationPending />} />
+        <Route path="/client/dashboard" element={
+          user?.verification_status === 'verified' ? <ClientDashboard /> : <Navigate to="/verification-pending" replace />
+        } />
 
-        {/* --- Client Marketplace Routes (Person B) --- */}
-        <Route path="/services" element={<ServiceCatalog />} />
-        <Route path="/services/:id" element={<ServiceDetails />} />
+        {/* --- Client Marketplace Routes --- */}
+        <Route path="/marketplace" element={<ServiceCatalog />} />
+        <Route path="/marketplace/:id" element={<ServiceDetails />} />
         <Route path="/checkout/:orderId" element={<Checkout />} />
+        
+        {/* --- Client Advanced Features --- */}
+        <Route path="/client/lawyer-profile/:id" element={<LawyerProfileView />} />
+        <Route path="/client/referral" element={<ReferralDashboard />} />
+        <Route path="/client/ai-summarizer" element={<AISummarizer />} />
+        <Route path="/client/settings" element={<ClientProfileSettings />} />
+        <Route path="/client/feedback" element={<FeedbackForm />} />
+        <Route path="/client/document/party-details" element={<DocumentPartyDetails />} />
+        <Route path="/client/book/:id" element={<BookingPage />} />
+        <Route path="/client/messages/new" element={<InAppChat />} />
+        <Route path="/client/consultation/confirmation" element={<ConsultationSuccess />} />
+        <Route path="/client/documents" element={<ClientDocumentGenerator />} />
+        <Route path="/client/documents/create" element={<DocumentPartyDetails />} />
+        <Route path="/client/consultations" element={<Consultations />} />
+        <Route path="/settings" element={<ClientProfileSettings />} />
+        <Route path="/consultations" element={<Consultations />} />
+        <Route path="/bookings/manage" element={<div className="p-8 text-center">Manage Bookings - Coming Soon</div>} />
+
+        {/* --- Client Dispute Routes --- */}
+        <Route path="/client/disputes/initiate" element={<InitiateDispute />} />
+        <Route path="/client/disputes/new" element={<InitiateDispute />} />
+        <Route path="/client/disputes/form" element={<DisputeForm />} />
+        <Route path="/client/disputes/success" element={<DisputeSuccess />} />
+        <Route path="/client/disputes/list" element={<DisputeList />} />
+        <Route path="/client/disputes/history" element={<DisputeList />} />
+        <Route path="/client/disputes/:id" element={<div className="p-8 text-center">Dispute Details - Coming Soon</div>} />
+        <Route path="/client/disputes/reopen" element={<ReopenDispute />} />
+        <Route path="/client/disputes/reopen/:id" element={<ReopenDispute />} />
+        <Route path="/client/disputes/reopen-success" element={<ReopenSuccess />} />
+
+        {/* --- Admin Routes --- */}
+        <Route path="/admin/disputes" element={<DisputeResolutionCenter />} />
+        <Route path="/admin/notifications" element={<AdminNotificationCenter />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
 
         {/* --- Verification Protected Routes --- */}
         <Route path="/" element={<VerificationGuard />}>
           <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/client" element={<Dashboard />} />
+          <Route path="/dashboard/client" element={<ClientDashboard />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/:id" element={<Chat />} />
         </Route>
 
         <Route path="/history" element={<OrderHistory />} />
         <Route path="/documents" element={<MyDocuments />} />
         <Route path="/profile" element={<UserProfileSettings />} />
-
-        {/* --- Admin Routes (Person C) --- */}
-        {/* This wildcard matches anything starting with /admin and delegates it to AdminRoutes */}
-        <Route path="/admin/*" element={<AdminRoutes />} />
+        
+        {/* --- Catch-all for undefined routes --- */}
+        <Route path="*" element={<div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="text-center"><h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1><p className="text-gray-600">Page not found</p><a href="/" className="text-blue-600 hover:underline mt-4 inline-block">Go Home</a></div></div>} />
       </Routes>
     </>
   );

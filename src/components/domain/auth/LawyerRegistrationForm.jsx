@@ -13,6 +13,8 @@ const LawyerRegistrationForm = () => {
     phone: '',
     password: '',
     confirmPassword: '',
+    gender: '',
+    kraPin: '',
 
     // Step 2: Professional Credentials
     lskNumber: '',
@@ -100,7 +102,7 @@ const LawyerRegistrationForm = () => {
 
     switch (step) {
       case 1:
-        if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
+        if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword || !formData.gender || !formData.kraPin) {
           setError('All personal information fields are required');
           return false;
         }
@@ -147,57 +149,62 @@ const LawyerRegistrationForm = () => {
       const lawyerProfileData = {
         lsk_number: formData.lskNumber,
         bio: formData.bio,
-        specializations: formData.specializations,
-        years_of_experience: parseInt(formData.yearsOfExperience) || 0,
+        specialization: formData.specializations.join(', '), // Map array to single string
+        experience_years: parseInt(formData.yearsOfExperience, 10) || 0,
         location: formData.location,
         languages: formData.languages,
         education: formData.education,
         certifications: formData.certifications,
-        bar_admission: formData.barAdmission
+        bar_admission: formData.barAdmission,
+        gender: formData.gender,
+        kra_pin: formData.kraPin
       };
 
-      if (user) {
-        // --- SCENARIO A: User is already logged in (The Fix) ---
-        // We do NOT call register(). We call the endpoint to create/update the profile.
-        console.log("Submitting lawyer profile for existing user...");
-        
-        // Note: Ensure this endpoint matches your backend route in app/lawyer/routes.py
-        // Commonly: /api/lawyer/profile or /api/lawyer/onboarding
-        await api.post('/lawyer/profile', lawyerProfileData);
+      console.log("Submitting Payload:", lawyerProfileData);
 
-        toast.success("Profile submitted for verification!");
-        navigate('/verification-pending'); // Send them to verification pending page
-      
-      } else {
-        // --- SCENARIO B: Brand new user (Fallback) ---
-        // This runs if they somehow accessed this form without logging in first
-        const registrationData = {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: 'lawyer', // Changed from 'advocate' to match your system
-          phone: formData.phone,
-          lawyer_profile: lawyerProfileData
-        };
+        if (user) {
+          // --- SCENARIO A: User is already logged in (The Fix) ---
+          // We do NOT call register(). We call the endpoint to create/update the profile.
+          console.log("Submitting lawyer profile for existing user...");
 
-        const result = await register(registrationData);
+          // Note: Ensure this endpoint matches your backend route in app/lawyer/routes.py
+          // Commonly: /api/lawyer/profile or /api/lawyer/onboarding
+          await api.post('/lawyer/profile', lawyerProfileData);
 
-        if (!result.success) {
-          throw new Error(result.error || "Registration failed");
+          toast.success("Profile submitted for verification!");
+          navigate('/verification-pending'); // Send them to verification pending page
+
         } else {
-          toast.success('Registration successful!');
-          navigate('/verification-pending');
-        }
-      }
+          // --- SCENARIO B: Brand new user (Fallback) ---
+          // This runs if they somehow accessed this form without logging in first
+          const registrationData = {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: 'lawyer', // Changed from 'advocate' to match your system
+            phone: formData.phone,
+            lawyer_profile: lawyerProfileData
+          };
 
-    } catch (err) {
-      console.error(err);
-      const msg = err.response?.data?.message || err.message || 'Submission failed';
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
+          const result = await register(registrationData);
+
+          if (!result.success) {
+            throw new Error(result.error || "Registration failed");
+          } else {
+            toast.success('Registration successful!');
+            navigate('/verification-pending');
+          }
+        }
+
+      } catch (err) {
+        console.error('Profile submission error:', err);
+        console.error('Error response data:', err.response?.data);
+        const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Submission failed';
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
   };
 
   const renderStepIndicator = () => (
@@ -228,6 +235,45 @@ const LawyerRegistrationForm = () => {
   const renderStep1 = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+
+      {/* --- NEW FIELDS FOR LAWYER REGISTRATION --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Gender Field */}
+        <div>
+          <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
+            Gender *
+          </label>
+          <select
+            id="gender"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+
+        {/* KRA PIN Field */}
+        <div>
+          <label htmlFor="kraPin" className="block text-sm font-medium text-gray-700 mb-1">
+            KRA PIN *
+          </label>
+          <input
+            id="kraPin"
+            name="kraPin"
+            type="text"
+            required
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase"
+            placeholder="A001234567Z"
+            value={formData.kraPin}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
 
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
