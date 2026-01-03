@@ -15,8 +15,8 @@ const OrderHistory = () => {
     const fetchHistory = async () => { 
       try { 
         // Fetching all orders for User 1 (Hardcoded for now)
-        const response = await api.get('/marketplace/orders/user/1'); 
-        setOrders(response.data); 
+        const response = await api.get('/api/marketplace/orders/user/1'); 
+        setOrders(response.data);
       } catch (err) { 
         console.error("Failed to load history"); 
       } finally { 

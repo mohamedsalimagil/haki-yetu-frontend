@@ -14,7 +14,7 @@ const MyDocuments = () => {
     const fetchDocs = async () => {
       try {
         // Let's add this endpoint to backend in Step 6
-        const response = await api.get('/marketplace/documents/user/1');
+        const response = await api.get('/api/marketplace/documents/user/1');
         setDocuments(response.data);
       } catch (err) {
         console.error("Failed to load docs");

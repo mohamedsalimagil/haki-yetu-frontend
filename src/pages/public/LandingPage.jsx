@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, FileText, UserCheck, ArrowRight } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { FileText, Shield, Users, ArrowRight, CheckCircle, Phone, CreditCard, Twitter, Linkedin, Menu, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const LandingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Redirect admin users to admin dashboard
   React.useEffect(() => {
@@ -15,302 +16,412 @@ const LandingPage = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-primary text-white py-20 px-6 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
-          Legal Services, Simplified.
-        </h1>
-        <p className="text-xl md:text-2xl mb-8 text-gray-200 max-w-3xl mx-auto">
-          Connect with verified lawyers and notarize documents from the comfort of your home.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            to="/services" 
-            className="bg-secondary px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition inline-flex items-center justify-center"
-          >
-            Explore Services
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-          <Link 
-            to="/register" 
-            className="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition"
-          >
-            Join as Lawyer
-          </Link>
-        </div>
-
-        {/* User Status Info */}
-        {user && user.role === 'client' && (
-          <div className="mt-8 inline-block bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm">
-            <span className="text-gray-200">Logged in as: <span className="font-semibold">{user.name}</span></span>
-          </div>
-        )}
-      </div>
-
-      {/* Features Grid */}
-      <div className="max-w-7xl mx-auto py-16 px-6 grid md:grid-cols-3 gap-8">
-        <FeatureCard
-          icon={<FileText className="h-12 w-12 text-primary" />}
-          title="Instant Notarization"
-          desc="Upload your documents and get them stamped within minutes."
-        />
-        <FeatureCard
-          icon={<UserCheck className="h-12 w-12 text-primary" />}
-          title="Verified Lawyers"
-          desc="All professionals are vetted against the LSK database."
-        />
-        <FeatureCard
-          icon={<ShieldCheck className="h-12 w-12 text-primary" />}
-          title="Secure Payments"
-          desc="Powered by M-Pesa. Your money is held in escrow until the job is done."
-        />
-      </div>
-
-      {/* How It Works Section */}
-      <div className="bg-white border-t border-gray-200 py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            How It Works
-          </h2>
-          
-          <div className="grid md:grid-cols-4 gap-6">
-            <StepCard
-              number="1"
-              title="Choose Service"
-              desc="Browse our catalog of legal services"
-            />
-            <StepCard
-              number="2"
-              title="Select Lawyer"
-              desc="Pick from verified legal professionals"
-            />
-            <StepCard
-              number="3"
-              title="Book Appointment"
-              desc="Schedule your consultation"
-            />
-            <StepCard
-              number="4"
-              title="Secure Payment"
-              desc="Pay via M-Pesa safely"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-primary to-blue-900 text-white py-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Simplify Your Legal Needs?
-          </h2>
-          <p className="text-lg text-gray-200 mb-8">
-            Join thousands of Kenyans who trust Haki Yetu for their legal services.
-          </p>
-          
-          {user ? (
-            <Link
-              to="/services"
-              className="inline-block bg-secondary px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition"
-            >
-              Browse Services →
-            </Link>
-          ) : (
-            <div className="space-x-4">
-              <Link
-                to="/login"
-                className="inline-block bg-secondary px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition"
-              >
-                Login to Get Started
-              </Link>
-              <Link
-                to="/register"
-                className="inline-block border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition"
-              >
-                Create Account
+    <div className="min-h-screen bg-white font-sans">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo - Left */}
+            <div className="flex items-center">
+              <Link to="/" className="text-2xl font-bold text-[#1E40AF]">
+                Haki Yetu
               </Link>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* FAQ Section (Optional) */}
-      <div className="max-w-4xl mx-auto py-16 px-6">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-          Frequently Asked Questions
-        </h2>
-        
-        <div className="space-y-6">
-          <FAQItem
-            question="Is my payment secure?"
-            answer="Yes, all payments are processed through M-Pesa and held in escrow until the service is completed."
-          />
-          <FAQItem
-            question="How long does it take?"
-            answer="Most services are completed within 1-7 days depending on the service type."
-          />
-          <FAQItem
-            question="Are the lawyers verified?"
-            answer="Yes, all lawyers are verified against the Law Society of Kenya (LSK) database."
-          />
-          <FAQItem
-            question="What if I'm not satisfied?"
-            answer="We have a dispute resolution process to ensure your satisfaction or full refund."
-          />
-        </div>
-      </div>
+            {/* Navigation - Center */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link to="/services" className="text-gray-700 hover:text-[#1E40AF] font-medium transition">Services</Link>
+              <Link to="/advocates" className="text-gray-700 hover:text-[#1E40AF] font-medium transition">Advocates</Link>
+              <Link to="/about" className="text-gray-700 hover:text-[#1E40AF] font-medium transition">About</Link>
+              <Link to="/pricing" className="text-gray-700 hover:text-[#1E40AF] font-medium transition">Pricing</Link>
+            </nav>
 
-      {/* Footer */}
-      <footer className="bg-primary text-white py-12 px-6 border-t border-blue-700">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="font-bold text-lg mb-4">Haki Yetu</h3>
-            <p className="text-gray-300">
-              Making legal services accessible to everyone in Kenya.
+            {/* Actions - Right */}
+            <div className="flex items-center space-x-4">
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-md text-gray-700 hover:text-[#1E40AF] hover:bg-gray-100 transition"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+
+              {/* Desktop actions */}
+              <div className="hidden md:flex items-center space-x-4">
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-[#1E40AF] font-medium transition"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-[#1E40AF] text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-800 transition"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-b border-gray-200">
+            <div className="px-6 py-4 space-y-4">
+              <nav className="flex flex-col space-y-3">
+                <Link
+                  to="/services"
+                  className="text-gray-700 hover:text-[#1E40AF] font-medium transition py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Services
+                </Link>
+                <Link
+                  to="/advocates"
+                  className="text-gray-700 hover:text-[#1E40AF] font-medium transition py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Advocates
+                </Link>
+                <Link
+                  to="/about"
+                  className="text-gray-700 hover:text-[#1E40AF] font-medium transition py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link
+                  to="/pricing"
+                  className="text-gray-700 hover:text-[#1E40AF] font-medium transition py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Pricing
+                </Link>
+              </nav>
+              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200">
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-[#1E40AF] font-medium transition py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-[#1E40AF] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-800 transition text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Hero Section */}
+      <section className="bg-white py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Content */}
+            <div>
+              {/* Verified Badge */}
+              <div className="inline-flex items-center gap-2 bg-blue-50 text-[#1E40AF] px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Verified Kenyan Advocates
+              </div>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                Legal Services at<br />
+                <span className="text-[#FACC15]">Your Fingertips</span>
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 max-w-xl">
+                Access verified lawyers, notarize documents remotely, and get legal consultations from anywhere in Kenya through our secure digital platform.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/advocates"
+                  className="bg-[#1E40AF] text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-800 transition inline-flex items-center justify-center"
+                >
+                  Find a Lawyer
+                </Link>
+                <Link
+                  to="/services"
+                  className="border-2 border-[#1E40AF] text-[#1E40AF] px-8 py-4 rounded-lg font-bold text-lg hover:bg-[#1E40AF] hover:text-white transition inline-flex items-center justify-center"
+                >
+                  Browse Documents
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column - Hero Visual */}
+            <div className="relative">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 border border-gray-200">
+                <div className="aspect-square bg-gradient-to-br from-[#1E40AF] to-blue-600 rounded-xl flex items-center justify-center relative overflow-hidden">
+                  <div className="text-center text-white relative z-10">
+                    <Shield className="h-20 w-20 mx-auto mb-6 opacity-90" />
+                    <p className="text-xl font-semibold">Legal Services Platform</p>
+                  </div>
+                  {/* Decorative elements */}
+                  <div className="absolute top-4 right-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                  <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/10 rounded-full"></div>
+                </div>
+
+                {/* LSK Accreditation Badge - Overlay */}
+                <div className="absolute bottom-4 left-4 bg-[#FACC15] text-[#1E40AF] px-4 py-2 rounded-lg font-bold text-sm shadow-lg">
+                  Law Society of Kenya Accredited
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Ribbon */}
+      <section className="bg-gray-50 py-12 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-8">
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+              TRUSTED BY LEADING INSTITUTIONS
             </p>
           </div>
-          <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li><Link to="/services" className="hover:text-white transition">Services</Link></li>
-              <li><Link to="/lawyers" className="hover:text-white transition">Lawyers</Link></li>
-              <li><a href="#" className="hover:text-white transition">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition">Cookie Policy</a></li>
-            </ul>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+            <div className="flex items-center gap-3 text-gray-600">
+              <div className="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-gray-700 font-bold">LSK</div>
+              <span className="font-medium">Law Society of Kenya</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600">
+              <div className="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-gray-700 font-bold">KRA</div>
+              <span className="font-medium">Kenya Revenue Authority</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600">
+              <div className="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-gray-700 font-bold">JUD</div>
+              <span className="font-medium">Judiciary</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600">
+              <div className="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-gray-700 font-bold">CIT</div>
+              <span className="font-medium">eCitizen</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600">
+              <div className="w-10 h-10 bg-gray-300 rounded-lg flex items-center justify-center text-gray-700 font-bold">ARD</div>
+              <span className="font-medium">ArdhiSasa</span>
+            </div>
           </div>
         </div>
-        
-        <div className="max-w-7xl mx-auto mt-8 pt-8 border-t border-blue-700 text-center text-gray-300">
-          <p>&copy; 2025 Haki Yetu. All rights reserved.</p>
+      </section>
+
+      {/* Core Services */}
+      <section className="py-20 px-6 bg-[#F9FAFB]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Accessible Justice for Every Kenyan
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Our digital platform makes legal services affordable, accessible, and secure for all citizens.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <ServiceCard
+              icon={<FileText className="h-12 w-12 text-[#1E40AF]" />}
+              title="Instant Document Generator"
+              description="Create legally binding documents with AI assistance and expert review within minutes."
+              ctaText="Start Drafting →"
+              ctaLink="/services/drafting"
+            />
+            <ServiceCard
+              icon={<Shield className="h-12 w-12 text-[#1E40AF]" />}
+              title="Remote Notarization"
+              description="Get your documents notarized digitally through secure video verification."
+              ctaText="Book Notary →"
+              ctaLink="/services/notarization"
+            />
+            <ServiceCard
+              icon={<Users className="h-12 w-12 text-[#1E40AF]" />}
+              title="Virtual Consultations"
+              description="Connect with verified lawyers for personalized legal advice and guidance."
+              ctaText="Find Advocate →"
+              ctaLink="/advocates"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              How Haki Yetu Works
+            </h2>
+            <p className="text-xl text-gray-600">
+              Four simple steps to access professional legal services
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Connecting Line */}
+            <div className="hidden md:block absolute top-16 left-1/2 transform -translate-x-1/2 w-full max-w-5xl">
+              <div className="h-0.5 bg-[#1E40AF] relative">
+                <div className="absolute inset-0 bg-[#FACC15]"></div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-8 relative z-10">
+              <ProcessStep
+                number="1"
+                title="Select Service"
+                description="Choose from our comprehensive range of legal services and document types."
+              />
+              <ProcessStep
+                number="2"
+                title="Verify Identity"
+                description="Complete secure identity verification through our trusted partners."
+              />
+              <ProcessStep
+                number="3"
+                title="Make Payment"
+                description="Pay securely through M-Pesa with our escrow protection system."
+              />
+              <ProcessStep
+                number="4"
+                title="Receive Service"
+                description="Get your documents delivered digitally with expert legal review."
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="bg-[#1E40AF] text-white py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Ready to Secure Your Rights?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of Kenyans who trust Haki Yetu for their legal needs.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/register"
+              className="bg-[#FACC15] text-[#1E40AF] px-8 py-4 rounded-lg font-bold text-lg hover:bg-yellow-400 transition inline-flex items-center justify-center"
+            >
+              Get Started
+            </Link>
+            <Link
+              to="/contact"
+              className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-[#1E40AF] transition inline-flex items-center justify-center"
+            >
+              Contact Sales
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* Company Info */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="h-8 w-8 text-[#FACC15]" />
+                <span className="text-2xl font-bold">Haki Yetu</span>
+              </div>
+              <p className="text-gray-400 mb-4 leading-relaxed">
+                Bridging the gap between citizens and legal justice in Kenya through innovative technology and trusted partnerships.
+              </p>
+              <div className="flex space-x-4">
+                <a href="#" className="text-gray-400 hover:text-[#FACC15] transition">
+                  <Twitter className="h-5 w-5" />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-[#FACC15] transition">
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Platform */}
+            <div>
+              <h4 className="font-bold text-lg mb-4">Platform</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link to="/services" className="hover:text-white transition">Services</Link></li>
+                <li><Link to="/marketplace" className="hover:text-white transition">Find an Advocate</Link></li>
+                <li><Link to="/pricing" className="hover:text-white transition">Pricing</Link></li>
+                <li><Link to="/register" className="hover:text-white transition">For Lawyers</Link></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="font-bold text-lg mb-4">Company</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white transition">About Us</a></li>
+                <li><a href="#" className="hover:text-white transition">Careers</a></li>
+                <li><a href="#" className="hover:text-white transition">Blog</a></li>
+                <li><a href="#" className="hover:text-white transition">Contact</a></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-bold text-lg mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition">Cookie Policy</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 Haki Yetu. All rights reserved. Made with ❤️ for Kenya.</p>
+          </div>
         </div>
       </footer>
     </div>
   );
 };
 
-// Feature Card Component
-const FeatureCard = ({ icon, title, desc }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm text-center hover:shadow-md transition group cursor-pointer">
-    <div className="flex justify-center mb-4 group-hover:scale-110 transition transform">
+// Service Card Component
+const ServiceCard = ({ icon, title, description, ctaText, ctaLink }) => (
+  <div className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300 border border-gray-100">
+    <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-lg mb-6 mx-auto">
       {icon}
     </div>
-    <h3 className="text-xl font-bold mb-2 text-gray-800 group-hover:text-primary transition">
-      {title}
-    </h3>
-    <p className="text-gray-600">{desc}</p>
+    <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{title}</h3>
+    <p className="text-gray-600 mb-6 leading-relaxed text-center">{description}</p>
+
+    <Link
+      to={ctaLink}
+      className="text-[#1E40AF] font-semibold hover:text-blue-800 transition inline-flex items-center justify-center w-full"
+    >
+      {ctaText}
+    </Link>
   </div>
 );
 
-// Step Card Component
-const StepCard = ({ number, title, desc }) => (
-  <div className="relative">
-    <div className="flex flex-col items-center">
-      <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
+// Process Step Component
+const ProcessStep = ({ number, title, description }) => (
+  <div className="flex flex-col items-center text-center">
+    <div className="relative mb-6">
+      <div className="w-20 h-20 bg-[#1E40AF] text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg mb-4">
         {number}
       </div>
-      <h3 className="text-lg font-bold text-gray-900 mb-2 text-center">{title}</h3>
-      <p className="text-gray-600 text-sm text-center">{desc}</p>
-    </div>
-    
-    {/* Arrow between steps (hidden on last) */}
-    {number !== '4' && (
-      <div className="hidden md:block absolute top-6 -right-8 text-primary">
-        <ArrowRight className="h-6 w-6" />
+      <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#FACC15] text-[#1E40AF] rounded-full flex items-center justify-center">
+        <CheckCircle className="h-6 w-6" />
       </div>
-    )}
+    </div>
+    <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
+    <p className="text-gray-600 leading-relaxed">{description}</p>
   </div>
 );
 
-// FAQ Item Component
-const FAQItem = ({ question, answer }) => {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <div className="border border-gray-200 rounded-lg">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full p-6 text-left flex items-center justify-between hover:bg-gray-50 transition"
-      >
-        <h3 className="font-semibold text-gray-900">{question}</h3>
-        <span className={`text-primary transition transform ${open ? 'rotate-180' : ''}`}>
-          ↓
-        </span>
-      </button>
-      
-      {open && (
-        <div className="px-6 pb-6 text-gray-600 border-t border-gray-200">
-          {answer}
-        </div>
-      )}
-    </div>
-  );
-};
-
 export default LandingPage;
-
-
-// import React from 'react';
-// import { Link } from 'react-router-dom';
-// import { ShieldCheck, FileText, UserCheck } from 'lucide-react';
-
-// const LandingPage = () => {
-//   return (
-//     <div className="min-h-screen bg-gray-50">
-//       {/* Hero Section */}
-//       <div className="bg-primary text-white py-20 px-6 text-center">
-//         <h1 className="text-4xl md:text-6xl font-bold mb-4">Legal Services, Simplified.</h1>
-//         <p className="text-xl md:text-2xl mb-8 text-gray-200">
-//           Connect with verified lawyers and notarize documents from the comfort of your home.
-//         </p>
-//         <div className="space-x-4">
-//           <Link to="/services" className="bg-secondary px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition">
-//             Explore Services
-//           </Link>
-//           <Link to="/register" className="border border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition">
-//             Join as Lawyer
-//           </Link>
-//         </div>
-//       </div>
-
-//       {/* Features Grid */}
-//       <div className="max-w-7xl mx-auto py-16 px-6 grid md:grid-cols-3 gap-8">
-//         <FeatureCard 
-//           icon={<FileText className="h-12 w-12 text-primary" />} 
-//           title="Instant Notarization" 
-//           desc="Upload your documents and get them stamped within minutes." 
-//         />
-//         <FeatureCard 
-//           icon={<UserCheck className="h-12 w-12 text-primary" />} 
-//           title="Verified Lawyers" 
-//           desc="All professionals are vetted against the LSK database." 
-//         />
-//         <FeatureCard 
-//           icon={<ShieldCheck className="h-12 w-12 text-primary" />} 
-//           title="Secure Payments" 
-//           desc="Powered by M-Pesa. Your money is held in escrow until the job is done." 
-//         />
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Simple internal component
-// const FeatureCard = ({ icon, title, desc }) => (
-//   <div className="bg-white p-6 rounded-xl shadow-sm text-center hover:shadow-md transition">
-//     <div className="flex justify-center mb-4">{icon}</div>
-//     <h3 className="text-xl font-bold mb-2 text-gray-800">{title}</h3>
-//     <p className="text-gray-600">{desc}</p>
-//   </div>
-// );
-
-// export default LandingPage;

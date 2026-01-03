@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Paperclip, Phone, Video, MessageCircle } from 'lucide-react';
-import chatService from '../../../services/chat.service';
+import { io } from 'socket.io-client';
+import { useAuth } from '../../../context/AuthContext';
 
-const ChatWindow = ({ selectedConversation }) => {
+const ChatWindow = ({ orderId, userId }) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -13,108 +16,61 @@ const ChatWindow = ({ selectedConversation }) => {
   };
 
   useEffect(() => {
-    if (selectedConversation) {
-      fetchMessages();
-    }
-  }, [selectedConversation]);
-
-  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const fetchMessages = async () => {
-    if (!selectedConversation) return;
+  useEffect(() => {
+    // Initialize socket connection
+    const token = localStorage.getItem('token');
+    const socketConnection = io('http://localhost:5000', {
+      auth: { token }
+    });
 
-    try {
-      setLoading(true);
-      const data = await chatService.getConversationMessages(selectedConversation.id);
-      setMessages(data);
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      // Fallback to mock data if API fails
-      const mockMessages = [
-        {
-          id: 1,
-          sender: {
-            name: selectedConversation.participant.name,
-            role: selectedConversation.participant.role,
-            avatar: null
-          },
-          content: 'Hello! I received your booking request for the legal consultation.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-          isMine: false
-        },
-        {
-          id: 2,
-          sender: {
-            name: 'You',
-            role: 'client',
-            avatar: null
-          },
-          content: 'Thank you for accepting my request. I need help with understanding my rights regarding property ownership.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5), // 1.5 hours ago
-          isMine: true
-        },
-        {
-          id: 3,
-          sender: {
-            name: selectedConversation.participant.name,
-            role: selectedConversation.participant.role,
-            avatar: null
-          },
-          content: 'I understand. Please provide me with the property details and any relevant documents you have.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1), // 1 hour ago
-          isMine: false
-        },
-        {
-          id: 4,
-          sender: {
-            name: 'You',
-            role: 'client',
-            avatar: null
-          },
-          content: 'I will upload the documents shortly. Also, I have some questions about the process.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-          isMine: true
-        },
-        {
-          id: 5,
-          sender: {
-            name: selectedConversation.participant.name,
-            role: selectedConversation.participant.role,
-            avatar: null
-          },
-          content: 'Thank you for your response.',
-          timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-          isMine: false
-        }
-      ];
-      setMessages(mockMessages);
-    } finally {
-      setLoading(false);
-    }
-  };
+    socketConnection.on('connect', () => {
+      console.log('Connected to chat server');
+      // Join the order-specific room
+      socketConnection.emit('join', { orderId, userId });
+    });
+
+    socketConnection.on('receive_message', (message) => {
+      setMessages(prev => [...prev, {
+        ...message,
+        isMine: message.senderId === userId
+      }]);
+    });
+
+    socketConnection.on('disconnect', () => {
+      console.log('Disconnected from chat server');
+    });
+
+    setSocket(socketConnection);
+
+    return () => {
+      socketConnection.disconnect();
+    };
+  }, [orderId, userId]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !socket) return;
 
     const messageData = {
-      content: newMessage.trim()
+      content: newMessage.trim(),
+      orderId,
+      senderId: userId,
+      timestamp: new Date()
     };
 
     try {
-      await chatService.sendMessage(selectedConversation.id, messageData);
+      // Emit message via socket
+      socket.emit('send_message', messageData);
 
       // Optimistically add message to UI
       const newMsg = {
         id: Date.now(),
-        sender: {
-          name: 'You',
-          role: 'client', // This should come from auth context
-          avatar: null
-        },
         content: newMessage.trim(),
+        senderId: userId,
+        senderName: user?.first_name + ' ' + user?.last_name,
         timestamp: new Date(),
         isMine: true
       };
@@ -127,20 +83,20 @@ const ChatWindow = ({ selectedConversation }) => {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   const getInitials = (name) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  if (!selectedConversation) {
+  if (!orderId) {
     return (
       <div className="flex-1 bg-gray-50 flex items-center justify-center">
         <div className="text-center text-gray-500">
           <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-medium mb-2">Select a conversation</h3>
-          <p>Choose a conversation from the sidebar to start chatting</p>
+          <h3 className="text-lg font-medium mb-2">Select an order</h3>
+          <p>Choose an order to start chatting</p>
         </div>
       </div>
     );
@@ -152,25 +108,15 @@ const ChatWindow = ({ selectedConversation }) => {
       <div className="bg-white border-b border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center">
-              {selectedConversation.participant.avatar ? (
-                <img
-                  src={selectedConversation.participant.avatar}
-                  alt={selectedConversation.participant.name}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <span className="text-sm font-medium">
-                  {getInitials(selectedConversation.participant.name)}
-                </span>
-              )}
+            <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium">C</span>
             </div>
             <div>
               <h3 className="font-medium text-gray-900">
-                {selectedConversation.participant.name}
+                Order #{orderId}
               </h3>
               <p className="text-sm text-gray-500">
-                {selectedConversation.serviceName}
+                Legal Consultation
               </p>
             </div>
           </div>
@@ -190,7 +136,7 @@ const ChatWindow = ({ selectedConversation }) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
           messages.map((message) => (
@@ -201,14 +147,14 @@ const ChatWindow = ({ selectedConversation }) => {
               <div
                 className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                   message.isMine
-                    ? 'bg-primary text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-white border border-gray-200 text-gray-900'
                 }`}
               >
                 <p className="text-sm">{message.content}</p>
                 <p
                   className={`text-xs mt-1 ${
-                    message.isMine ? 'text-primary-100' : 'text-gray-500'
+                    message.isMine ? 'text-blue-100' : 'text-gray-500'
                   }`}
                 >
                   {formatTime(message.timestamp)}
@@ -241,7 +187,7 @@ const ChatWindow = ({ selectedConversation }) => {
                 }
               }}
               placeholder="Type your message..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows="1"
               style={{ minHeight: '40px', maxHeight: '120px' }}
             />
@@ -250,7 +196,7 @@ const ChatWindow = ({ selectedConversation }) => {
           <button
             type="submit"
             disabled={!newMessage.trim()}
-            className="p-2 bg-primary text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-5 h-5" />
           </button>

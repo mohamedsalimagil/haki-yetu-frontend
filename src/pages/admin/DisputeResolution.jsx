@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import adminService from '../../services/admin.service';
+import adminService from '../../services/adminService';
 import DataTable from '../../components/domain/admin/DataTable';
 
 export default function DisputeResolution() {

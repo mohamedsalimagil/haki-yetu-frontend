@@ -98,10 +98,7 @@ const MessageWindow = ({
       // 2. Send Text
       if (newMessage.trim()) {
         const textToSend = newMessage.trim();
-        
-        // Pass the text to parent. 
-        // NOTE: Ensure parent (Chat.jsx) emits: 
-        // { conversation_id: activeConversationId, message: textToSend }
+
         onSendMessage(textToSend); 
       }
 
