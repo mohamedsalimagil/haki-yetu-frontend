@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Users, Star, MapPin, Calendar, MessageCircle, Phone, Award, Search, Filter, ChevronRight } from 'lucide-react';
+import BackButton from '../../components/common/BackButton';
 
 const AdvocateDirectory = () => {
   const navigate = useNavigate();
@@ -159,6 +160,13 @@ const AdvocateDirectory = () => {
         </div>
       </header>
 
+      {/* Back Button */}
+      <div className="bg-gray-50 py-4 px-6 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto">
+          <BackButton to="/services" />
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="bg-white py-16 px-6 border-b border-gray-200">
         <div className="max-w-4xl mx-auto text-center">
@@ -280,7 +288,7 @@ const AdvocateDirectory = () => {
                     </div>
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => navigate(`/client/book/${advocate.id}`, { state: { advocate } })}
+                        onClick={() => navigate(`/consultation/book/${advocate.id}`, { state: { advocate } })}
                         className="flex-1 bg-[#1E40AF] text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-800 transition flex items-center justify-center gap-2"
                       >
                         <MessageCircle className="h-4 w-4" />

@@ -15,6 +15,8 @@ import ServicesPage from './pages/public/ServicesPage';
 import AdvocateDirectory from './pages/public/AdvocateDirectory';
 import PricingPage from './pages/public/PricingPage';
 import NotarizationFlow from './pages/public/NotarizationFlow';
+import ServicesDocuments from './pages/public/ServicesDocuments';
+import ServicesProperty from './pages/public/ServicesProperty';
 import DocumentGenerator from './pages/public/DocumentGenerator'; // Public version
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -58,6 +60,11 @@ import ReopenDispute from './pages/client/disputes/ReopenDispute';
 import ReopenSuccess from './pages/client/disputes/ReopenSuccess';
 import DisputeResolutionCenter from './pages/admin/DisputeResolutionCenter';
 import AdminNotificationCenter from './pages/admin/AdminNotificationCenter';
+// --- Support Module ---
+import SupportLanding from './pages/client/support/SupportLanding';
+import SupportInitiateDispute from './pages/client/support/InitiateDispute';
+import DisputeDetails from './pages/client/support/DisputeDetails';
+import DisputeConfirmation from './pages/client/support/DisputeConfirmation';
 // ------------------------------------------
 
 // Admin Module
@@ -82,6 +89,9 @@ function App() {
         <Route path="/advocates" element={<AdvocateDirectory />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/services/notarization" element={<NotarizationFlow />} />
+        <Route path="/services/documents" element={<ServicesDocuments />} />
+        <Route path="/services/property" element={<ServicesProperty />} />
+        <Route path="/disputes" element={<DisputeList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification-pending" element={<PendingVerification />} />
@@ -124,6 +134,18 @@ function App() {
         <Route path="/settings" element={<ClientProfileSettings />} />
         <Route path="/consultations" element={<Consultations />} />
         <Route path="/bookings/manage" element={<div className="p-8 text-center">Manage Bookings - Coming Soon</div>} />
+
+        {/* --- Client Support Routes --- */}
+        <Route path="/client/support" element={<SupportLanding />} />
+        <Route path="/client/support/initiate" element={<SupportInitiateDispute />} />
+        <Route path="/client/support/details" element={<DisputeDetails />} />
+        <Route path="/client/support/details/:orderId" element={<DisputeDetails />} />
+        <Route path="/client/support/confirmation" element={<DisputeConfirmation />} />
+
+        {/* --- Consultation Booking Routes --- */}
+        <Route path="/consultation/book/:advocateId" element={<div>Calendar Page Coming Soon</div>} />
+        <Route path="/consultation/checkout" element={<div>Checkout Page Coming Soon</div>} />
+        <Route path="/consultation/confirmation" element={<div>Confirmation Page Coming Soon</div>} />
 
         {/* --- Client Dispute Routes --- */}
         <Route path="/client/disputes/initiate" element={<InitiateDispute />} />

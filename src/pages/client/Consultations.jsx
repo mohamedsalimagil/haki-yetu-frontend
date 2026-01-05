@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Video, Calendar, Clock, User, MapPin, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
+import BackButton from '../../components/common/BackButton';
 
 const Consultations = () => {
   const navigate = useNavigate();
@@ -118,6 +119,8 @@ const Consultations = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <BackButton className="mb-6" />
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">

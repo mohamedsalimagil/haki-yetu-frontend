@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Upload, CheckCircle, Clock, Shield, FileText, Camera, AlertCircle, ArrowRight } from 'lucide-react';
+import BackButton from '../../components/common/BackButton';
 
 const NotarizationFlow = () => {
   const navigate = useNavigate();
@@ -74,6 +75,13 @@ const NotarizationFlow = () => {
           </div>
         </div>
       </header>
+
+      {/* Back Button */}
+      <div className="bg-gray-50 py-4 px-6 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto">
+          <BackButton to="/services" />
+        </div>
+      </div>
 
       {/* Hero Section */}
       <section className="bg-white py-16 px-6 border-b border-gray-200">

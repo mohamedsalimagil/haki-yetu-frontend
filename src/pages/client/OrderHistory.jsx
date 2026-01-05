@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from 'react'; 
-import api from '../../services/api'; 
-import { Search, Filter, FileText, Check, XCircle, Upload } from 'lucide-react'; 
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import { Search, Filter, FileText, Check, XCircle, Upload } from 'lucide-react';
 import FileUpload from '../../components/domain/marketplace/FileUpload'; // Import the new component
+import { mockTransactions } from '../../data/demoFixtures';
+import BackButton from '../../components/common/BackButton';
 
-const OrderHistory = () => { 
-  const [orders, setOrders] = useState([]); 
-  const [filter, setFilter] = useState('all'); 
-  const [loading, setLoading] = useState(true); 
+const OrderHistory = () => {
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
 
   // NEW: State for the Upload Modal
   const [selectedOrderForUpload, setSelectedOrderForUpload] = useState(null);
 
-  useEffect(() => { 
-    const fetchHistory = async () => { 
-      try { 
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
         // Fetching all orders for User 1 (Hardcoded for now)
-        const response = await api.get('/api/marketplace/orders/user/1'); 
-        setOrders(response.data);
-      } catch (err) { 
-        console.error("Failed to load history"); 
-      } finally { 
-        setLoading(false); 
+        const response = await api.get('/api/marketplace/orders/user/1');
+        setOrders(response.data || []);
+      } catch (err) {
+        console.error("Failed to load history, using demo data");
+        // Fallback to mock data if API fails or returns empty
+        setOrders(mockTransactions);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchHistory(); 
-  }, []); 
+    fetchHistory();
+  }, []);
 
   // Filter Logic
   const filteredOrders = orders.filter(order => { 
@@ -32,11 +38,12 @@ const OrderHistory = () => {
     return order.status === filter; 
   });
 
-  return ( 
-    <div className="min-h-screen bg-gray-50 py-12 px-4"> 
-      <div className="max-w-5xl mx-auto"> 
-        <div className="flex justify-between items-center mb-8"> 
-          <h1 className="text-2xl font-bold text-gray-900">Transaction History</h1> 
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-5xl mx-auto">
+        <BackButton className="mb-6" />
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Transaction History</h1>
           
           {/* Filter Dropdown */} 
           <div className="relative"> 

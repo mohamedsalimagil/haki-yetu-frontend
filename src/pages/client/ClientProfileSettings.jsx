@@ -1,20 +1,41 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Camera, Shield, Bell, CreditCard, Save } from 'lucide-react';
 import { userProfile } from '../../data/mockChatData';
+import BackButton from '../../components/common/BackButton';
 
 const ClientProfileSettings = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(userProfile);
+  const [initialProfile, setInitialProfile] = useState(userProfile); // Store initial state
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setLoading(true);
+    // Simulate network request
+    setTimeout(() => {
+      setLoading(false);
+      setSaved(true);
+      setInitialProfile(profile); // Update initial state after save
+      localStorage.setItem('userProfile', JSON.stringify(profile)); // Persist to localStorage
+      setTimeout(() => setSaved(false), 3000);
+    }, 1000);
   };
+
+  const handleCancel = () => {
+    setProfile(initialProfile); // Revert to initial state
+  };
+
+  // Check if form data has changed
+  const isDirty = JSON.stringify(profile) !== JSON.stringify(initialProfile);
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+        <BackButton className="mb-6" />
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#0A1E41]">Profile Settings</h1>
@@ -234,13 +255,18 @@ const ClientProfileSettings = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={handleSave}
-              className="flex-1 py-3 bg-[#0A1E41] text-white font-bold rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-2"
+              disabled={loading || !isDirty}
+              className="flex-1 py-3 bg-[#0A1E41] text-white font-bold rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Save size={18} /> Save Changes
+              {loading ? 'Saving...' : <><Save size={18} /> Save Changes</>}
             </button>
-            <button className="px-6 py-3 bg-white border-2 border-gray-200 text-slate-700 font-bold rounded-xl hover:bg-gray-50 transition">
+            <button
+              onClick={handleCancel}
+              disabled={loading || !isDirty}
+              className="px-6 py-3 bg-white border-2 border-gray-200 text-slate-700 font-bold rounded-xl hover:bg-gray-50 transition disabled:opacity-50"
+            >
               Cancel
             </button>
           </div>

@@ -18,7 +18,8 @@ import {
   History, 
   Shield, 
   Bell, 
-  ChevronRight 
+  ChevronRight,
+  LifeBuoy 
 } from 'lucide-react';
 
 const ClientDashboard = () => {
@@ -139,6 +140,10 @@ const ClientDashboard = () => {
             <button onClick={() => navigate('/history')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
               <History size={20} />
               Order History
+            </button>
+            <button onClick={() => navigate('/client/support')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
+              <LifeBuoy size={20} />
+              Support
             </button>
             <button onClick={() => navigate('/settings')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl font-medium transition">
               <Settings size={20} />

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import SkeletonLoader from '../../components/common/SkeletonLoader';
+import BackButton from '../../components/common/BackButton';
 import { 
   Search, 
   Briefcase, 
@@ -215,6 +216,13 @@ const ServiceCatalog = () => {
         </div>
       </nav>
 
+      {/* Back Button */}
+      <div className="bg-white py-4 px-4 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto">
+          <BackButton to="/client/dashboard" />
+        </div>
+      </div>
+
       {/* Hero Section - Dark Blue Background */}
       <div className="bg-[#0A1E41] py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -338,6 +346,39 @@ const ServiceCatalog = () => {
               </div>
             </div>
 
+            {/* Quick Services Section */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Popular Services</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  onClick={() => navigate('/services/documents')}
+                  className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition group"
+                >
+                  <FileText className="w-8 h-8 text-blue-600 mb-3 group-hover:scale-110 transition" />
+                  <h3 className="font-semibold text-gray-900 mb-1">Document Services</h3>
+                  <p className="text-sm text-gray-600">Affidavits, contracts, and legal documents</p>
+                </button>
+
+                <button
+                  onClick={() => navigate('/services/property')}
+                  className="p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition group"
+                >
+                  <Home className="w-8 h-8 text-green-600 mb-3 group-hover:scale-110 transition" />
+                  <h3 className="font-semibold text-gray-900 mb-1">Property & Land</h3>
+                  <p className="text-sm text-gray-600">Land transfers, title deeds, and property law</p>
+                </button>
+
+                <button
+                  onClick={() => navigate('/client/support/initiate')}
+                  className="p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition group"
+                >
+                  <Scale className="w-8 h-8 text-orange-600 mb-3 group-hover:scale-110 transition" />
+                  <h3 className="font-semibold text-gray-900 mb-1">Initiate Dispute</h3>
+                  <p className="text-sm text-gray-600">Report issues with services and get help</p>
+                </button>
+              </div>
+            </div>
+
             {/* How it Works Banner */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg p-8 mb-8 text-white">
               <h2 className="text-2xl font-bold mb-6">How it works</h2>
@@ -402,7 +443,10 @@ const ServiceCatalog = () => {
               <section className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-gray-900">Notarization Services</h2>
-                  <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium">
+                  <button
+                    onClick={() => navigate('/services/notarization')}
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium"
+                  >
                     View All
                     <ArrowRight className="w-4 h-4" />
                   </button>

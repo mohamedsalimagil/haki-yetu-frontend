@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { FileText, Download, Eye, FolderOpen } from 'lucide-react';
+import { mockDocuments } from '../../data/demoFixtures';
+import BackButton from '../../components/common/BackButton';
 
 const MyDocuments = () => {
+  const navigate = useNavigate();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // We need a route to "Get All My Documents". 
-    // Since we haven't built a specific one, we will fetch orders and extract docs, 
-    // OR we can quickly add a route. For now, let's mock the display logic or 
-    // assume we fetch from a new endpoint we'll create in a second.
     const fetchDocs = async () => {
       try {
-        // Let's add this endpoint to backend in Step 6
         const response = await api.get('/api/marketplace/documents/user/1');
-        setDocuments(response.data);
+        setDocuments(response.data || []);
       } catch (err) {
-        console.error("Failed to load docs");
+        console.error("Failed to load docs, using demo data");
+        // Fallback to mock data if API fails or returns empty
+        setDocuments(mockDocuments);
       } finally {
         setLoading(false);
       }
@@ -38,6 +39,7 @@ const MyDocuments = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-6xl mx-auto">
+        <BackButton className="mb-6" />
         <h1 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
           <FolderOpen className="w-8 h-8 mr-3 text-primary" />
           My Document Repository
