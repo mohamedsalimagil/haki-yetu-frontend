@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 
 // Layouts
 import Navbar from './components/layout/Navbar';
+import ScrollToTop from './components/common/ScrollToTop';
 
 // Guards
 import VerificationGuard from './components/auth/VerificationGuard';
@@ -81,6 +82,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Navbar />
 
       <Routes>
