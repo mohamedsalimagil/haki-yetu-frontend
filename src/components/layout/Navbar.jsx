@@ -1,188 +1,259 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Scale, LogOut } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { MessageSquare, LogOut, User, Menu, X, Settings, ChevronDown, LayoutDashboard } from 'lucide-react';
+import { AuthContext } from '../../context/AuthContext';
+import NotificationBell from './NotificationBell';
+import ThemeToggle from '../common/ThemeToggle';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
-    setIsOpen(false);
+    navigate('/');
+    setUserMenuOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const getDashboardLink = () => {
+    if (!user) return '/';
+    if (user.role === 'lawyer') return '/lawyer/dashboard';
+    if (user.role === 'admin') return '/admin/dashboard';
+    return '/client/dashboard';
+  };
+
+  // Check if lawyer is verified (allowed to access dashboard)
+  const isLawyerVerified = () => {
+    if (!user) return false;
+    if (user.role !== 'lawyer') return true; // Non-lawyers always pass
+    const status = user.verification_status || user.status;
+    return status === 'verified' || status === 'approved';
   };
 
   return (
-    <nav className="bg-primary text-white shadow-lg">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
-            <Scale className="h-8 w-8 text-secondary" />
-            <span className="font-bold text-xl tracking-wide hidden sm:inline">Haki Yetu</span>
-          </Link>
+        <div className="flex justify-between h-20">
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 items-center">
-            {/* Public Links */}
-            {!user ? (
-              <>
-                <Link to="/services" className="hover:text-gray-300 transition font-medium">
-                  Services
-                </Link>
-                <Link to="/lawyers" className="hover:text-gray-300 transition font-medium">
-                  Find a Lawyer
-                </Link>
-                <Link 
-                  to="/login" 
-                  className="px-4 py-2 bg-secondary rounded hover:bg-red-700 transition font-medium"
-                >
-                  Login
-                </Link>
-              </>
-            ) : (
-              <>
-                {/* Admin Dashboard Link */}
-                {user.role === 'admin' && (
-                  <Link 
-                    to="/admin" 
-                    className="hover:text-gray-300 transition font-medium text-yellow-300"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
+          {/* Logo and Primary Nav */}
+          <div className="flex items-center gap-8">
+            <Link to="/" className="flex items-center gap-3 group">
+              <img src="/haki%20logo%201.png" alt="Haki Yetu" className="h-16 w-16 object-contain rounded-full border-2 border-gray-200 dark:border-gray-600 shadow-lg group-hover:shadow-xl transition-shadow" />
+              <div className="flex flex-col">
+                <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#1E40AF] via-blue-600 to-[#FACC15] bg-clip-text text-transparent">
+                  Haki Yetu
+                </span>
+                <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 tracking-widest uppercase -mt-1">
+                  Digital Justice
+                </span>
+              </div>
+            </Link>
 
-                {/* Client Dashboard Link */}
-                {user.role === 'client' && (
-                  <Link 
-                    to="/dashboard" 
-                    className="hover:text-gray-300 transition font-medium"
-                  >
-                    My Dashboard
-                  </Link>
-                )}
-
-                {/* User Info & Logout */}
-                <div className="flex items-center space-x-3 border-l border-blue-400 pl-6">
-                  <div className="text-sm">
-                    <p className="font-semibold">{user.name || 'User'}</p>
-                    <p className="text-blue-200 text-xs">{user.role}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 hover:bg-blue-700 rounded-full transition"
-                    title="Logout"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </button>
-                </div>
-              </>
-            )}
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-600">
+              {!user ? (
+                <>
+                  <Link to="/services" className="hover:text-primary transition">Services</Link>
+                  <Link to="/advocates" className="hover:text-primary transition">Find a Lawyer</Link>
+                  <Link to="/pricing" className="hover:text-primary transition">Pricing</Link>
+                  <Link to="/about" className="hover:text-primary transition">About</Link>
+                </>
+              ) : (
+                <>
+                  {/* Only show Dashboard link if user is verified AND not an admin (admins use sidebar) */}
+                  {isLawyerVerified() && user.role !== 'admin' && (
+                    <Link to={getDashboardLink()} className="hover:text-primary transition flex items-center gap-1">
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+                  )}
+                  {user.role === 'client' && (
+                    <Link to="/marketplace" className="hover:text-primary transition">Services</Link>
+                  )}
+                  {user.role === 'client' && (
+                    <Link to="/advocates" className="hover:text-primary transition">Advocates</Link>
+                  )}
+                  {/* Hide Messages for admins */}
+                  {user.role !== 'admin' && (
+                    <Link to="/chat" className="hover:text-primary transition flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      Messages
+                    </Link>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="focus:outline-none p-2 hover:bg-blue-700 rounded transition"
+          {/* Right Section: Auth & Mobile Menu */}
+          <div className="flex items-center gap-4">
+
+            {/* Authenticated State */}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <NotificationBell />
+
+                {/* User Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 p-1 pl-2 pr-3 rounded-full border border-gray-200 hover:bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden border border-gray-200">
+                      {user.avatar_url || user.profile_image_url ? (
+                        <img
+                          src={user.avatar_url || user.profile_image_url}
+                          alt={user.first_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold text-xs">
+                          {user.first_name ? user.first_name[0].toUpperCase() : 'U'}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 hidden sm:block max-w-[100px] truncate">
+                      {user.first_name}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="px-4 py-3 border-b border-gray-100 mb-2">
+                        <p className="text-sm font-semibold text-gray-900">{user.first_name} {user.last_name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
+
+                      <Link
+                        to={user.role === 'client' ? "/client/settings" : "/profile"}
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Account Settings
+                      </Link>
+                      {/* Only show Dashboard link if user is verified AND not an admin */}
+                      {isLawyerVerified() && user.role !== 'admin' && (
+                        <Link
+                          to={getDashboardLink()}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          Dashboard
+                        </Link>
+                      )}
+
+                      <div className="border-t border-gray-100 my-1"></div>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Public State Buttons */
+              <div className="hidden md:flex items-center gap-3">
+                <ThemeToggle />
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition"
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-5 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-blue-800 transition shadow-sm hover:shadow"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
             >
-              {isOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-blue-900 px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-700">
-          {!user ? (
-            <>
-              <Link 
-                to="/services" 
-                className="block px-3 py-2 rounded-md hover:bg-blue-800 transition font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Services
-              </Link>
-              <Link 
-                to="/lawyers" 
-                className="block px-3 py-2 rounded-md hover:bg-blue-800 transition font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Find a Lawyer
-              </Link>
-              <Link 
-                to="/login" 
-                className="block px-3 py-2 rounded-md bg-secondary text-center mt-4 font-medium hover:bg-red-700 transition"
-                onClick={() => setIsOpen(false)}
-              >
-                Login
-              </Link>
-            </>
-          ) : (
-            <>
-              {/* Admin Links */}
-              {user.role === 'admin' && (
-                <Link
-                  to="/admin"
-                  className="block px-3 py-2 rounded-md hover:bg-blue-800 transition font-medium text-yellow-300"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Admin Panel
+      {/* Mobile Menu Panel */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div className="px-4 py-4 space-y-3">
+            {!user ? (
+              <>
+                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 dark:border-gray-700 mb-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Theme</span>
+                  <ThemeToggle />
+                </div>
+                <Link to="/services" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Services</Link>
+                <Link to="/advocates" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Advocates</Link>
+                <Link to="/pricing" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Pricing</Link>
+                <div className="pt-4 flex flex-col gap-3">
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 font-medium">Log In</Link>
+                  <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="w-full text-center px-4 py-2 bg-primary text-white rounded-lg font-medium">Get Started</Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between px-3 pb-3 border-b border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-bold">
+                      {user.first_name ? user.first_name[0] : 'U'}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white">{user.first_name} {user.last_name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                    </div>
+                  </div>
+                  <ThemeToggle />
+                </div>
+                {/* Only show Dashboard link if user is verified AND not an admin */}
+                {isLawyerVerified() && user.role !== 'admin' && (
+                  <Link to={getDashboardLink()} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
+                    <LayoutDashboard className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <span>Dashboard</span>
+                  </Link>
+                )}
+                <Link to="/client/settings" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200">
+                  <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  <span>Settings</span>
                 </Link>
-              )}
-
-              {/* Client Links */}
-              {user.role === 'client' && (
-                <>
-                  <Link 
-                    to="/dashboard" 
-                    className="block px-3 py-2 rounded-md hover:bg-blue-800 transition font-medium"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    My Dashboard
-                  </Link>
-                  <Link 
-                    to="/services" 
-                    className="block px-3 py-2 rounded-md hover:bg-blue-800 transition font-medium"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Services
-                  </Link>
-                  <Link 
-                    to="/history" 
-                    className="block px-3 py-2 rounded-md hover:bg-blue-800 transition font-medium"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Order History
-                  </Link>
-                </>
-              )}
-
-              {/* User Info */}
-              <div className="px-3 py-2 border-t border-blue-700 mt-3 pt-3">
-                <p className="font-semibold text-sm">{user.name || 'User'}</p>
-                <p className="text-blue-200 text-xs">{user.email}</p>
-                <p className="text-blue-300 text-xs capitalize">Role: {user.role}</p>
-              </div>
-
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-3 py-2 rounded-md hover:bg-red-600 transition font-medium mt-2 flex items-center"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </button>
-            </>
-          )}
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400">
+                  <LogOut className="w-5 h-5" />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>
@@ -190,53 +261,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-
-// import React, { useState } from 'react'; //react library for building user interfaces
-// import { Link } from 'react-router-dom';//react-router-dom for navigation between different routes
-// import { Menu, X, Scale } from 'lucide-react';
-
-// const Navbar = () => {
-//   const [isOpen, setIsOpen] = useState(false);
-
-//   return (
-//     <nav className="bg-primary text-white shadow-lg">
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <div className="flex items-center justify-between h-16">
-          
-//           {/* Logo */}
-//           <Link to="/" className="flex items-center space-x-2">
-//             <Scale className="h-8 w-8 text-secondary" />
-//             <span className="font-bold text-xl tracking-wide">Haki Yetu</span>
-//           </Link>
-
-//           {/* Desktop Menu */} 
-//           <div className="hidden md:flex space-x-8">
-//             <Link to="/services" className="hover:text-gray-300 transition">Services</Link>
-//             <Link to="/lawyers" className="hover:text-gray-300 transition">Find a Lawyer</Link>
-//             <Link to="/login" className="px-4 py-2 bg-secondary rounded hover:bg-red-700 transition">Login</Link>
-//           </div>
-
-//           {/* Mobile Menu Button */}
-//           <div className="md:hidden">
-//             <button onClick={() => setIsOpen(!isOpen)} className="focus:outline-none">
-//               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Mobile Dropdown */}
-//       {isOpen && (
-//         <div className="md:hidden bg-blue-900 px-2 pt-2 pb-3 space-y-1 sm:px-3">
-//           <Link to="/services" className="block px-3 py-2 rounded-md hover:bg-blue-800">Services</Link>
-//           <Link to="/lawyers" className="block px-3 py-2 rounded-md hover:bg-blue-800">Find a Lawyer</Link>
-//           <Link to="/login" className="block px-3 py-2 rounded-md bg-secondary text-center mt-4">Login</Link>
-//         </div>
-//       )}
-//     </nav>
-//   );
-// };
-
-// export default Navbar;

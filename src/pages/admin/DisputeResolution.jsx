@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import adminService from '../../services/admin.service';
+import adminService from '../../services/adminService';
 import DataTable from '../../components/domain/admin/DataTable';
 
 export default function DisputeResolution() {
@@ -60,13 +60,12 @@ export default function DisputeResolution() {
       width: '15%',
       render: (value) => (
         <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold inline-block ${
-            value === 'open'
-              ? 'bg-red-100 text-red-800'
-              : value === 'in_progress'
+          className={`px-3 py-1 rounded-full text-xs font-semibold inline-block ${value === 'open'
+            ? 'bg-red-100 text-red-800'
+            : value === 'in_progress'
               ? 'bg-yellow-100 text-yellow-800'
               : 'bg-green-100 text-green-800'
-          }`}
+            }`}
         >
           {value}
         </span>
@@ -159,10 +158,10 @@ export default function DisputeResolution() {
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setSelectedDispute(null)}
-                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
               >
                 Close
               </button>

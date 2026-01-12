@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Filter, Search } from 'lucide-react';
-import adminService from '../../services/admin.service';
+import adminService from '../../services/adminService';
 import DataTable from '../../components/domain/admin/DataTable';
 import Pagination from '../../components/common/Pagination';
 
@@ -66,12 +66,12 @@ export default function SystemLogs() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">System Logs</h1>
-        <p className="text-gray-600 mt-1">Admin activity and system audit logs</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">System Logs</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Admin activity and system audit logs</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex gap-4 flex-wrap">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex gap-4 flex-wrap transition-colors">
         <div className="flex-1 min-w-[250px] relative">
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           <input
@@ -82,7 +82,7 @@ export default function SystemLogs() {
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
           />
         </div>
         <select
@@ -91,7 +91,7 @@ export default function SystemLogs() {
             setActionFilter(e.target.value);
             setCurrentPage(1);
           }}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
         >
           <option value="all">All Actions</option>
           <option value="suspend_user">Suspend User</option>
@@ -104,9 +104,9 @@ export default function SystemLogs() {
 
       {/* Data Table */}
       {loading ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading logs...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading logs...</p>
         </div>
       ) : (
         <>

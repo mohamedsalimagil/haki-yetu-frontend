@@ -1,1 +1,143 @@
-node_modules
+# =========================================
+# Dependencies and Packages
+# =========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+jspm_packages/
+
+# =========================================
+# Build and Distribution
+# =========================================
+dist/
+build/
+.next/
+.nuxt/
+.out/
+.storybook-out/
+
+# =========================================
+# Environment and Configuration
+# =========================================
+.env*
+!.env.example
+config.local.*
+*.local
+
+# =========================================
+# IDE and Editor Files
+# =========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+*.bak
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =========================================
+# OS Generated Files
+# =========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# =========================================
+# Logs and Debugging
+# =========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# =========================================
+# Runtime and Process Files
+# =========================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+lib-cov/
+
+# =========================================
+# Coverage and Testing
+# =========================================
+coverage/
+*.lcov
+.nyc_output/
+
+# =========================================
+# Cache Directories
+# =========================================
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.eslintcache
+*.tsbuildinfo
+
+# =========================================
+# Temporary and Build Artifacts
+# =========================================
+tmp/
+temp/
+.tmp/
+
+# =========================================
+# Database Files
+# =========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================================
+# API Keys and Secrets
+# =========================================
+secrets/
+*.key
+*.pem
+
+# =========================================
+# Test Data and Seeds
+# =========================================
+test-seed-data.json
+*.seed
+seeds/
+test-data/
+
+# =========================================
+# Internal Documentation (Untracked)
+# =========================================
+DAY*_CHANGES_EXPLANATION.md
+PERSON_A_API_DOCUMENTATION.md
+*CHANGES_EXPLANATION.md
+*API_DOCUMENTATION.md
+*CHANGES.md
+
+# =========================================
+# Optional/Development Files
+# =========================================
+package-lock.json  # Uncomment to ignore
+yarn.lock          # Uncomment to ignore
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env.test
+DISPUTE_FIX_INSTRUCTIONS.md
