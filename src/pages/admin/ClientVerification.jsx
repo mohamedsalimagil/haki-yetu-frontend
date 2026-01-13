@@ -77,13 +77,29 @@ const ClientVerification = () => {
     if (!selectedId) return;
     if (window.confirm("Are you sure you want to verify this client?")) {
       try {
-        await AdminService.verifyClient(selectedId);
-        const updatedList = clients.filter(c => c.id !== selectedId);
-        setClients(updatedList);
-        if (updatedList.length > 0) setSelectedId(updatedList[0].id);
-        else setSelectedId(null);
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/api/admin/verify-user/${selectedId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'approved' })
+        });
+
+        if (response.ok) {
+          const updatedList = clients.filter(c => c.id !== selectedId);
+          setClients(updatedList);
+          if (updatedList.length > 0) setSelectedId(updatedList[0].id);
+          else setSelectedId(null);
+          alert("Client verified successfully!");
+        } else {
+          const err = await response.json();
+          alert(`Failed to verify: ${err.message || err.error || "Unknown error"}`);
+        }
       } catch (err) {
-        alert("Action failed");
+        console.error("Verify failed:", err);
+        alert("Action failed: " + err.message);
       }
     }
   };
