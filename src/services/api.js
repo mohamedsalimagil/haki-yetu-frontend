@@ -16,6 +16,16 @@ const api = axios.create({
   }
 });
 
+// Create a separate instance for multipart/form-data requests
+export const apiFormData = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json'
+    // Don't set Content-Type - let browser set it with boundary
+  }
+});
+
 // JWT expiry check (no external library needed)
 const isTokenExpired = (token) => {
   if (!token) return true;
@@ -87,6 +97,93 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         return api(originalRequest); // Retry with new token
+      } catch {
+        localStorage.removeItem(TOKEN_KEY);
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
+    }
+
+    // Force logout on 401 after retry
+    if (error.response?.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = "/login";
+    }
+
+    // Network error (no response from server)
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to Haki Yetu servers. Please check your internet connection.",
+        {
+          duration: 5000,
+          icon: '🔌'
+        }
+      );
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Apply the same interceptors to apiFormData
+apiFormData.interceptors.request.use(
+  async (config) => {
+    let token = localStorage.getItem(TOKEN_KEY);
+
+    // Check if token is expired before making request
+    if (token && isTokenExpired(token)) {
+      try {
+        const { data } = await axios.post(`${API_URL}${REFRESH_ENDPOINT}`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        token = data.access_token || data.token;
+        localStorage.setItem(TOKEN_KEY, token);
+      } catch {
+        localStorage.removeItem(TOKEN_KEY);
+        window.location.href = "/login";
+        return Promise.reject(new Error("Token expired"));
+      }
+    }
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+apiFormData.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Handle 401 with retry
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // Critical: Refresh failed, force logout to stop loop
+      if (originalRequest.url.includes('/auth/refresh')) {
+        localStorage.removeItem(TOKEN_KEY);
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
+      originalRequest._retry = true;
+
+      // Skip auto-logout for KYC endpoint
+      if (originalRequest.url.includes('/client/kyc')) {
+        return Promise.reject(error);
+      }
+
+      try {
+        const token = localStorage.getItem(TOKEN_KEY);
+        const { data } = await axios.post(`${API_URL}${REFRESH_ENDPOINT}`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const newToken = data.access_token || data.token;
+        localStorage.setItem(TOKEN_KEY, newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+        return apiFormData(originalRequest); // Retry with new token
       } catch {
         localStorage.removeItem(TOKEN_KEY);
         window.location.href = "/login";
