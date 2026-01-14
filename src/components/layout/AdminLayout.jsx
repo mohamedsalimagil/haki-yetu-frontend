@@ -76,21 +76,21 @@ export default function AdminLayout({ children }) {
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">
         {/* Top Header */}
-        <header className="bg-blue-900 shadow-sm h-16 flex items-center justify-between px-8 sticky top-0 z-20 transition-colors">
+        <header className="bg-white dark:bg-gray-800 shadow-sm h-16 flex items-center justify-between px-8 sticky top-0 z-20 transition-colors">
           <div className="relative w-96">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search across platform..."
-              className="w-full pl-10 pr-4 py-2 bg-blue-800 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-white placeholder-blue-300"
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-white placeholder-gray-400"
             />
           </div>
           <div className="flex items-center space-x-6">
             <ThemeToggle />
-            <Bell className="text-blue-100 hover:text-white cursor-pointer" size={20} />
+            <Bell className="text-gray-500 dark:text-gray-400 cursor-pointer" size={20} />
             <div className="text-right">
-              <div className="text-sm font-bold text-white">{user?.name || 'Admin User'}</div>
-              <div className="text-xs text-blue-200">Super Admin</div>
+              <div className="text-sm font-bold text-gray-800 dark:text-white">{user?.name || 'Admin User'}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Super Admin</div>
             </div>
           </div>
         </header>
