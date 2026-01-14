@@ -4,7 +4,6 @@ import { useAuth } from './context/AuthContext';
 
 // Layouts
 import Navbar from './components/layout/Navbar';
-import ScrollToTop from './components/common/ScrollToTop';
 
 // Guards
 import VerificationGuard from './components/auth/VerificationGuard';
@@ -41,7 +40,6 @@ import ServiceCatalog from './pages/client/ServiceCatalog';
 import ServiceDetails from './pages/client/ServiceDetails';
 import Checkout from './pages/client/Checkout';
 import OrderHistory from './pages/client/OrderHistory';
-import MyDocuments from './pages/client/MyDocuments';
 import ClientOnboarding from './pages/client/ClientOnboarding';
 import ClientVerificationPending from './pages/client/ClientVerificationPending';
 import LawyerProfileView from './pages/client/LawyerProfileView';
@@ -70,6 +68,7 @@ import DisputeDetails from './pages/client/support/DisputeDetails';
 import DisputeConfirmation from './pages/client/support/DisputeConfirmation';
 import FAQsPage from './pages/client/support/FAQsPage';
 import AIChatPage from './pages/client/support/AIChatPage';
+// ------------------------------------------
 
 // Admin Module
 import AdminRoutes from './pages/admin/AdminRoutes';
@@ -98,8 +97,7 @@ function App() {
 
   return (
     <>
-      <ScrollToTop />
-      {!shouldHideNavbar && <Navbar />}
+      <Navbar />
 
       <Routes>
         {/* --- Public Routes --- */}
@@ -158,8 +156,6 @@ function App() {
         <Route path="/client/documents" element={<ClientDocumentGenerator />} />
         <Route path="/client/documents/create" element={<DocumentPartyDetails />} />
         <Route path="/client/consultations" element={<Consultations />} />
-        <Route path="/settings" element={<ClientProfileSettings />} />
-        <Route path="/consultations" element={<Consultations />} />
         <Route path="/bookings/manage" element={<div className="p-8 text-center">Manage Bookings - Coming Soon</div>} />
 
         {/* --- Client Support Routes --- */}
@@ -192,20 +188,16 @@ function App() {
         <Route path="/admin/*" element={<AdminRoutes />} />
 
         {/* --- Verification Protected Routes --- */}
-        <Route path="/" element={<VerificationGuard />}>
+        <Route element={<VerificationGuard />}>
           <Route path="/dashboard/lawyer" element={<LawyerDashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/client" element={<ClientDashboard />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/:id" element={<Chat />} />
-
           <Route path="/profile" element={<UserProfileSettings />} />
           <Route path="/settings" element={<ClientProfileSettings />} />
-          <Route path="/client/settings" element={<ClientProfileSettings />} />
+          <Route path="/history" element={<OrderHistory />} />
         </Route>
-
-        <Route path="/history" element={<OrderHistory />} />
-        <Route path="/documents" element={<MyDocuments />} />
 
         {/* --- Catch-all for undefined routes --- */}
         <Route path="*" element={<div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="text-center"><h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1><p className="text-gray-600">Page not found</p><a href="/" className="text-blue-600 hover:underline mt-4 inline-block">Go Home</a></div></div>} />

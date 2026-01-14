@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import api, { apiFormData } from '../../../services/api'; // Import both instances
+import api from '../../../services/api'; // Ensure you have your axios instance here
 
 const LawyerRegistrationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -198,8 +198,8 @@ const LawyerRegistrationForm = () => {
         // --- SCENARIO A: User is already logged in ---
         console.log("Submitting lawyer profile for existing user...");
 
-        // Use apiFormData for multipart/form-data uploads
-        await apiFormData.post('/api/lawyer/profile', formDataToSend);
+        // Use FormData endpoint (let Axios handle Content-Type automatically)
+        await api.post('/lawyer/profile', formDataToSend);
 
         toast.success("Profile submitted for verification!");
         navigate('/verification-pending'); // Send them to verification pending page
@@ -228,8 +228,8 @@ const LawyerRegistrationForm = () => {
           throw new Error(result.message || "Registration failed");
         }
 
-        // After successful registration, upload the profile with documents using apiFormData
-        await apiFormData.post('/api/lawyer/profile', formDataToSend);
+        // After successful registration, upload the profile with documents
+        await api.post('/lawyer/profile', formDataToSend);
 
         toast.success('Registration and documents submitted successfully!');
         navigate('/verification-pending');
@@ -818,4 +818,3 @@ const LawyerRegistrationForm = () => {
 
 
 export default LawyerRegistrationForm;
-

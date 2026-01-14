@@ -192,7 +192,10 @@ const LawyerDashboard = () => {
                   >
                      <Calendar size={16} /> Manage Availability
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2.5 bg-[#2563EB] rounded-xl text-sm font-bold text-white hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                  <button
+                     onClick={() => navigate('/lawyer/documents/create')}
+                     className="flex items-center gap-2 px-4 py-2.5 bg-[#2563EB] rounded-xl text-sm font-bold text-white hover:bg-blue-700 transition shadow-lg shadow-blue-200"
+                  >
                      <Plus size={16} /> Create Document
                   </button>
                </div>

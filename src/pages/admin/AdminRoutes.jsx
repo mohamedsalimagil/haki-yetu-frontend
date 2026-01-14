@@ -13,6 +13,7 @@ import ClientVerification from './ClientVerification';
 import TemplateManagement from './TemplateManagement';
 import AdminSettings from './AdminSettings';
 import AdminMessages from './AdminMessages';
+import ServiceManagement from './ServiceManagement';
 
 export default function AdminRoutes() {
   return (
@@ -28,6 +29,7 @@ export default function AdminRoutes() {
           <Route path="/logs" element={<SystemLogs />} />
           <Route path="/notifications" element={<NotificationCenter />} />
           <Route path="/messages" element={<AdminMessages />} />
+          <Route path="/services" element={<ServiceManagement />} />
           <Route path="/settings" element={<AdminSettings />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>

@@ -1,36 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, ArrowRight, Shield, FileText, Scale, Briefcase } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const ServiceCatalog = () => {
   const navigate = useNavigate();
+
+  // State for services, loading, and filtering
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // 1. State for Filtering
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Services');
   const [selectedPriceRange, setSelectedPriceRange] = useState('all');
 
-  // Sample Data (or fetch from API)
-  const services = [
-    { id: 1, title: 'Affidavit Service', category: 'Notarization', price: 1500, description: 'Sworn statement confirming identity or facts.', icon: FileText },
-    { id: 2, title: 'Contract Review', category: 'Business', price: 5000, description: 'Professional review of business contracts.', icon: Briefcase },
-    { id: 3, title: 'Land Transfer', category: 'Land & Property', price: 12000, description: 'Legal assistance with property transfer.', icon: Scale },
-    { id: 4, title: 'Certified Copies', category: 'Notarization', price: 500, description: 'Official certification of original documents.', icon: Shield },
-    { id: 5, title: 'Legal Consultation', category: 'Family & Civil', price: 3000, description: 'General legal advice session.', icon: Scale },
-    { id: 6, title: 'Company Registration', category: 'Business', price: 15000, description: 'Full registration service for new companies.', icon: Briefcase },
-  ];
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await api.get('/marketplace/services');
+        console.log("Fetched Services:", response.data); // Debug log
+        setServices(response.data);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        setError('Failed to load services. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // 2. Filter Logic (Fixes Search & Sidebar)
+    fetchServices();
+  }, []);
+
+  // 2. Filter Logic (Handles API response structure)
   const filteredServices = services.filter(service => {
-    const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    // Handle different field names from API vs hardcoded data
+    const serviceName = service.name || service.title || '';
+    const serviceCategory = service.category_name || service.category || '';
+    const servicePrice = service.base_price || service.price || 0;
+
+    const matchesSearch = serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All Services' || service.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All Services' || serviceCategory === selectedCategory;
 
     // Simple Price Logic
     let matchesPrice = true;
-    if (selectedPriceRange === 'low') matchesPrice = service.price < 2000;
-    if (selectedPriceRange === 'mid') matchesPrice = service.price >= 2000 && service.price <= 10000;
-    if (selectedPriceRange === 'high') matchesPrice = service.price > 10000;
+    if (selectedPriceRange === 'low') matchesPrice = servicePrice < 2000;
+    if (selectedPriceRange === 'mid') matchesPrice = servicePrice >= 2000 && servicePrice <= 10000;
+    if (selectedPriceRange === 'high') matchesPrice = servicePrice > 10000;
 
     return matchesSearch && matchesCategory && matchesPrice;
   });
@@ -115,51 +136,86 @@ const ServiceCatalog = () => {
           <div className="flex-1">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedCategory}</h2>
-              <p className="text-gray-500 text-sm">Showing {filteredServices.length} results</p>
+              <p className="text-gray-500 text-sm">
+                {loading ? 'Loading services...' : `Showing ${filteredServices.length} results`}
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service) => (
-                <div key={service.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col hover:shadow-md transition-shadow">
-                  <div className="mb-4">
-                    <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full mb-3">
-                      {service.category}
-                    </span>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.title}</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">
-                      {service.description}
-                    </p>
+            {/* Loading State */}
+            {loading && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, index) => (
+                  <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 animate-pulse">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3"></div>
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
+                ))}
+              </div>
+            )}
 
-                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <div className="flex items-end justify-between mb-4">
-                      <span className="text-gray-400 text-xs">Starting from</span>
-                      <span className="text-lg font-bold text-gray-900 dark:text-white">
-                        KES {service.price.toLocaleString()}
-                      </span>
-                    </div>
-                    {/* FIXED: Route to Advocates Page */}
-                    <Link
-                      to="/advocates"
-                      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg transition-colors font-medium text-sm"
-                    >
-                      Book Now <ArrowRight size={16} />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {filteredServices.length === 0 && (
-              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-                <p className="text-gray-500">No services found matching your criteria.</p>
+            {/* Error State */}
+            {error && !loading && (
+              <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-red-200 dark:border-red-800">
+                <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
                 <button
-                  onClick={() => { setSearchTerm(''); setSelectedCategory('All Services'); setSelectedPriceRange('all'); }}
-                  className="mt-4 text-blue-600 hover:underline text-sm"
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
                 >
-                  Clear Filters
+                  Try Again
                 </button>
               </div>
+            )}
+
+            {/* Services Grid */}
+            {!loading && !error && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredServices.map((service) => (
+                    <div key={service.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col hover:shadow-md transition-shadow">
+                      <div className="mb-4">
+                        <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full mb-3">
+                          {service.category_name || service.category}
+                        </span>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{service.name}</h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">
+                          {service.description}
+                        </p>
+                      </div>
+
+                      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div className="flex items-end justify-between mb-4">
+                          <span className="text-gray-400 text-xs">Starting from</span>
+                          <span className="text-lg font-bold text-gray-900 dark:text-white">
+                            KES {service.base_price?.toLocaleString() || service.price?.toLocaleString() || 'N/A'}
+                          </span>
+                        </div>
+                        {/* FIXED: Route to Advocates Page */}
+                        <Link
+                          to="/advocates"
+                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg transition-colors font-medium text-sm"
+                        >
+                          Book Now <ArrowRight size={16} />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {filteredServices.length === 0 && (
+                  <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                    <p className="text-gray-500">No services found matching your criteria.</p>
+                    <button
+                      onClick={() => { setSearchTerm(''); setSelectedCategory('All Services'); setSelectedPriceRange('all'); }}
+                      className="mt-4 text-blue-600 hover:underline text-sm"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

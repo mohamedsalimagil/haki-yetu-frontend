@@ -23,22 +23,22 @@ const Consultations = () => {
     try {
       setLoading(true);
       const data = await clientService.getConsultations();
-      // Map API response to component format
-      const mappedConsultations = data.map(c => ({
-        id: c.id,
-        lawyerId: c.lawyer_id,
-        advocateName: c.lawyer_name || 'Lawyer',
-        advocateImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.lawyer_name || 'L')}&background=1E40AF&color=fff`,
-        service: c.subject || c.service_type || 'Legal Consultation',
-        date: c.date,
-        time: c.time_slot || c.time,
-        duration: '30 minutes',
-        status: (c.status || '').toLowerCase(),
-        meetingLink: `https://meet.jit.si/HakiYetu-${c.id}-${user.id}`, // Always use Jitsi, ignore DB value
-        location: c.meeting_type === 'online' ? 'Video Call' : 'In Person',
-        amount: c.amount || 3000,
-        notes: c.description
-      }));
+        // Map API response to component format
+        const mappedConsultations = data.map(c => ({
+          id: c.id,
+          lawyerId: c.lawyer_id,
+          advocateName: c.lawyer_name || 'Lawyer',
+          advocateImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.lawyer_name || 'L')}&background=1E40AF&color=fff`,
+          service: c.subject || c.service_type || 'Legal Consultation',
+          date: c.date,
+          time: c.time_slot || c.time,
+          duration: '30 minutes',
+          status: (c.status || '').toLowerCase(),
+          meetingLink: c.meeting_link || `https://meet.jit.si/HakiYetu-${c.id}-${user.id}`, // Use DB value if available
+          location: c.meeting_type === 'online' ? 'Video Call' : 'In Person',
+          amount: c.amount || 3000,
+          notes: c.description
+        }));
       setConsultations(mappedConsultations);
     } catch (error) {
       console.error('Error fetching consultations:', error);
@@ -290,16 +290,11 @@ const Consultations = () => {
                   <div className="flex items-center gap-3">
                     {(consultation.status === 'upcoming' || consultation.status === 'pending' || consultation.status === 'confirmed') && (
                       <button
-                        onClick={() => handleCancel(consultation.id)}
-                        disabled={cancelling === consultation.id}
-                        className="border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium flex items-center gap-2 disabled:opacity-50"
+                        onClick={() => navigate(`/consultation/reschedule/${consultation.id}`)}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium flex items-center gap-2"
                       >
-                        {cancelling === consultation.id ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                        Cancel
+                        <Calendar className="w-4 h-4" />
+                        Reschedule
                       </button>
                     )}
                     {(consultation.status === 'upcoming' || consultation.status === 'confirmed') && consultation.meetingLink && (
@@ -319,6 +314,20 @@ const Consultations = () => {
                         Book Again
                       </button>
                     )}
+                    {/* Join Session Button - Always Visible */}
+                    <button
+                      onClick={() => {
+                        // Use DB link or fallback to a generated ID to ensure it always works
+                        const link = consultation.meetingLink || `https://meet.jit.si/HakiYetu-${consultation.id}`;
+                        window.open(link, '_blank');
+                      }}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      Join Session
+                    </button>
                     <button
                       onClick={() => navigate('/client/messages', { state: { partnerId: consultation.lawyerId, partnerName: consultation.advocateName } })}
                       className="border border-green-600 text-green-600 px-4 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition font-medium flex items-center gap-2"

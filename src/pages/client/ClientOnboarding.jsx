@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import api, { apiFormData } from '../../services/api';
+import api from '../../services/api';
 import socketService from '../../services/socket.service';
 import { Shield, Lock, Upload, Calendar, MapPin, ChevronRight, FileText, CheckCircle, User } from 'lucide-react';
 
@@ -174,7 +174,11 @@ const ClientOnboarding = () => {
     setUploadProgress(0);
 
     try {
-      await apiFormData.post('/api/client/kyc', submitData, {
+      await api.post('/client/kyc', submitData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer ' + token,
+        },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setUploadProgress(percentCompleted);

@@ -7,7 +7,7 @@ class SocketService {
   connect(token) {
     // Prevent multiple connection attempts
     if (this.socket?.connected || this.isConnecting) {
-      console.log("⚠️ Socket already connected or connecting");
+      console.log("Socket already connected or connecting");
       return;
     }
 
@@ -15,7 +15,7 @@ class SocketService {
     console.log("🔌 Attempting socket connection...");
 
     // Production Connection with credentials for proper authentication
-    this.socket = io('http://127.0.0.1:5000', {
+    this.socket = io('http://127.0.0.1:5001', {
       withCredentials: true,  // Required for CORS with credentials
       transports: ['websocket', 'polling'],  // Try websocket first, fallback to polling
       autoConnect: true,
@@ -31,21 +31,21 @@ class SocketService {
     });
 
     this.socket.on('authenticated', (data) => {
-      console.log("✅ Socket Authenticated:", data);
+      console.log("Socket Authenticated:", data);
     });
 
     this.socket.on('authentication_error', (err) => {
-      console.error("❌ Socket Auth Failed:", err);
+      console.error(" Socket Auth Failed:", err);
       this.isConnecting = false;
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error("❌ Socket Connection Failed:", error.message);
+      console.error("Socket Connection Failed:", error.message);
       this.isConnecting = false;
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log("🔴 Socket Disconnected:", reason);
+      console.log("Socket Disconnected:", reason);
       this.isConnecting = false;
     });
 

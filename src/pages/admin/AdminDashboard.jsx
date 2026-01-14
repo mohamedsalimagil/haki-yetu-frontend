@@ -6,17 +6,31 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import adminService from '../../services/adminService';
+import CashOutModal from '../../components/domain/admin/CashOutModal';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [wallets, setWallets] = useState({ adminWallet: 0, taxWallet: 0 });
+  const [showCashOutModal, setShowCashOutModal] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await adminService.getDashboardStats();
-        setStats(data);
+        // Fetch both dashboard stats and wallet balances in parallel
+        const [statsResponse, walletsResponse] = await Promise.allSettled([
+          adminService.getDashboardStats(),
+          adminService.getWalletBalances()
+        ]);
+
+        if (statsResponse.status === 'fulfilled') {
+          setStats(statsResponse.value);
+        }
+
+        if (walletsResponse.status === 'fulfilled') {
+          setWallets(walletsResponse.value);
+        }
       } catch (error) {
         console.error("Failed to fetch dashboard stats", error);
       } finally {
@@ -99,8 +113,8 @@ const Dashboard = () => {
         {[
           { label: 'Total Active Clients', val: stats?.total_users?.client || 0, change: '+12%', color: 'blue', icon: <Users className="w-5 h-5" /> },
           { label: 'Pending Lawyers', val: stats?.pending_lawyers_count || 0, change: '+5%', color: 'purple', icon: <Check className="w-5 h-5" /> },
-          { label: 'Total Revenue', val: `KES ${(stats?.total_revenue || 0).toLocaleString()}`, change: '+8%', color: 'green', icon: <DollarSign className="w-5 h-5" /> },
-          { label: 'Pending Verifications', val: stats?.pending_verifications?.total || stats?.pending_verifications || 0, change: '+2%', color: 'yellow', icon: <Activity className="w-5 h-5" /> },
+          { label: 'Admin Wallet', val: `KES ${(wallets?.adminWallet || 0).toLocaleString()}`, change: '+8%', color: 'green', icon: <DollarSign className="w-5 h-5" /> },
+          { label: 'Tax Collected', val: `KES ${(wallets?.taxWallet || 0).toLocaleString()}`, change: '+2%', color: 'yellow', icon: <Activity className="w-5 h-5" /> },
         ].map((stat, idx) => (
           <div key={idx} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between h-32">
             <div className="flex justify-between items-start">
@@ -147,6 +161,13 @@ const Dashboard = () => {
             </button>
             <button onClick={() => navigate('/admin/client-verification')} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-blue-600 hover:shadow-sm transition-all text-center flex flex-col items-center justify-center h-24 border border-transparent hover:border-gray-200 dark:hover:border-gray-600">
               Verify Client
+            </button>
+            <button
+              onClick={() => setShowCashOutModal(true)}
+              className="p-4 bg-green-50 dark:bg-green-900/30 rounded-xl text-sm font-semibold text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 hover:shadow-sm transition-all text-center flex flex-col items-center justify-center h-24 border border-transparent hover:border-green-200 dark:hover:border-green-700"
+            >
+              <ArrowUpRight className="w-5 h-5 mb-2" />
+              Cash Out
             </button>
           </div>
         </div>
@@ -220,6 +241,25 @@ const Dashboard = () => {
         </div>
 
       </div>
+
+      {/* Cash Out Modal */}
+      <CashOutModal
+        isOpen={showCashOutModal}
+        onClose={() => setShowCashOutModal(false)}
+        adminWalletBalance={wallets?.adminWallet || 0}
+        onSuccess={() => {
+          // Refresh wallet balances after successful cash out
+          const refreshWallets = async () => {
+            try {
+              const walletData = await adminService.getWalletBalances();
+              setWallets(walletData);
+            } catch (error) {
+              console.error('Failed to refresh wallet balances:', error);
+            }
+          };
+          refreshWallets();
+        }}
+      />
     </div>
   );
 };

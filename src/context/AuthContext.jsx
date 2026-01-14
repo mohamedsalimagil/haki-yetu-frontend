@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api from '../api/axios';
 import socketService from '../services/socket.service'; // Day 7: Import Socket Service
 
 const AuthContext = createContext(null);
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           // Verify token and get user details
-          const response = await api.get('/api/auth/me');
+          const response = await api.get('/auth/me');
           const userData = response.data;
 
           // Only connect socket if user is verified (not during onboarding)
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('/api/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
       const { access_token, user } = response.data;
 
       // --- NEW LOGIC: BLOCK PENDING USERS ---
@@ -76,11 +76,11 @@ export const AuthProvider = ({ children }) => {
       // Handle file upload if avatar is present
       let response;
       if (userData instanceof FormData) {
-        response = await api.post('/api/auth/register', userData, {
+        response = await api.post('/auth/register', userData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        response = await api.post('/api/auth/register', userData, { withCredentials: true });
+        response = await api.post('/auth/register', userData, { withCredentials: true });
       }
 
       const { access_token, user } = response.data;

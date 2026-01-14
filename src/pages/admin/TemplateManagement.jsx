@@ -73,12 +73,6 @@ const TemplateManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert("Authentication error. Please log in again.");
-        return;
-      }
-
       const data = new FormData();
       data.append('name', formData.name);
       data.append('category', formData.category);
@@ -87,27 +81,13 @@ const TemplateManagement = () => {
         data.append('file', formData.file);
       }
 
-      const url = editingId
-        ? `http://127.0.0.1:5000/api/documents/templates/${editingId}`
-        : 'http://127.0.0.1:5000/api/documents/templates';
-
-      const method = editingId ? 'PATCH' : 'POST';
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          // Note: Do NOT set 'Content-Type': 'multipart/form-data' manually with fetch + FormData
-        },
-        body: data
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Upload failed');
+      let result;
+      if (editingId) {
+        result = await updateTemplate(editingId, data);
+      } else {
+        result = await createTemplate(data);
       }
 
-      const result = await response.json();
       console.log('Success:', result);
 
       alert(editingId ? 'Template updated successfully' : 'Template uploaded successfully');
@@ -117,7 +97,7 @@ const TemplateManagement = () => {
       fetchTemplates();
     } catch (error) {
       console.error("Save failed:", error);
-      alert(`Failed to save template: ${error.message}`);
+      alert(`Failed to save template: ${error.response?.data?.message || error.message || 'Unknown error'}`);
     }
   };
 
@@ -148,6 +128,21 @@ const TemplateManagement = () => {
     setEditingId(null);
     setFormData({ name: '', category: 'General', description: '', file: null });
     setShowUploadModal(true);
+  };
+
+  const handlePublishToggle = async (template) => {
+    try {
+      const newPublishedState = !template.published;
+      await api.patch(`/api/documents/templates/${template.id}/publish`, {
+        published: newPublishedState
+      });
+      toast.success(newPublishedState ? 'Template published to marketplace!' : 'Template unpublished from marketplace');
+      fetchTemplates();
+    } catch (error) {
+      console.error('Error toggling publish status:', error);
+      const errorMsg = error.response?.data?.message || 'Failed to update publish status';
+      toast.error(errorMsg);
+    }
   };
 
   // --- FILTERING ---
@@ -242,10 +237,10 @@ const TemplateManagement = () => {
                   href={getDownloadUrl(template.file_path)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center space-x-2"
+                  className="w-full py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center space-x-2 transition-colors"
                 >
-                  <Download className="w-4 h-4" />
-                  <span>Download {template.file_type ? template.file_type.toUpperCase() : 'PDF'}</span>
+                  <FileText className="w-4 h-4" />
+                  <span>View Template</span>
                 </a>
               </div>
             </div>

@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import AdminService from '../../services/adminService';
 import { getFullUrl } from '../../utils/apiUtils';
+import api from '../../services/api';
 import {
   Search, Filter, Flag, Clock, CheckCircle,
   Copy, RotateCw, ZoomIn, Download, Info, X, Check,
   GripVertical, Loader, ChevronDown
 } from 'lucide-react';
-
-// Backend base URL for constructing image URLs
-const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:5000';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -30,39 +28,15 @@ const ClientVerification = () => {
   const sidebarRef = useRef(null);
 
   // --- 1. FETCH DATA ---
-  // --- 1. FETCH DATA ---
   useEffect(() => {
     const fetchClients = async () => {
       try {
         setIsLoading(true);
-        // AdminService.getClientQueue takes status... 
-        // We might need to change AdminService or pass query param?
-        // AdminService.getClientQueue usually takes 'pending'.
-        // My backend update supports ?filter=urgent.
-        // I'll assume AdminService.getClientQueue takes a second arg or I should call fetch directly?
-        // Or I can modify AdminService. BUT I can't modify AdminService easily without reading it.
-        // Assuming AdminService.getClientQueue(status, filter) or similar? 
-        // Let's just use raw fetch for now or try to append generic query?
-        // Wait, line 89: AdminService.getClientQueue('pending');
-        // If I change it to `AdminService.getClientQueue('pending?filter=' + filterType)` it might work if it concatenates.
-        // Or I'll just check if I can use fetch directly to be safe, but I prefer consistency.
-        // I'll assume AdminService isn't robust enough and use direct fetch if needed, 
-        // OR better: Assume getClientQueue takes query params.
-        // Actually, I'll use direct fetch to ensure it works with my NEW backend param.
-        const token = localStorage.getItem('token');
-        let url = `${API_BASE_URL}/api/admin/clients/pending`;
-        if (filterType !== 'all') {
-          url += `?filter=${filterType}`;
-        }
-        const response = await fetch(url, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setClients(data);
-          if (data.length > 0) setSelectedId(data[0].id);
-          else setSelectedId(null);
-        }
+        const params = filterType !== 'all' ? { filter: filterType } : {};
+        const response = await api.get('/admin/clients/pending', { params });
+        setClients(response.data);
+        if (response.data.length > 0) setSelectedId(response.data[0].id);
+        else setSelectedId(null);
       } catch (err) {
         console.error("Failed to fetch clients:", err);
       } finally {
@@ -77,29 +51,13 @@ const ClientVerification = () => {
     if (!selectedId) return;
     if (window.confirm("Are you sure you want to verify this client?")) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/api/admin/verify-user/${selectedId}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ status: 'approved' })
-        });
-
-        if (response.ok) {
-          const updatedList = clients.filter(c => c.id !== selectedId);
-          setClients(updatedList);
-          if (updatedList.length > 0) setSelectedId(updatedList[0].id);
-          else setSelectedId(null);
-          alert("Client verified successfully!");
-        } else {
-          const err = await response.json();
-          alert(`Failed to verify: ${err.message || err.error || "Unknown error"}`);
-        }
+        await AdminService.verifyClient(selectedId);
+        const updatedList = clients.filter(c => c.id !== selectedId);
+        setClients(updatedList);
+        if (updatedList.length > 0) setSelectedId(updatedList[0].id);
+        else setSelectedId(null);
       } catch (err) {
-        console.error("Verify failed:", err);
-        alert("Action failed: " + err.message);
+        alert("Action failed");
       }
     }
   };
@@ -107,16 +65,9 @@ const ClientVerification = () => {
   const handleFlagRisk = async () => {
     if (!selectedId) return;
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/admin/users/${selectedId}/flag`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        // Update local state
-        setClients(clients.map(c => c.id === selectedId ? { ...c, risk_status: data.risk_status } : c));
-      }
+      const response = await api.post(`/admin/users/${selectedId}/flag`);
+      // Update local state
+      setClients(clients.map(c => c.id === selectedId ? { ...c, risk_status: response.data.risk_status } : c));
     } catch (error) {
       console.error("Flag risk failed", error);
     }
@@ -131,26 +82,13 @@ const ClientVerification = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
       // Using generic verify-user endpoint which handles both approved/rejected statuses
-      const response = await fetch(`${API_BASE_URL}/api/admin/verify-user/${selectedId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: 'rejected' })
-      });
+      await api.post(`/admin/verify-user/${selectedId}`, { status: 'rejected' });
 
-      if (response.ok) {
-        // Update UI: Remove client from list
-        setClients(prev => prev.filter(c => c.id !== selectedId));
-        setSelectedId(null);
-        alert("Client rejected successfully.");
-      } else {
-        const err = await response.json();
-        alert(`Failed to reject: ${err.message || "Unknown error"}`);
-      }
+      // Update UI: Remove client from list
+      setClients(prev => prev.filter(c => c.id !== selectedId));
+      setSelectedId(null);
+      alert("Client rejected successfully.");
     } catch (error) {
       console.error("Error rejecting client:", error);
       alert("System error. Please try again.");

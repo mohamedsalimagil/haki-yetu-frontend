@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, FileText, Sparkles, Check, Copy, Download, AlertTriangle, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../../services/api';
+import api from '../../api/axios';
 
 const AISummarizer = () => {
   const navigate = useNavigate();
@@ -95,7 +95,7 @@ ${summary.alerts.map(a => `- ${a.clause}: ${a.description}`).join('\n')}` : ''}
       formData.append('file', file);
       formData.append('title', file.name);
 
-      const uploadRes = await api.post('/api/documents/upload', formData, {
+      const uploadRes = await api.post('/documents/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -120,21 +120,38 @@ ${summary.alerts.map(a => `- ${a.clause}: ${a.description}`).join('\n')}` : ''}
         fileContent = `[Document: ${file.name}]`;
       }
 
-      // Step 3: Summarize the document - send content as JSON
-      const summaryRes = await api.post(`/api/chat/summarize/${docId}`, {
-        content: fileContent
+      // Step 3: Summarize the document - handle streaming response
+      const summaryRes = await api.post(`/chat/summarize/${docId}`, {
+        content: fileContent,
+        document_url: documentUrl
       }, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 120000 // 2 minutes timeout for AI processing
       });
 
-      // Parse the summary response
-      const summaryData = summaryRes.data.summary || summaryRes.data;
+      // Handle different response formats from Gemini
+      let summaryData;
+      if (typeof summaryRes.data === 'string') {
+        // Handle plain text response
+        summaryData = {
+          summary: summaryRes.data,
+          documentType: 'Legal Document',
+          parties: null,
+          alerts: []
+        };
+      } else {
+        // Handle structured JSON response
+        summaryData = summaryRes.data.summary || summaryRes.data || {};
+      }
+
+      // Extract content from various possible response structures
+      const content = summaryData.content || summaryData.text || summaryData.summary || summaryData.response || summaryData.message;
 
       setSummary({
-        documentType: summaryData.document_type || summaryData.documentType || 'Legal Document',
+        documentType: summaryData.document_type || summaryData.documentType || summaryData.type || 'Legal Document',
         parties: summaryData.parties || null,
-        executiveSummary: summaryData.summary || summaryData.text || summaryData.executiveSummary || 'Summary generated successfully.',
-        alerts: summaryData.alerts || summaryData.risks || []
+        executiveSummary: content || 'Analysis completed. Please check the summary details above.',
+        alerts: summaryData.alerts || summaryData.risks || summaryData.warnings || []
       });
 
       // Add to recent uploads
@@ -151,33 +168,13 @@ ${summary.alerts.map(a => `- ${a.clause}: ${a.description}`).join('\n')}` : ''}
     } catch (error) {
       console.error('Error processing file:', error);
 
-      // Still show the document as uploaded with a fallback summary
-      setSummary({
-        documentType: 'Legal Document',
-        parties: null,
-        executiveSummary: `**Document Uploaded Successfully**
+      // Show error and allow retry
+      toast.error('Failed to analyze document. Please try again.');
 
-Your document "${file.name}" has been uploaded to Haki Yetu.
-
-**Note:** AI summarization is temporarily unavailable. This could be due to:
-• Server is restarting - please try again in a moment
-• Network connectivity issues
-• Service maintenance
-
-**What you can do:**
-• Try uploading the document again
-• Download and review the original document
-• Book a consultation with a verified advocate for detailed analysis
-
-*For immediate assistance, contact our support team.*`,
-        alerts: [{
-          clause: 'Service Notice',
-          description: 'AI summarization temporarily unavailable. The document has been saved and you can try again later.'
-        }]
-      });
-
-      setUploaded(true);
-      toast('Document uploaded. Summarization will be available shortly.', { icon: '📄' });
+      // Reset state to allow retry
+      setSelectedFile(null);
+      setAnalyzing(false);
+      return;
     } finally {
       setAnalyzing(false);
     }

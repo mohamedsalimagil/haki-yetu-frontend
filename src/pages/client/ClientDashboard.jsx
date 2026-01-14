@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import api from '../../services/api';
+import api from '../../api/axios';
 import SkeletonLoader from '../../components/common/SkeletonLoader';
 import {
   LayoutDashboard,
@@ -52,9 +52,9 @@ const ClientDashboard = () => {
 
         // Parallel requests for better performance
         const [casesRes, dashboardRes, consultationsRes] = await Promise.allSettled([
-          api.get('/api/case/cases'),
-          api.get('/api/client/dashboard'),
-          api.get('/api/client/consultations')
+          api.get('/case/cases'),
+          api.get('/client/dashboard'),
+          api.get('/client/consultations')
         ]);
 
         // Handle Cases
@@ -179,10 +179,6 @@ const ClientDashboard = () => {
             <button className="flex items-center gap-3 w-full px-4 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl font-medium transition">
               <LayoutDashboard size={20} />
               Dashboard
-            </button>
-            <button onClick={() => navigate('/documents')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-xl font-medium transition">
-              <FileText size={20} />
-              My Documents
             </button>
             <button onClick={() => navigate('/client/consultations')} className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-xl font-medium transition">
               <Video size={20} />
@@ -447,7 +443,7 @@ const ClientDashboard = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate('/documents')}
+                  onClick={() => showComingSoon('Document Management')}
                   className="w-full mt-8 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                 >
                   View All Documents

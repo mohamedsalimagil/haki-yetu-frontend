@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Gavel, Users, FileText, Settings, LogOut, Bell, Search, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, Gavel, Users, FileText, Settings, LogOut, Bell, Search, AlertTriangle, Briefcase } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -22,6 +22,7 @@ export default function AdminLayout({ children }) {
 
   const menuItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { label: 'Services', path: '/admin/services', icon: Briefcase },
     { label: 'Dispute Resolution', path: '/admin/disputes', icon: AlertTriangle },
     { label: 'Template Management', path: '/admin/templates', icon: FileText },
     { label: 'Client Verification', path: '/admin/client-verification', icon: Users },
@@ -102,4 +103,3 @@ export default function AdminLayout({ children }) {
     </div>
   );
 }
-

@@ -1,20 +1,18 @@
-import axios from "axios";
-import toast from "react-hot-toast";
-
-// Production-ready API configuration
-// Explicitly point to Flask backend on port 5001
-const API_URL = "http://localhost:5001/api";
-const TOKEN_KEY = "token";
-const REFRESH_ENDPOINT = "/auth/refresh";
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
+  baseURL: 'http://localhost:5001/api', // Backend Flask server URL
+  withCredentials: true, // Required for CSRF and Session cookies
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
 });
+
+// Production-ready API configuration
+// Support environment variables with fallback
+const TOKEN_KEY = "token";
 
 // JWT expiry check (no external library needed)
 const isTokenExpired = (token) => {
@@ -35,7 +33,7 @@ api.interceptors.request.use(
     // Check if token is expired before making request
     if (token && isTokenExpired(token)) {
       try {
-        const { data } = await axios.post(`${API_URL}${REFRESH_ENDPOINT}`, {}, {
+        const { data } = await axios.post('http://localhost:5001/api/auth/refresh', {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         token = data.access_token || data.token;
@@ -78,7 +76,7 @@ api.interceptors.response.use(
 
       try {
         const token = localStorage.getItem(TOKEN_KEY);
-        const { data } = await axios.post(`${API_URL}${REFRESH_ENDPOINT}`, {}, {
+        const { data } = await axios.post('http://localhost:5001/api/auth/refresh', {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

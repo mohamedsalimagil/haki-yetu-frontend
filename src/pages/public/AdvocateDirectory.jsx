@@ -30,7 +30,7 @@ const AdvocateDirectory = () => {
   useEffect(() => {
     const fetchAdvocates = async () => {
       try {
-        const response = await api.get('/api/documents/advocates');
+        const response = await api.get('/documents/advocates');
         // Map API response to match UI structure if needed, or ensure API returns compatible data
         const mappedAdvocates = response.data.advocates.map(adv => ({
           id: adv.id,

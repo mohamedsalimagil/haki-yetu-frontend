@@ -56,10 +56,6 @@ const DisputeList = () => {
               <FileText className="w-4 h-4" />
               <span className="text-sm">My Services</span>
             </a>
-            <a href="/documents" className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50">
-              <ClipboardList className="w-4 h-4" />
-              <span className="text-sm">My Documents</span>
-            </a>
             <a href="/client/disputes/list" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-600">
               <ClipboardList className="w-4 h-4" />
               <span className="text-sm font-medium">My Disputes</span>

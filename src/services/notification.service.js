@@ -1,11 +1,11 @@
-import api from './api.js';
+import api from '../api/axios.js';
 
 const notificationService = {
   /**
    * Fetches all notifications for the logged-in user.
    */
   getNotifications: async () => {
-    const response = await api.get('/api/notifications');
+    const response = await api.get('/chat/notifications');
     return response.data.notifications || [];
   },
 
@@ -14,7 +14,7 @@ const notificationService = {
    * @param {number} notificationId - The ID of the notification to mark as read
    */
   markAsRead: async (notificationId) => {
-    const response = await api.put(`/api/notifications/${notificationId}/read`);
+    const response = await api.patch(`/chat/notifications/${notificationId}/read`);
     return response.data;
   },
 
@@ -22,7 +22,7 @@ const notificationService = {
    * Marks all notifications as read.
    */
   markAllAsRead: async () => {
-    const response = await api.put('/api/notifications/read-all');
+    const response = await api.patch('/chat/notifications/read-all');
     return response.data;
   },
 
@@ -31,7 +31,7 @@ const notificationService = {
    * @param {number} notificationId - The ID of the notification to delete
    */
   deleteNotification: async (notificationId) => {
-    const response = await api.delete(`/api/notifications/${notificationId}`);
+    const response = await api.delete(`/chat/notifications/${notificationId}`);
     return response.data;
   },
 
@@ -39,8 +39,9 @@ const notificationService = {
    * Gets the count of unread notifications.
    */
   getUnreadCount: async () => {
-    const response = await api.get('/api/notifications/unread-count');
-    return response.data.count || 0;
+    const response = await api.get('/chat/notifications');
+    const notifications = response.data.notifications || [];
+    return notifications.filter(n => !n.read).length;
   }
 };
 

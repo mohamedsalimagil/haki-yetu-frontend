@@ -122,17 +122,32 @@ const BookingPage = () => {
       // In a real app, this would happen via callback, but here we simulate/force it
       if (formData.paymentMethod === 'mpesa' && bookingResponse.booking_id) {
         try {
-          const paymentResponse = await api.post('/api/payment/mpesa/process', {
+          const paymentResponse = await api.post('/payment/mpesa/process', {
             booking_id: bookingResponse.booking_id,
             phone_number: formData.phoneNumber
           });
 
-          setPaymentStatus('success');
+          // Check if this booking already exists (409 Conflict)
+          if (paymentResponse.status === 409 || paymentResponse.data?.error?.includes('already booked')) {
+            toast.error('This time slot is already booked. Please select a different time.');
+            setPaymentStatus('conflict');
+            // Allow user to go back and select different time
+            setTimeout(() => {
+              setShowPaymentModal(false);
+              // Could navigate back to booking selection
+            }, 3000);
+            return;
+          }
+
+          // STK Push sent successfully - payment is pending
+          toast("STK Push Sent! Please check your phone to enter PIN.");
+          setPaymentStatus('stk_sent');
 
           setTimeout(() => {
             navigate('/client/consultation/confirmation', {
               state: {
-                booking: paymentResponse.data.consultation,
+                bookingId: bookingResponse.booking_id,
+                paymentStatus: 'pending',
                 lawyer: lawyer
               }
             });
@@ -196,7 +211,7 @@ const BookingPage = () => {
     );
   }
 
-  const consultationFee = lawyer?.consultation_fee || 3000;
+  const consultationFee = lawyer?.consultation_fee || 50;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-900 py-8 transition-colors">
@@ -491,6 +506,18 @@ const BookingPage = () => {
               </>
             )}
 
+            {paymentStatus === 'stk_sent' && (
+              <>
+                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">STK Push Sent!</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Please check your phone and enter your M-Pesa PIN to complete the payment. Redirecting you to the confirmation page...
+                </p>
+              </>
+            )}
+
             {paymentStatus === 'success' && (
               <>
                 <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -500,6 +527,24 @@ const BookingPage = () => {
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Your consultation has been successfully booked. Redirecting you to the confirmation page...
                 </p>
+              </>
+            )}
+
+            {paymentStatus === 'conflict' && (
+              <>
+                <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle className="w-10 h-10 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Time Slot Unavailable</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  This time slot is already booked. Please select a different date or time.
+                </p>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="bg-orange-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-700 transition"
+                >
+                  Choose Different Time
+                </button>
               </>
             )}
 

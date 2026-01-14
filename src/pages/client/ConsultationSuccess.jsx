@@ -1,16 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircle, Calendar, Clock, Video, Timer, Grid, Download } from 'lucide-react';
+import { CheckCircle, XCircle, Calendar, Clock, Video, Timer, Grid, Download } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
 const ConsultationSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { booking, lawyer } = location.state || {};
+  const { bookingId, paymentStatus: initialPaymentStatus, lawyer } = location.state || {};
+
+  const [booking, setBooking] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus || 'PENDING');
+  const [isPolling, setIsPolling] = useState(false);
+
+  useEffect(() => {
+    if (!bookingId || paymentStatus === 'completed' || paymentStatus === 'paid') return;
+
+    setIsPolling(true);
+
+    const interval = setInterval(async () => {
+      try {
+        // Try to get specific payment status first, fallback to consultations list
+        let myBooking = null;
+
+        try {
+          // Try specific payment status endpoint if it exists
+          const statusResponse = await api.get(`/payment/status/${bookingId}`);
+          if (statusResponse.data && statusResponse.data.status === 'completed') {
+            myBooking = statusResponse.data.booking || statusResponse.data;
+            myBooking.payment_status = 'paid';
+          }
+        } catch (statusError) {
+          // If payment status endpoint doesn't exist, fall back to consultations list
+          console.log("Payment status endpoint not available, using consultations list");
+          const response = await api.get('/client/consultations');
+
+          // Extract the array from the 'consultations' property
+          const bookingsList = Array.isArray(response.data)
+            ? response.data
+            : response.data.consultations || [];
+
+          // Find the specific booking
+          myBooking = bookingsList.find(b => b.id === parseInt(bookingId));
+        }
+
+        // Check if payment is completed
+        if (myBooking && (
+          myBooking.payment_status === 'paid' ||
+          myBooking.payment_status === 'completed' ||
+          myBooking.status === 'confirmed' ||
+          myBooking.status === 'paid'
+        )) {
+          setPaymentStatus('completed');
+          setBooking(myBooking);
+          setIsPolling(false);
+          clearInterval(interval); // ✅ FIX: Clear interval immediately on success
+          toast.success("Payment Confirmed!");
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    }, 5000);
+
+    // Stop polling after 10 minutes to prevent infinite loops
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      setIsPolling(false);
+      if (paymentStatus === 'pending') {
+        toast.error('Payment verification timed out. Please contact support.');
+      }
+    }, 600000); // 10 minutes
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [bookingId, paymentStatus]);
 
   // formatted data for display
   const bookingData = booking && lawyer ? {
@@ -24,7 +93,7 @@ const ConsultationSuccess = () => {
     timeZone: 'EAT',
     format: booking.service_type || 'Video Consultation',
     duration: booking.duration_minutes ? `${booking.duration_minutes} Minutes` : '60 Minutes',
-    amount: booking.amount ? parseFloat(booking.amount) : (lawyer.consultation_fee || 3000),
+    amount: booking.amount ? parseFloat(booking.amount) : (lawyer.consultation_fee || 50),
     email: user?.email || 'client@example.com'
   } : (location.state || {
     // Fallback/Default data for direct access without state
@@ -46,15 +115,56 @@ const ConsultationSuccess = () => {
     toast.success('Calendar event created!');
   };
 
-  const handleDownloadReceipt = () => {
-    if (booking && booking.id) {
-      // Use absolute URL for direct download link
-      const downloadUrl = `${api.defaults.baseURL}/api/payment/receipt/${booking.id}`;
-      window.open(downloadUrl, '_blank');
-    } else {
-      toast.error('Receipt download unavailable for this session');
+  const handleDownloadReceipt = async () => {
+    // ✅ FIX: Use bookingId from props/state instead of booking.id which might be undefined
+    const receiptBookingId = bookingId || (booking && booking.id);
+    if (!receiptBookingId) {
+      toast.error('Receipt download unavailable - booking ID not found');
+      return;
+    }
+
+    try {
+      // ✅ FIX: Use proper blob handling and create download link
+      const response = await api.get(`/payment/receipt/${receiptBookingId}`, {
+        responseType: 'blob'
+      });
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Receipt-${receiptBookingId}.pdf`);
+      link.setAttribute('target', '_blank'); // Fallback for some browsers
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Receipt downloaded successfully!');
+    } catch (error) {
+      console.error('Failed to download receipt:', error);
+
+      // ✅ FIX: Better error handling with specific messages
+      if (error.response?.status === 404) {
+        toast.error('Receipt not found. Payment may still be processing.');
+      } else if (error.response?.status === 500) {
+        toast.error('Receipt generation failed. Please try again later.');
+      } else {
+        toast.error('Failed to download receipt. Please contact support.');
+      }
     }
   };
+
+  // Show loading screen while waiting for payment confirmation
+  if (paymentStatus === 'pending' && isPolling) {
+    return (
+      <LoadingScreen
+        message="Verifying your M-Pesa payment..."
+        fullScreen={true}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -132,11 +242,23 @@ const ConsultationSuccess = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="flex items-center gap-1 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40 px-3 py-1 rounded-full mb-2">
-                <CheckCircle className="w-3 h-3" />
-                PAYMENT SUCCESSFUL
+              <div className={`flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full mb-2 ${
+                paymentStatus === 'completed'
+                  ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40'
+                  : paymentStatus === 'failed'
+                  ? 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40'
+                  : 'text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40'
+              }`}>
+                {paymentStatus === 'completed' ? (
+                  <CheckCircle className="w-3 h-3" />
+                ) : paymentStatus === 'failed' ? (
+                  <XCircle className="w-3 h-3" />
+                ) : (
+                  <div className="w-3 h-3 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+                )}
+                {paymentStatus === 'completed' ? 'PAYMENT SUCCESSFUL' : paymentStatus === 'failed' ? 'PAYMENT FAILED' : 'PAYMENT PENDING'}
               </div>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">KES {bookingData.amount.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">KES {(bookingData.amount || 0).toLocaleString()}</p>
             </div>
           </div>
 
@@ -242,21 +364,13 @@ const ConsultationSuccess = () => {
             <Calendar className="w-5 h-5" />
             Add to Calendar
           </button>
-          <a
-            href={booking && booking.id ? `http://127.0.0.1:5000/api/payment/receipt/${booking.id}` : '#'}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handleDownloadReceipt}
             className="flex items-center gap-2 px-6 py-3 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 rounded-lg font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
-            onClick={(e) => {
-              if (!booking || !booking.id) {
-                e.preventDefault();
-                toast.error('Receipt unavailable for this session');
-              }
-            }}
           >
             <Download className="w-5 h-5" />
             Download Receipt
-          </a>
+          </button>
         </div>
 
         {/* Footer Note */}

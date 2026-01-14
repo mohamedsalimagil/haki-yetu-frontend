@@ -7,7 +7,7 @@ const clientService = {
    * Note: Updated to match your current implementation endpoint.
    */
   getMyBookings: async () => {
-    const response = await api.get('/api/marketplace/orders');
+    const response = await api.get('/marketplace/orders');
     return response.data;
   },
 
@@ -16,7 +16,7 @@ const clientService = {
    * Fetches the client's user profile.
    */
   getProfile: async () => {
-    const response = await api.get('/api/auth/profile');
+    const response = await api.get('/auth/profile');
     return response.data;
   },
 
@@ -27,7 +27,7 @@ const clientService = {
    */
   submitReview: async (reviewData) => {
     try {
-      const response = await api.post('/api/lawyer/reviews', reviewData);
+      const response = await api.post('/lawyer/reviews', reviewData);
       return response.data;
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -39,7 +39,7 @@ const clientService = {
    * Fetches the average rating and total review count for a specific lawyer.
    */
   getLawyerRating: async (lawyerId) => {
-    const response = await api.get(`/api/lawyer/${lawyerId}/rating`);
+    const response = await api.get(`/lawyer/${lawyerId}/rating`);
     return response.data; // Expected: { average_rating, total_reviews }
   },
 
@@ -47,7 +47,7 @@ const clientService = {
    * Fetches all public reviews/comments for a specific lawyer.
    */
   getLawyerReviews: async (lawyerId) => {
-    const response = await api.get(`/api/lawyer/${lawyerId}/reviews`);
+    const response = await api.get(`/lawyer/${lawyerId}/reviews`);
     return response.data.reviews || [];
   },
 
@@ -56,7 +56,7 @@ const clientService = {
    * @param {FormData} formData - Contains order_id, category, description, evidence (file)
    */
   createDispute: async (formData) => {
-    const response = await api.post('/api/client/disputes', formData, {
+    const response = await api.post('/client/disputes', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -68,7 +68,7 @@ const clientService = {
    * Fetches all disputes filed by the client.
    */
   getMyDisputes: async () => {
-    const response = await api.get('/api/client/disputes/mine');
+    const response = await api.get('/client/disputes/mine');
     return response.data;
   },
 
@@ -77,7 +77,7 @@ const clientService = {
    * @param {number} consultationId - The ID of the consultation to cancel
    */
   cancelConsultation: async (consultationId) => {
-    const response = await api.post(`/api/documents/consultations/${consultationId}/cancel`);
+    const response = await api.post(`/documents/consultations/${consultationId}/cancel`);
     return response.data;
   },
 
@@ -85,7 +85,7 @@ const clientService = {
    * Fetches all consultations for the logged-in client.
    */
   getConsultations: async () => {
-    const response = await api.get('/api/documents/consultations');
+    const response = await api.get('/documents/consultations');
     return response.data.consultations || [];
   }
 };

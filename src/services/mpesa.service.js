@@ -43,13 +43,16 @@ const mpesaService = {
   },
 
   /**
-   * Checks the status of an M-Pesa transaction
+   * Checks the status of an M-Pesa transaction from backend database
    * @param {string} checkoutRequestID - The checkout request ID from STK Push
    * @returns {Promise<Object>} Transaction status
    */
   checkTransactionStatus: async (checkoutRequestID) => {
     try {
-      const response = await api.get(`/api/payment/mpesa/status/${checkoutRequestID}`);
+      // Use the backend status endpoint that checks database (updated by callback)
+      const response = await api.post('/api/payment/mpesa/stkpush/status', {
+        checkout_request_id: checkoutRequestID
+      });
       return response.data;
     } catch (error) {
       console.error('M-Pesa Status Check Error:', error);
@@ -59,6 +62,7 @@ const mpesaService = {
 
   /**
    * Polls for payment status with timeout
+   * Checks backend database which is updated by M-Pesa callback
    * @param {string} checkoutRequestID - The checkout request ID
    * @param {number} maxAttempts - Maximum polling attempts (default: 30)
    * @param {number} intervalMs - Interval between polls in ms (default: 2000)
@@ -67,31 +71,34 @@ const mpesaService = {
   pollPaymentStatus: async (checkoutRequestID, maxAttempts = 30, intervalMs = 2000) => {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
-        const status = await mpesaService.checkTransactionStatus(checkoutRequestID);
+        const statusResponse = await mpesaService.checkTransactionStatus(checkoutRequestID);
 
-        // Check if payment is complete
-        if (status.ResultCode === '0') {
+        console.log(`Polling attempt ${attempt + 1}/${maxAttempts}:`, statusResponse);
+
+        // Check if payment is complete (callback has updated database)
+        if (statusResponse.status === 'completed') {
           return {
             success: true,
             status: 'completed',
             message: 'Payment successful',
-            data: status
+            data: statusResponse
           };
         }
 
         // Check if payment failed
-        if (status.ResultCode && status.ResultCode !== '0') {
+        if (statusResponse.status === 'failed') {
           return {
             success: false,
             status: 'failed',
-            message: status.ResultDesc || 'Payment failed',
-            data: status
+            message: statusResponse.result_desc || 'Payment failed',
+            data: statusResponse
           };
         }
 
         // Payment still pending, wait before next attempt
         await new Promise(resolve => setTimeout(resolve, intervalMs));
       } catch (error) {
+        console.error(`Polling attempt ${attempt + 1} error:`, error);
         // If it's the last attempt, throw the error
         if (attempt === maxAttempts - 1) {
           throw error;
@@ -105,7 +112,7 @@ const mpesaService = {
     return {
       success: false,
       status: 'timeout',
-      message: 'Payment verification timed out. Please check your M-Pesa messages.'
+      message: 'Payment verification timed out. Please check your M-Pesa messages or contact support.'
     };
   },
 
@@ -116,28 +123,42 @@ const mpesaService = {
    */
   processPayment: async (paymentData) => {
     try {
-      // Step 1: Initiate STK Push
-      const stkResponse = await mpesaService.initiateSTKPush(paymentData);
+      // Step 1: Initiate STK Push using the correct backend endpoint
+      const stkResponse = await api.post('/api/payment/mpesa/process', {
+        phone_number: formatPhoneNumber(paymentData.phone_number),
+        booking_id: paymentData.booking_id
+      });
 
-      if (!stkResponse.CheckoutRequestID) {
-        throw new Error('Failed to initiate M-Pesa payment');
+      console.log('STK Push Response:', stkResponse.data);
+
+      // Check if STK push was initiated successfully
+      if (stkResponse.data.status !== 'Initiated' || !stkResponse.data.checkout_request_id) {
+        throw new Error(stkResponse.data.message || 'Failed to initiate M-Pesa payment');
       }
 
-      // Step 2: Poll for payment status
+      const checkoutRequestID = stkResponse.data.checkout_request_id;
+
+      // Step 2: Poll for payment status (checks database updated by callback)
       const result = await mpesaService.pollPaymentStatus(
-        stkResponse.CheckoutRequestID,
-        30, // Max 30 attempts
+        checkoutRequestID,
+        30, // Max 30 attempts (60 seconds)
         2000 // Check every 2 seconds
       );
 
       return {
         ...result,
-        checkoutRequestID: stkResponse.CheckoutRequestID,
-        merchantRequestID: stkResponse.MerchantRequestID
+        checkoutRequestID: checkoutRequestID,
+        merchantRequestID: stkResponse.data.merchant_request_id
       };
     } catch (error) {
       console.error('M-Pesa Payment Processing Error:', error);
-      throw error;
+
+      // Return error in consistent format
+      return {
+        success: false,
+        status: 'error',
+        message: error.response?.data?.error || error.message || 'Payment processing failed'
+      };
     }
   },
 

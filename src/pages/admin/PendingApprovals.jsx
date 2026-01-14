@@ -83,7 +83,7 @@ const LawyerVerification = () => {
           location: l.county || 'Nairobi, KE',
           submitted: l.created_at ? new Date(l.created_at).toLocaleDateString() : 'N/A',
           email: l.email,
-          phone: l.phone || l.phone_number || '+254 ...',
+          phone: l.phone || l.phone_number,
           firm: l.firm_name || 'N/A',
           initials: lawyerName !== "Unknown Lawyer" ? lawyerName.split(' ').map(n => n[0]).join('').slice(0, 2) : 'UL',
           // Personal details
@@ -188,44 +188,12 @@ const LawyerVerification = () => {
   // Flag Risk handler - persists to database
   const handleFlagRisk = async () => {
     if (!selectedLawyer) return;
-
-    const currentStatus = selectedLawyer.risk_status ? 'flagged' : 'not flagged';
-    const action = selectedLawyer.risk_status ? 'unflag' : 'flag';
-
-    if (!confirm(`This lawyer is currently ${currentStatus}. Do you want to ${action} them?`)) {
-      return;
-    }
-
     try {
-      const token = localStorage.getItem('token');
-      // Use the same endpoint as client verification - flag the user, not the application
-      const response = await fetch(`${API_BASE_URL}/api/admin/users/${selectedLawyer.id}/flag`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        // Update local state to reflect the change immediately
-        setLawyers(prev => prev.map(l =>
-          l.id === selectedLawyer.id
-            ? { ...l, risk_status: data.risk_status }
-            : l
-        ));
-
-        alert(`Success: ${data.message}`);
-      } else {
-        const error = await response.json();
-        console.error("Failed to flag:", error);
-        alert(`Failed to update flag status: ${error.error || 'Unknown error'}`);
-      }
+      const response = await api.post(`/admin/users/${selectedLawyer.id}/flag`);
+      // Update local state
+      setLawyers(lawyers.map(l => l.id === selectedLawyer.id ? { ...l, risk_status: response.data.risk_status } : l));
     } catch (error) {
-      console.error("Flag risk error:", error);
-      alert('Network error: Failed to update flag status');
+      console.error("Flag risk failed", error);
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, CheckCheck } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../api/axios';
 import socketService from '../../services/socket.service';
 
 const NotificationBell = () => {
@@ -136,4 +136,3 @@ const NotificationBell = () => {
 };
 
 export default NotificationBell;
-

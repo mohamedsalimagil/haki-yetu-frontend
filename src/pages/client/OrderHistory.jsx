@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
-import { Search, Filter, FileText, Check, XCircle, Upload } from 'lucide-react';
+import api from '../../api/axios';
+import { Search, Filter, FileText, Check, XCircle, Upload, Download } from 'lucide-react';
 import FileUpload from '../../components/domain/marketplace/FileUpload'; // Import the new component
 import BackButton from '../../components/common/BackButton';
 
@@ -10,6 +10,7 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [emptyStateMessage, setEmptyStateMessage] = useState('');
 
   // NEW: State for the Upload Modal
   const [selectedOrderForUpload, setSelectedOrderForUpload] = useState(null);
@@ -17,11 +18,24 @@ const OrderHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        // Use /mine endpoint which gets orders for authenticated user via JWT
-        const response = await api.get('/api/marketplace/orders/mine');
+        // Use unified transactions endpoint that includes consultations + marketplace orders
+        const response = await api.get('/client/transactions');
         setOrders(response.data.orders || []);
+
+        // Clear any previous empty state message on successful fetch
+        setEmptyStateMessage('');
       } catch (err) {
         console.error("Failed to load history:", err);
+
+        // Check if backend returns a specific empty state message
+        if (err.response?.data?.message) {
+          console.log("Backend message:", err.response.data.message);
+          // Check for the specific "Breakdown service" message
+          if (err.response.data.message.includes("Breakdown service")) {
+            setEmptyStateMessage(err.response.data.message);
+          }
+        }
+
         setOrders([]);
       } finally {
         setLoading(false);
@@ -35,6 +49,30 @@ const OrderHistory = () => {
     if (filter === 'all') return true;
     return order.status === filter;
   });
+
+  // Handle PDF download for completed transactions
+  const handleDownloadReceipt = async (orderId) => {
+    try {
+      const response = await api.get(`/api/marketplace/orders/${orderId}/receipt`, {
+        responseType: 'blob', // Important for PDF downloads
+      });
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `receipt_${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download receipt:', error);
+      // You might want to show a toast notification here
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 transition-colors">
@@ -89,14 +127,27 @@ const OrderHistory = () => {
                     </span>
                   </td>
 
-                  {/* NEW: Upload Button Column */}
+                  {/* Actions Column */}
                   <td className="px-6 py-4">
+                    {/* Upload Document Button */}
                     <button
                       onClick={() => setSelectedOrderForUpload(order.id)}
-                      className="text-xs font-bold text-primary border border-primary px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center transition"
+                      className="text-xs font-bold text-primary border border-primary px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center transition mr-2"
+                      title="Upload Document"
                     >
-                      <Upload className="w-3 h-3 mr-1" /> Upload Doc
+                      <Upload className="w-3 h-3 mr-1" />
                     </button>
+
+                    {/* Download Receipt Button - Only for completed transactions */}
+                    {order.status === 'completed' && (
+                      <button
+                        onClick={() => handleDownloadReceipt(order.id)}
+                        className="text-xs font-bold text-green-600 border border-green-600 px-2 py-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center transition"
+                        title="Download Receipt"
+                      >
+                        <Download className="w-3 h-3 mr-1" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -106,7 +157,12 @@ const OrderHistory = () => {
           {filteredOrders.length === 0 && (
             <div className="text-center py-12 text-gray-400 dark:text-gray-500">
               <XCircle className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-              <p>No transactions found for this filter.</p>
+              <p>
+                {emptyStateMessage ||
+                  (orders.length === 0
+                    ? "You do not have any transactions on the Haki Yetu platform yet."
+                    : "No transactions found for this filter.")}
+              </p>
             </div>
           )}
         </div>

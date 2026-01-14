@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import api from '../../services/api';
+import api from '../../api/axios';
 import { CreditCard, Shield, CheckCircle, Loader, ArrowLeft, Phone } from 'lucide-react';
+
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -14,6 +15,10 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [paymentId, setPaymentId] = useState(null);
+  const [checkoutRequestId, setCheckoutRequestId] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(null); // null, 'pending', 'processing', 'completed', 'failed'
+  const [isPollingPayment, setIsPollingPayment] = useState(false);
 
   useEffect(() => {
     fetchOrder();
@@ -75,6 +80,70 @@ const Checkout = () => {
     }
   };
 
+  // Poll payment status after STK push
+  useEffect(() => {
+    if (checkoutRequestId && paymentStatus === 'pending') {
+      setIsPollingPayment(true);
+
+      const pollPaymentStatus = async () => {
+        try {
+          const response = await api.post('/api/payment/mpesa/stkpush/status', {
+            checkout_request_id: checkoutRequestId
+          });
+          const status = response.data.status?.toLowerCase();
+
+          if (status === 'completed') {
+            setPaymentStatus('completed');
+            setIsPollingPayment(false);
+            // Navigate to success page with booking data
+            navigate('/client/consultation-success', {
+              state: {
+                booking: {
+                  id: order.id, // Use the actual booking/order ID for receipt download
+                  checkout_request_id: checkoutRequestId,
+                  amount: order.amount,
+                  date: new Date().toISOString(),
+                  service_type: order.service_name,
+                  mpesa_receipt: response.data.mpesa_receipt_number
+                },
+                lawyer: {
+                  name: order.lawyer_name,
+                  specialization: 'Legal Services'
+                }
+              }
+            });
+          } else if (status === 'failed') {
+            setPaymentStatus('failed');
+            setIsPollingPayment(false);
+            toast.error('Payment failed. Please try again.');
+          } else if (status === 'cancelled') {
+            setPaymentStatus('cancelled');
+            setIsPollingPayment(false);
+            toast.error('Payment was cancelled.');
+          }
+          // Continue polling for 'pending' or 'processing'
+        } catch (error) {
+          console.error('Error polling payment status:', error);
+          // Continue polling on errors unless it's a specific error
+        }
+      };
+
+      const interval = setInterval(pollPaymentStatus, 3000); // Poll every 3 seconds
+
+      // Stop polling after 5 minutes
+      const timeout = setTimeout(() => {
+        setIsPollingPayment(false);
+        setPaymentStatus('timeout');
+        toast.error('Payment verification timed out. Please contact support.');
+      }, 300000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [checkoutRequestId, paymentStatus, order, navigate]);
+
   const handlePayment = async () => {
     // Validate phone number
     if (!phoneNumber) {
@@ -108,7 +177,7 @@ const Checkout = () => {
 
     try {
       setPaying(true);
-      
+
       // Use the correct M-Pesa STK Push endpoint with explicit Authorization header
       // Payload keys MUST match backend snake_case schema
       const response = await api.post(
@@ -127,24 +196,24 @@ const Checkout = () => {
         }
       );
 
-      toast.success('Payment request sent! Please check your phone for M-Pesa prompt.', {
-        duration: 5000,
-        icon: '📱'
-      });
-      
-      // Navigate to success page after showing toast
-      setTimeout(() => {
-        navigate('/client/dashboard', { 
-          state: { 
-            paymentInitiated: true,
-            orderId: order.id 
-          } 
+      // STK push successful - start polling for completion
+      const checkoutRequestId = response.data?.checkout_request_id;
+      const merchantRequestId = response.data?.merchant_request_id;
+
+      if (checkoutRequestId) {
+        setCheckoutRequestId(checkoutRequestId);
+        setPaymentStatus('pending');
+        toast.success('STK Push sent! Please enter your M-Pesa PIN to complete payment.', {
+          duration: 5000,
+          icon: '📱'
         });
-      }, 2000);
+      } else {
+        toast.error('Payment request sent but unable to track status. Please check your M-Pesa messages.');
+      }
 
     } catch (error) {
       console.error('Payment failed:', error);
-      
+
       // Handle authorization errors specifically
       if (error.response?.status === 401 || error.response?.status === 403) {
         toast.error('Session expired. Please login again.');
@@ -153,7 +222,7 @@ const Checkout = () => {
         navigate('/login', { state: { from: location.pathname } });
         return;
       }
-      
+
       const errorMessage = error.response?.data?.message || 'Payment failed. Please try again.';
       toast.error(errorMessage);
     } finally {
@@ -334,15 +403,45 @@ const Checkout = () => {
                 </div>
               </div>
 
+              {/* Payment Status Messages */}
+              {isPollingPayment && (
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Loader className="animate-spin w-5 h-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-800">Please enter your M-Pesa PIN</p>
+                      <p className="text-xs text-blue-600">Check your phone for the STK Push notification</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {paymentStatus === 'failed' && (
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800">Payment failed. Please try again.</p>
+                </div>
+              )}
+
+              {paymentStatus === 'timeout' && (
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">Payment verification timed out. Please contact support.</p>
+                </div>
+              )}
+
               <button
                 onClick={handlePayment}
-                disabled={paying}
+                disabled={paying || isPollingPayment}
                 className="w-full mt-6 bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {paying ? (
                   <>
                     <Loader className="animate-spin w-5 h-5" />
-                    Processing Payment...
+                    Sending STK Push...
+                  </>
+                ) : isPollingPayment ? (
+                  <>
+                    <Loader className="animate-spin w-5 h-5" />
+                    Waiting for Payment...
                   </>
                 ) : (
                   <>
@@ -353,7 +452,7 @@ const Checkout = () => {
               </button>
 
               <p className="text-xs text-gray-500 text-center mt-4">
-                You will receive an M-Pesa prompt on your phone
+                {isPollingPayment ? 'Verifying payment completion...' : 'You will receive an M-Pesa prompt on your phone'}
               </p>
             </div>
 
@@ -383,6 +482,8 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+
     </div>
   );
 };

@@ -59,11 +59,11 @@ const InitiateDispute = () => {
               <span className="text-xl font-bold text-gray-900">Haki Yetu</span>
             </div>
             <div className="flex items-center gap-6">
-              <a href="/home" className="text-gray-600 hover:text-gray-900">Home</a>
-              <a href="/services" className="text-gray-600 hover:text-gray-900">Services</a>
-              <a href="/my-cases" className="text-gray-600 hover:text-gray-900">My Cases</a>
-              <a href="/wallet" className="text-gray-600 hover:text-gray-900">Wallet</a>
-              <a href="/support" className="text-blue-600 font-medium">Support</a>
+              <button onClick={() => navigate('/dashboard')} className="text-gray-600 hover:text-gray-900">Home</button>
+              <button onClick={() => navigate('/marketplace')} className="text-gray-600 hover:text-gray-900">Services</button>
+              <button onClick={() => navigate('/client/consultations')} className="text-gray-600 hover:text-gray-900">My Cases</button>
+              <button onClick={() => navigate('/client/dashboard')} className="text-gray-600 hover:text-gray-900">Wallet</button>
+              <button onClick={() => navigate('/client/support')} className="text-blue-600 font-medium">Support</button>
               <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                 Book Advocate
               </button>
@@ -79,9 +79,9 @@ const InitiateDispute = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <a href="/home" className="hover:text-gray-900">Home</a>
+          <button onClick={() => navigate('/dashboard')} className="hover:text-gray-900">Home</button>
           <span>/</span>
-          <a href="/support" className="hover:text-gray-900">Support</a>
+          <button onClick={() => navigate('/client/support')} className="hover:text-gray-900">Support</button>
           <span>/</span>
           <span className="text-gray-900">Initiate Dispute</span>
         </div>
@@ -309,9 +309,9 @@ const InitiateDispute = () => {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Can't find the transaction you are looking for?{' '}
-            <a href="/support" className="text-blue-600 hover:text-blue-700 font-medium">
+            <button onClick={() => navigate('/client/support')} className="text-blue-600 hover:text-blue-700 font-medium">
               Contact Support
-            </a>
+            </button>
           </p>
         </div>
       </div>
