@@ -161,6 +161,12 @@ const LawyerRegistrationForm = () => {
   // ✅ 3. The Critical Fix: Handle Submit Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate the current step (especially Step 3 logic) before submitting
+    if (!validateStep(currentStep)) {
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -219,7 +225,7 @@ const LawyerRegistrationForm = () => {
         const result = await register(registrationData);
 
         if (!result.success) {
-          throw new Error(result.error || "Registration failed");
+          throw new Error(result.message || "Registration failed");
         }
 
         // After successful registration, upload the profile with documents using apiFormData
