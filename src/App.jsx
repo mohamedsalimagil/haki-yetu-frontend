@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Layouts
@@ -80,10 +80,26 @@ import Chat from './pages/Chat';
 function App() {
   const { user } = useAuth();
 
+  const location = useLocation();
+
+  // Define routes where the global Navbar should be hidden
+  // 1. Admin pages have their own AdminLayout
+  // 2. Dashboards (Client/Lawyer) have their own Sidebars
+  const hideNavbarRoutes = [
+    '/lawyer/dashboard',
+    '/lawyer/earnings',
+    '/client/dashboard',
+    '/dashboard'
+  ];
+
+  const shouldHideNavbar =
+    location.pathname.startsWith('/admin') ||
+    hideNavbarRoutes.some(route => location.pathname.startsWith(route));
+
   return (
     <>
       <ScrollToTop />
-      <Navbar />
+      {!shouldHideNavbar && <Navbar />}
 
       <Routes>
         {/* --- Public Routes --- */}
