@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 // Production-ready API configuration
 // Explicitly point to Flask backend on port 5001
-const API_URL = "http://localhost:5001/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 const TOKEN_KEY = "token";
 const REFRESH_ENDPOINT = "/auth/refresh";
 

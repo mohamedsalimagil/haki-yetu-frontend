@@ -35,7 +35,9 @@ const ServiceManagement = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/marketplace/categories');
+      // Better: Use the environment variable
+      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+      const response = await axios.get(`${baseUrl}/marketplace/categories`);
       console.log("Categories API Response:", response.data); // 🔍 Debug log
 
       // SAFE GUARD: Check if response.data is the array, or if it's wrapped
