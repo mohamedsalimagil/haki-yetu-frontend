@@ -82,9 +82,7 @@ function App() {
 
   const location = useLocation();
 
-  // Define routes where the global Navbar should be hidden
-  // 1. Admin pages have their own AdminLayout
-  // 2. Dashboards (Client/Lawyer) have their own Sidebars
+  
   const hideNavbarRoutes = [
     '/lawyer/dashboard',
     '/lawyer/earnings',
