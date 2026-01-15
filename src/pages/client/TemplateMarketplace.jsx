@@ -43,7 +43,7 @@ const TemplateMarketplace = () => {
           window.open(downloadUrl, '_blank');
         } else {
           // Local path - construct full URL
-          const apiBase = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:5000';
+          const apiBase = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';
           const fullUrl = `${apiBase}/api/documents/download/${downloadUrl.split('/').pop()}`;
           window.open(fullUrl, '_blank');
         }

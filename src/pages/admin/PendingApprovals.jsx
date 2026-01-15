@@ -14,7 +14,7 @@ import {
 import { getFullUrl } from '../../utils/apiUtils';
 
 // Backend base URL for API calls
-const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';
 
 const LawyerVerification = () => {
   const navigate = useNavigate();
