@@ -199,7 +199,7 @@ const LawyerRegistrationForm = () => {
         console.log("Submitting lawyer profile for existing user...");
 
         // Use FormData endpoint (let Axios handle Content-Type automatically)
-        await api.post('/api/lawyer/register', formDataToSend);
+        await api.post('/lawyer/register', formDataToSend);
 
         toast.success("Profile submitted for verification!");
         navigate('/verification-pending'); // Send them to verification pending page
@@ -229,7 +229,7 @@ const LawyerRegistrationForm = () => {
         }
 
         // After successful registration, upload the profile with documents
-        await api.post('/api/lawyer/register', formDataToSend);
+        await api.post('/lawyer/register', formDataToSend);
 
         toast.success('Registration and documents submitted successfully!');
         navigate('/verification-pending');
