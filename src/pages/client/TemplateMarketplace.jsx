@@ -35,8 +35,19 @@ const TemplateMarketplace = () => {
         }
       });
     } else {
-      // Free: Direct Download
-      window.open(template.file_url, '_blank');
+      // Free: Direct Download - Handle both Cloudinary URLs and local paths
+      const downloadUrl = template.file_url || template.file_path;
+      if (downloadUrl) {
+        if (downloadUrl.startsWith('http')) {
+          // Cloudinary URL
+          window.open(downloadUrl, '_blank');
+        } else {
+          // Local path - construct full URL
+          const apiBase = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:5000';
+          const fullUrl = `${apiBase}/api/documents/download/${downloadUrl.split('/').pop()}`;
+          window.open(fullUrl, '_blank');
+        }
+      }
     }
   };
 
