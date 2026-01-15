@@ -336,7 +336,7 @@ const ClientDashboard = () => {
                   <div className="p-6 text-center">
                     <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
                     <p className="text-gray-600 mb-2">{error}</p>
-                    <p className="text-xs text-gray-500">Please ensure Flask backend is running at http://127.0.0.1:5000</p>
+                    <p className="text-xs text-gray-500">Please check your internet connection and try again.</p>
                   </div>
                 )}
 
