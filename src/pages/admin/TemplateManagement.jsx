@@ -27,6 +27,7 @@ const TemplateManagement = () => {
     name: '',
     category: 'General',
     description: '',
+    price: '',
     file: null
   });
   const [editingId, setEditingId] = useState(null);
@@ -77,6 +78,7 @@ const TemplateManagement = () => {
       data.append('name', formData.name);
       data.append('category', formData.category);
       data.append('description', formData.description || '');
+      data.append('price', formData.price || '0');
       if (formData.file) {
         data.append('file', formData.file);
       }
@@ -92,7 +94,7 @@ const TemplateManagement = () => {
 
       alert(editingId ? 'Template updated successfully' : 'Template uploaded successfully');
       setShowUploadModal(false);
-      setFormData({ name: '', category: 'General', description: '', file: null });
+      setFormData({ name: '', category: 'General', description: '', price: '', file: null });
       setEditingId(null);
       fetchTemplates();
     } catch (error) {
@@ -106,7 +108,8 @@ const TemplateManagement = () => {
     setFormData({
       name: template.name,
       category: template.category,
-      description: template.description,
+      description: template.description || template.desc || '',
+      price: template.price || '',
       file: null // Don't require file on edit unless changing
     });
     setShowUploadModal(true);
@@ -126,7 +129,7 @@ const TemplateManagement = () => {
 
   const handleCreateNew = () => {
     setEditingId(null);
-    setFormData({ name: '', category: 'General', description: '', file: null });
+    setFormData({ name: '', category: 'General', description: '', price: '', file: null });
     setShowUploadModal(true);
   };
 
@@ -231,7 +234,7 @@ const TemplateManagement = () => {
                   <span>{template.date || 'Just now'}</span>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 h-10">
-                  {template.description || "No description provided."}
+                  {template.description || template.desc || "No description provided."}
                 </p>
                 <a
                   href={getDownloadUrl(template.file_path)}
@@ -293,6 +296,17 @@ const TemplateManagement = () => {
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   placeholder="Brief description of the template..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (KES)</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 1500 (leave empty for free)"
                 />
               </div>
 

@@ -178,16 +178,29 @@ const Checkout = () => {
     try {
       setPaying(true);
 
+      // Prepare payment payload with type differentiation
+      const paymentPayload = {
+        phone_number: formattedPhone,  // Backend expects snake_case
+        amount: Math.round(Number(order.amount)), // Backend expects integer
+        account_reference: order.service_name || 'HAKIYETU', // Backend expects snake_case
+        description: `Payment for ${order.service_name || 'Haki Yetu'}`, // Backend expects 'description' not 'transactionDesc'
+        // Add type differentiation for backend processing
+        ...(location.state?.type === 'TEMPLATE'
+           ? {
+               template_id: location.state.item?.id,
+               payment_type: 'TEMPLATE'
+             }
+           : {
+               booking_id: order.id,
+               payment_type: 'CONSULTATION'
+             }
+        )
+      };
+
       // Use the correct M-Pesa STK Push endpoint with explicit Authorization header
-      // Payload keys MUST match backend snake_case schema
       const response = await api.post(
         '/api/payment/mpesa/stkpush',
-        {
-          phone_number: formattedPhone,  // Backend expects snake_case
-          amount: Math.round(Number(order.amount)), // Backend expects integer
-          account_reference: order.service_name || 'HAKIYETU', // Backend expects snake_case
-          description: `Payment for ${order.service_name || 'Haki Yetu'}` // Backend expects 'description' not 'transactionDesc'
-        },
+        paymentPayload,
         {
           headers: {
             'Authorization': `Bearer ${token}`,

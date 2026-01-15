@@ -52,6 +52,7 @@ import ClientDocumentGenerator from './pages/client/DocumentGenerator';
 import ConsultationSuccess from './pages/client/ConsultationSuccess';
 import BookingPage from './pages/client/BookingPage';
 import Consultations from './pages/client/Consultations';
+import TemplateMarketplace from './pages/client/TemplateMarketplace';
 
 // Dispute Module
 import InitiateDispute from './pages/client/disputes/InitiateDispute';
@@ -140,6 +141,7 @@ function App() {
         {/* --- Client Marketplace Routes --- */}
         <Route path="/marketplace" element={<ServiceCatalog />} />
         <Route path="/marketplace/:id" element={<ServiceDetails />} />
+        <Route path="/client/templates" element={<TemplateMarketplace />} />
         <Route path="/checkout/:orderId" element={<Checkout />} />
 
         {/* --- Client Advanced Features --- */}
