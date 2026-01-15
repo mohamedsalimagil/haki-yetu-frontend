@@ -5,7 +5,7 @@ const adminService = {
   // Dashboard
   getDashboardStats: async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/admin/dashboard/stats', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/admin/dashboard/stats', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ const adminService = {
   // User Management
   getAllUsers: async ({ page = 1, limit = 10 } = {}) => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/admin/users', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/admin/users', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ const adminService = {
 
   suspendUser: async (userId) => {
     const token = localStorage.getItem('token');
-    const response = await axios.patch(`http://127.0.0.1:5001/api/admin/users/${userId}/suspend`, {}, {
+    const response = await axios.patch(`https://haki-yetu-backend.onrender.com/api/admin/users/${userId}/suspend`, {}, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const adminService = {
 
   activateUser: async (userId) => {
     const token = localStorage.getItem('token');
-    const response = await axios.patch(`http://127.0.0.1:5001/api/admin/users/${userId}/activate`, {}, {
+    const response = await axios.patch(`https://haki-yetu-backend.onrender.com/api/admin/users/${userId}/activate`, {}, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const adminService = {
   // Disputes
   getAllDisputes: async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/admin/disputes', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/admin/disputes', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const adminService = {
 
   resolveDispute: async (disputeId, data) => {
     const token = localStorage.getItem('token');
-    const response = await axios.patch(`http://127.0.0.1:5001/api/admin/disputes/${disputeId}/resolve`, data, {
+    const response = await axios.patch(`https://haki-yetu-backend.onrender.com/api/admin/disputes/${disputeId}/resolve`, data, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const adminService = {
   // System Logs
   getSystemLogs: async ({ page = 1, limit = 20 } = {}) => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/admin/logs', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/admin/logs', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ const adminService = {
   // Analytics
   getAnalytics: async (params = {}) => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/admin/analytics', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/admin/analytics', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const adminService = {
 
   approveLawyerApplication: async (applicationId) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post(`http://127.0.0.1:5001/api/admin/lawyer-applications/${applicationId}/approve`, {}, {
+    const response = await axios.post(`https://haki-yetu-backend.onrender.com/api/admin/lawyer-applications/${applicationId}/approve`, {}, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ const adminService = {
 
   rejectLawyerApplication: async (applicationId, data) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post(`http://127.0.0.1:5001/api/admin/lawyer-applications/${applicationId}/reject`, data, {
+    const response = await axios.post(`https://haki-yetu-backend.onrender.com/api/admin/lawyer-applications/${applicationId}/reject`, data, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ const adminService = {
 
   getPendingLawyerApplications: async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/admin/lawyer-applications/pending', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/admin/lawyer-applications/pending', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ const adminService = {
   // Client verification methods
   getClientQueue: async (status = 'pending') => {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`http://127.0.0.1:5001/api/admin/clients/pending?status=${status}`, {
+    const response = await axios.get(`https://haki-yetu-backend.onrender.com/api/admin/clients/pending?status=${status}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ const adminService = {
 
   verifyClient: async (clientId) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post(`http://127.0.0.1:5001/api/admin/verify-user/${clientId}`, { status: 'approved' }, {
+    const response = await axios.post(`https://haki-yetu-backend.onrender.com/api/admin/verify-user/${clientId}`, { status: 'approved' }, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ const adminService = {
 
   rejectClient: async (clientId, reason) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post(`http://127.0.0.1:5001/api/admin/clients/${clientId}/reject`, { reason }, {
+    const response = await axios.post(`https://haki-yetu-backend.onrender.com/api/admin/clients/${clientId}/reject`, { reason }, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ const adminService = {
   // Templates
   getTemplates: async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/documents/templates', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/documents/templates', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     return response.data;
@@ -206,7 +206,7 @@ const adminService = {
 
   createTemplate: async (formData) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post('http://127.0.0.1:5001/api/documents/templates', formData, {
+    const response = await axios.post('https://haki-yetu-backend.onrender.com/api/documents/templates', formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -217,7 +217,7 @@ const adminService = {
 
   updateTemplate: async (id, formData) => {
     const token = localStorage.getItem('token');
-    const response = await axios.patch(`http://127.0.0.1:5001/api/documents/templates/${id}`, formData, {
+    const response = await axios.patch(`https://haki-yetu-backend.onrender.com/api/documents/templates/${id}`, formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -228,7 +228,7 @@ const adminService = {
 
   deleteTemplate: async (id) => {
     const token = localStorage.getItem('token');
-    const response = await axios.delete(`http://127.0.0.1:5001/api/documents/templates/${id}`, {
+    const response = await axios.delete(`https://haki-yetu-backend.onrender.com/api/documents/templates/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     return response.data;
@@ -244,7 +244,7 @@ const adminService = {
   // Wallet Management
   getWalletBalances: async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:5001/api/wallet/system-balances', {
+    const response = await axios.get('https://haki-yetu-backend.onrender.com/api/wallet/system-balances', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ const adminService = {
 
   initiateCashOut: async (amount, phoneNumber) => {
     const token = localStorage.getItem('token');
-    const response = await axios.post('http://127.0.0.1:5001/api/admin/wallets/cashout', {
+    const response = await axios.post('https://haki-yetu-backend.onrender.com/api/admin/wallets/cashout', {
       amount: parseInt(amount),
       phone_number: phoneNumber
     }, {

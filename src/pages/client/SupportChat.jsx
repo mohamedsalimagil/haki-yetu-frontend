@@ -25,7 +25,8 @@ const SupportChat = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://127.0.0.1:5000/api/communication/chat/support', {
+            const apiBase = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';
+            const res = await fetch(`${apiBase}/api/communication/chat/support`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

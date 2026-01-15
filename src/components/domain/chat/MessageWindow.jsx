@@ -122,7 +122,8 @@ const MessageWindow = ({
       const filename = text.replace('FILE:', '');
       const isImage = filename.match(/\.(jpeg|jpg|gif|png|webp)$/i);
       // Ensure this URL matches your backend config
-      const url = `http://127.0.0.1:5000/chat/uploads/${filename}`;
+      const apiBase = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';
+      const url = `${apiBase}/chat/uploads/${filename}`;
 
       if (isImage) {
         return (

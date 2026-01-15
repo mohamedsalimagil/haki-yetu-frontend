@@ -76,7 +76,8 @@ const InAppChat = () => {
     if (!selectedContact) return;
 
     const token = localStorage.getItem('token');
-    const socketConnection = io('http://localhost:5000', {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://haki-yetu-backend.onrender.com';
+    const socketConnection = io(socketUrl, {
       auth: { token }
     });
 

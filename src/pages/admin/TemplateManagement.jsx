@@ -8,7 +8,8 @@ const getDownloadUrl = (filePath) => {
   // Extract just the filename (e.g., "contract.pdf") from the full path
   // Handle paths that might be full URLs or system paths or just filenames
   const filename = filePath.split(/[/\\]/).pop();
-  return `http://127.0.0.1:5000/api/documents/download/${filename}`;
+  const apiBase = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';
+  return `${apiBase}/api/documents/download/${filename}`;
 };
 
 const TemplateManagement = () => {
