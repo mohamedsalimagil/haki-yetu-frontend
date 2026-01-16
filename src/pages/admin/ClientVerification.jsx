@@ -10,7 +10,15 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 
-
+// Helper function to convert PDF URLs to preview images
+const getPreviewUrl = (url) => {
+  if (!url) return '';
+  // If it's a PDF, change the extension to .jpg to get a thumbnail preview
+  if (url.toLowerCase().endsWith('.pdf')) {
+    return url.replace('.pdf', '.jpg');
+  }
+  return url;
+};
 
 const ClientVerification = () => {
   const [clients, setClients] = useState([]);
@@ -117,7 +125,9 @@ const ClientVerification = () => {
       default:
         return null;
     }
-    return getFullUrl(url);
+    // Apply preview URL conversion for PDFs, then get full URL
+    const previewUrl = getPreviewUrl(url);
+    return getFullUrl(previewUrl);
   }, [selectedClient, activeDocTab]);
 
   // --- RESIZING LOGIC ---
