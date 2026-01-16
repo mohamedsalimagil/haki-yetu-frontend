@@ -220,6 +220,36 @@ const Checkout = () => {
           duration: 5000,
           icon: '📱'
         });
+      } else if (location.state?.purchaseRef) {
+        // For template purchases, verify using purchase reference
+        try {
+          const verifyResponse = await api.get(`/api/payment/verify/${location.state.purchaseRef}`);
+          if (verifyResponse.data.status === 'completed') {
+            setPaymentStatus('completed');
+            navigate('/client/consultation-success', {
+              state: {
+                booking: {
+                  id: `template_${location.state.item.id}`,
+                  checkout_request_id: location.state.purchaseRef,
+                  amount: order.amount,
+                  date: new Date().toISOString(),
+                  service_type: order.service_name,
+                  mpesa_receipt: verifyResponse.data.mpesa_receipt_number
+                },
+                lawyer: {
+                  name: 'Haki Yetu Platform',
+                  specialization: 'Legal Templates'
+                }
+              }
+            });
+          } else {
+            setPaymentStatus('pending');
+            setCheckoutRequestId(location.state.purchaseRef);
+          }
+        } catch (verifyError) {
+          console.error('Payment verification failed:', verifyError);
+          toast.error('Payment verification failed. Please contact support.');
+        }
       } else {
         toast.error('Payment request sent but unable to track status. Please check your M-Pesa messages.');
       }

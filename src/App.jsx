@@ -144,7 +144,7 @@ function App() {
         <Route path="/marketplace" element={<ServiceCatalog />} />
         <Route path="/marketplace/:id" element={<ServiceDetails />} />
         
-        <Route path="/client/templates" element={<TemplateMarketplace />} />
+        <Route path="/client/marketplace/templates" element={<TemplateMarketplace />} />
         <Route path="/checkout/:orderId" element={<Checkout />} />
 
         {/* --- Client Advanced Features --- */}

@@ -23,30 +23,39 @@ const TemplateMarketplace = () => {
     }
   };
 
-  const handleAction = (template) => {
-    if (template.price > 0) {
-      // Paid: Go to Checkout
-      navigate('/client/checkout', {
+  const handlePurchase = async (template) => {
+    try {
+      // Initiate purchase request
+      const response = await api.post(`/documents/marketplace/templates/${template.id}/purchase`);
+
+      // Redirect to checkout with purchase data
+      navigate('/checkout', {
         state: {
           service: template.name,
           amount: template.price,
           type: 'TEMPLATE',
-          item: template
+          item: template,
+          purchaseRef: response.data.purchase_ref || response.data.reference
         }
       });
-    } else {
-      // Free: Direct Download - Handle both Cloudinary URLs and local paths
-      const downloadUrl = template.file_url || template.file_path;
-      if (downloadUrl) {
-        if (downloadUrl.startsWith('http')) {
-          // Cloudinary URL
-          window.open(downloadUrl, '_blank');
-        } else {
-          // Local path - construct full URL
-          const apiBase = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:5000';
-          const fullUrl = `${apiBase}/api/documents/download/${downloadUrl.split('/').pop()}`;
-          window.open(fullUrl, '_blank');
-        }
+    } catch (error) {
+      console.error('Purchase failed:', error);
+      alert('Failed to initiate purchase. Please try again.');
+    }
+  };
+
+  const handleDownload = (template) => {
+    // Free: Direct Download - Handle both Cloudinary URLs and local paths
+    const downloadUrl = template.file_url || template.file_path;
+    if (downloadUrl) {
+      if (downloadUrl.startsWith('http')) {
+        // Cloudinary URL
+        window.open(downloadUrl, '_blank');
+      } else {
+        // Local path - construct full URL
+        const apiBase = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';
+        const fullUrl = `${apiBase}/api/documents/download/${downloadUrl.split('/').pop()}`;
+        window.open(fullUrl, '_blank');
       }
     }
   };
@@ -87,11 +96,11 @@ const TemplateMarketplace = () => {
               </p>
 
               <button
-                onClick={() => handleAction(template)}
+                onClick={() => template.price > 0 ? handlePurchase(template) : handleDownload(template)}
                 className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors"
               >
                 {template.price > 0 ? <ShoppingCart size={18} /> : <Download size={18} />}
-                {template.price > 0 ? 'Buy Template' : 'Download Now'}
+                {template.price > 0 ? 'Purchase' : 'Download Now'}
               </button>
             </div>
           </div>
