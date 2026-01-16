@@ -23,6 +23,7 @@ const LawyerRegistrationForm = () => {
     yearsOfExperience: '',
     location: '',
     languages: [],
+    consultationFee: '',
 
     // Step 3: Additional Information
     education: '',
@@ -186,6 +187,7 @@ const LawyerRegistrationForm = () => {
       formDataToSend.append('bar_admission', formData.barAdmission);
       formDataToSend.append('gender', formData.gender);
       formDataToSend.append('kra_pin', formData.kraPin);
+      formDataToSend.append('consultation_fee', parseInt(formData.consultationFee, 10) || 3000);
 
       // Add file fields
       formDataToSend.append('practicing_certificate', documents.practicing_certificate);
@@ -503,6 +505,23 @@ const LawyerRegistrationForm = () => {
             onChange={handleChange}
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="consultationFee" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Consultation Fee (KES per session)
+        </label>
+        <input
+          id="consultationFee"
+          name="consultationFee"
+          type="number"
+          min="0"
+          className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700"
+          placeholder="e.g., 3000"
+          value={formData.consultationFee}
+          onChange={handleChange}
+        />
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Set your hourly consultation fee in Kenyan Shillings</p>
       </div>
 
       <div>

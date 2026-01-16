@@ -211,7 +211,20 @@ const BookingPage = () => {
     );
   }
 
-  const consultationFee = lawyer?.consultation_fee || 50;
+  // Service pricing based on service type
+  const getServicePrice = (serviceType) => {
+    const servicePrices = {
+      consultation: 500,
+      legal_advice: 800,
+      document_review: 1200,
+      notarization: 1500
+    };
+    return servicePrices[serviceType] || 500;
+  };
+
+  const consultationFee = lawyer?.consultation_fee || 3000;
+  const servicePrice = getServicePrice(formData.serviceType);
+  const totalAmount = consultationFee + servicePrice;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-900 py-8 transition-colors">
@@ -237,8 +250,8 @@ const BookingPage = () => {
               <p className="text-slate-600 dark:text-gray-400">with {lawyer?.name || 'Advocate'}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-slate-500 dark:text-gray-400">Consultation Fee</p>
-              <p className="text-2xl font-bold text-[#0A1E41] dark:text-white">{formatCurrency(consultationFee)}</p>
+              <p className="text-sm text-slate-500 dark:text-gray-400">Total Amount</p>
+              <p className="text-2xl font-bold text-[#0A1E41] dark:text-white">{formatCurrency(totalAmount)}</p>
             </div>
           </div>
         </div>
@@ -467,7 +480,11 @@ const BookingPage = () => {
                 <p className="font-semibold mb-1">Booking Summary</p>
                 <p>Date: {formData.selectedDate ? formatDate(formData.selectedDate) : 'Not selected'}</p>
                 <p>Time: {formData.selectedTime || 'Not selected'}</p>
-                <p>Fee: {formatCurrency(consultationFee)}</p>
+                <div className="mt-2 space-y-1">
+                  <p>Service: {formatCurrency(servicePrice)}</p>
+                  <p>Consultation: {formatCurrency(consultationFee)}</p>
+                  <p className="font-semibold border-t border-gray-300 dark:border-gray-600 pt-1 mt-2">Total: {formatCurrency(totalAmount)}</p>
+                </div>
               </div>
             </div>
 
@@ -476,7 +493,7 @@ const BookingPage = () => {
               disabled={submitting || !formData.selectedDate || !formData.selectedTime}
               className="w-full py-4 bg-[#2563EB] text-white font-bold rounded-xl hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 dark:shadow-none"
             >
-              {submitting ? 'Processing...' : `Confirm Booking - ${formatCurrency(consultationFee)}`}
+              {submitting ? 'Processing...' : `Confirm Booking - ${formatCurrency(totalAmount)}`}
             </button>
 
             <p className="text-xs text-center text-slate-400 dark:text-gray-500 mt-3">

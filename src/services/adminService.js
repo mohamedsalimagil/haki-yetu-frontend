@@ -127,6 +127,7 @@ const adminService = {
   },
 
   rejectLawyerApplication: async (applicationId, data) => {
+    console.log(`Calling reject API: /api/admin/lawyer-applications/${applicationId}/reject`);
     const token = localStorage.getItem('token');
     const response = await axios.post(`http://127.0.0.1:5001/api/admin/lawyer-applications/${applicationId}/reject`, data, {
       headers: {
