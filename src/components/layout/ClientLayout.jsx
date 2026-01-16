@@ -14,10 +14,10 @@ const ClientLayout = ({ children }) => {
                 <nav className="flex-1 space-y-2 mt-6">
                     <button onClick={()=>navigate('/dashboard')} className="flex items-center gap-3 w-full p-3 hover:bg-blue-50 text-gray-700 rounded-lg"><LayoutDashboard size={20}/> Dashboard</button>
                     <button onClick={()=>navigate('/marketplace')} className="flex items-center gap-3 w-full p-3 hover:bg-blue-50 text-gray-700 rounded-lg"><ShoppingBag size={20}/> Services</button>
-                    <button onClick={()=>navigate('/client/templates')} className="flex items-center gap-3 w-full p-3 hover:bg-blue-50 text-gray-700 rounded-lg"><FileText size={20}/> Legal Templates</button>
+                    <button onClick={()=>navigate('/client/marketplace/templates')} className="flex items-center gap-3 w-full p-3 hover:bg-blue-50 text-gray-700 rounded-lg"><FileText size={20}/> Notarization Services</button>
                     <button onClick={()=>navigate('/chat')} className="flex items-center gap-3 w-full p-3 hover:bg-blue-50 text-gray-700 rounded-lg"><MessageSquare size={20}/> Chat</button>
                 </nav>
-                <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-600 hover:bg-red-50 rounded-lg mt-auto"><LogOut size={20}/> Logout</button>
+                <button onClick={logout} className="flex items-center gap-3 w-full p-3 text-red-600 hover:bg-red-50 rounded-lg mt-auto"><LogOut size={20}/> Sign Out</button>
             </aside>
             <main className="flex-1 p-8">
                 <header className="flex justify-between items-center mb-8">

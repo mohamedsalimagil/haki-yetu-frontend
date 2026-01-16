@@ -32,6 +32,11 @@ api.interceptors.request.use(
   async (config) => {
     let token = localStorage.getItem(TOKEN_KEY);
 
+    // Handle FormData - remove Content-Type to let browser set it with proper boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     // Check if token is expired before making request
     if (token && isTokenExpired(token)) {
       try {

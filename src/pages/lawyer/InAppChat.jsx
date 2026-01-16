@@ -78,7 +78,8 @@ const InAppChat = () => {
     const token = localStorage.getItem('token');
     const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://haki-yetu-backend.onrender.com';
     const socketConnection = io(socketUrl, {
-      auth: { token }
+      auth: { token },
+      transports: ['websocket', 'polling'] // Ensure compatibility
     });
 
     socketConnection.on('connect', () => {
@@ -112,6 +113,11 @@ const InAppChat = () => {
 
     socketConnection.on('disconnect', () => {
       console.log('🔌 Lawyer Chat: Disconnected from socket server');
+    });
+
+    socketConnection.on('error', (err) => {
+      console.error('Socket Error:', err);
+      toast.error(err.message || 'Chat connection error');
     });
 
     setSocket(socketConnection);

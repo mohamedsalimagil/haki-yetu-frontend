@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';
-import { CreditCard, Shield, CheckCircle, Loader, ArrowLeft, Phone } from 'lucide-react';
+import { CreditCard, Shield, CheckCircle, Loader, ArrowLeft, Phone, Download } from 'lucide-react';
 
 
 const Checkout = () => {
@@ -144,6 +144,31 @@ const Checkout = () => {
     }
   }, [checkoutRequestId, paymentStatus, order, navigate]);
 
+  const handleDownloadTemplate = async (templateId) => {
+    try {
+      const response = await api.get(`/documents/marketplace/templates/${templateId}/download`, {
+        responseType: 'blob'
+      });
+
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `template_${templateId}.pdf`);
+      link.setAttribute('target', '_blank'); // Fallback for some browsers
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Template downloaded successfully!');
+    } catch (error) {
+      console.error('Template download failed:', error);
+      toast.error('Failed to download template. Please try again.');
+    }
+  };
+
   const handlePayment = async () => {
     // Validate phone number
     if (!phoneNumber) {
@@ -220,6 +245,22 @@ const Checkout = () => {
           duration: 5000,
           icon: '📱'
         });
+      } else if (location.state?.purchaseRef) {
+        // For template purchases, verify using purchase reference
+        try {
+          const verifyResponse = await api.get(`/api/payment/verify/${location.state.purchaseRef}`);
+          if (verifyResponse.data.status === 'completed') {
+            setPaymentStatus('completed');
+            toast.success('Template purchase successful! You can now download your template.');
+            // Don't navigate away - stay on checkout page to show download button
+          } else {
+            setPaymentStatus('pending');
+            setCheckoutRequestId(location.state.purchaseRef);
+          }
+        } catch (verifyError) {
+          console.error('Payment verification failed:', verifyError);
+          toast.error('Payment verification failed. Please contact support.');
+        }
       } else {
         toast.error('Payment request sent but unable to track status. Please check your M-Pesa messages.');
       }
@@ -441,9 +482,19 @@ const Checkout = () => {
                 </div>
               )}
 
+              {paymentStatus === 'completed' && location.state?.type === 'TEMPLATE' && (
+                <button
+                  onClick={() => handleDownloadTemplate(location.state.item.id)}
+                  className="w-full mt-6 bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition flex items-center justify-center gap-2"
+                >
+                  <Download size={20} />
+                  Download Template
+                </button>
+              )}
+
               <button
                 onClick={handlePayment}
-                disabled={paying || isPollingPayment}
+                disabled={paying || isPollingPayment || paymentStatus === 'completed'}
                 className="w-full mt-6 bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {paying ? (
@@ -456,6 +507,11 @@ const Checkout = () => {
                     <Loader className="animate-spin w-5 h-5" />
                     Waiting for Payment...
                   </>
+                ) : paymentStatus === 'completed' ? (
+                  <>
+                    <CheckCircle size={20} />
+                    Payment Completed
+                  </>
                 ) : (
                   <>
                     <CheckCircle size={20} />
@@ -465,7 +521,12 @@ const Checkout = () => {
               </button>
 
               <p className="text-xs text-gray-500 text-center mt-4">
-                {isPollingPayment ? 'Verifying payment completion...' : 'You will receive an M-Pesa prompt on your phone'}
+                {paymentStatus === 'completed' && location.state?.type === 'TEMPLATE'
+                  ? 'Your template is ready for download!'
+                  : isPollingPayment
+                  ? 'Verifying payment completion...'
+                  : 'You will receive an M-Pesa prompt on your phone'
+                }
               </p>
             </div>
 
