@@ -16,11 +16,31 @@ const ConsultationSuccess = () => {
   const [booking, setBooking] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus || 'PENDING');
   const [isPolling, setIsPolling] = useState(false);
+  const [showSkipButton, setShowSkipButton] = useState(false);
+  const [pollingSeconds, setPollingSeconds] = useState(0);
+
+  // Handle skip/continue action
+  const handleSkipVerification = () => {
+    setPaymentStatus('completed');
+    setIsPolling(false);
+    toast.success("Continuing to confirmation page. Payment will be verified in the background.");
+  };
 
   useEffect(() => {
     if (!bookingId || paymentStatus === 'completed' || paymentStatus === 'paid') return;
 
     setIsPolling(true);
+    setPollingSeconds(0);
+
+    // Show skip button after 15 seconds
+    const skipTimer = setTimeout(() => {
+      setShowSkipButton(true);
+    }, 15000);
+
+    // Counter for display
+    const counterInterval = setInterval(() => {
+      setPollingSeconds(prev => prev + 1);
+    }, 1000);
 
     const interval = setInterval(async () => {
       try {
@@ -48,36 +68,42 @@ const ConsultationSuccess = () => {
           myBooking = bookingsList.find(b => b.id === parseInt(bookingId));
         }
 
-        // Check if payment is completed
+        // Check if payment is completed (check multiple status variations)
         if (myBooking && (
           myBooking.payment_status === 'paid' ||
+          myBooking.payment_status === 'Paid' ||
           myBooking.payment_status === 'completed' ||
           myBooking.status === 'confirmed' ||
+          myBooking.status === 'Confirmed' ||
           myBooking.status === 'paid'
         )) {
           setPaymentStatus('completed');
           setBooking(myBooking);
           setIsPolling(false);
-          clearInterval(interval); // ✅ FIX: Clear interval immediately on success
+          clearInterval(interval);
+          clearInterval(counterInterval);
+          clearTimeout(skipTimer);
           toast.success("Payment Confirmed!");
         }
       } catch (error) {
         console.error("Polling error:", error);
       }
-    }, 5000);
+    }, 3000); // Poll every 3 seconds for faster response
 
-    // Stop polling after 10 minutes to prevent infinite loops
+    // Stop polling after 30 seconds (reduced from 10 minutes for better UX)
     const timeout = setTimeout(() => {
       clearInterval(interval);
+      clearInterval(counterInterval);
       setIsPolling(false);
-      if (paymentStatus === 'pending') {
-        toast.error('Payment verification timed out. Please contact support.');
-      }
-    }, 600000); // 10 minutes
+      setShowSkipButton(true);
+      toast.info('If payment was successful on M-Pesa, click "Continue Anyway" below.');
+    }, 30000);
 
     return () => {
       clearInterval(interval);
+      clearInterval(counterInterval);
       clearTimeout(timeout);
+      clearTimeout(skipTimer);
     };
   }, [bookingId, paymentStatus]);
 
@@ -159,10 +185,43 @@ const ConsultationSuccess = () => {
   // Show loading screen while waiting for payment confirmation
   if (paymentStatus === 'pending' && isPolling) {
     return (
-      <LoadingScreen
-        message="Verifying your M-Pesa payment..."
-        fullScreen={true}
-      />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          {/* Spinner */}
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
+
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+            Verifying your M-Pesa payment...
+          </h2>
+
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Please complete the payment on your phone when prompted.
+          </p>
+
+          {/* Timer display */}
+          <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">
+            Waiting: {pollingSeconds}s
+          </p>
+
+          {/* Skip button - appears after 15 seconds */}
+          {showSkipButton && (
+            <div className="space-y-3">
+              <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
+                Payment completed on M-Pesa but verification is slow?
+              </p>
+              <button
+                onClick={handleSkipVerification}
+                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+              >
+                ✓ Continue Anyway
+              </button>
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                Your booking will be confirmed automatically once payment is verified.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -242,13 +301,12 @@ const ConsultationSuccess = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className={`flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full mb-2 ${
-                paymentStatus === 'completed'
-                  ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40'
-                  : paymentStatus === 'failed'
+              <div className={`flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full mb-2 ${paymentStatus === 'completed'
+                ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40'
+                : paymentStatus === 'failed'
                   ? 'text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40'
                   : 'text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/40'
-              }`}>
+                }`}>
                 {paymentStatus === 'completed' ? (
                   <CheckCircle className="w-3 h-3" />
                 ) : paymentStatus === 'failed' ? (

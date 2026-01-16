@@ -53,6 +53,7 @@ import ConsultationSuccess from './pages/client/ConsultationSuccess';
 import BookingPage from './pages/client/BookingPage';
 import Consultations from './pages/client/Consultations';
 import TemplateMarketplace from './pages/client/TemplateMarketplace';
+import MyDocuments from './pages/client/MyDocuments';
 
 // Dispute Module
 import InitiateDispute from './pages/client/disputes/InitiateDispute';
@@ -102,10 +103,10 @@ function App() {
         {/* --- Public Routes --- */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<AboutPage />} />
-        
+
         {/* Redirect /services to /marketplace to avoid confusion */}
         <Route path="/services" element={<Navigate to="/marketplace" replace />} />
-        
+
         <Route path="/services/drafting" element={<DocumentGenerator />} />
         <Route path="/advocates" element={<AdvocateDirectory />} />
         <Route path="/pricing" element={<PricingPage />} />
@@ -143,7 +144,7 @@ function App() {
         {/* ⚠️ NOTE: This confirms your Service Cards must link to /marketplace/:id */}
         <Route path="/marketplace" element={<ServiceCatalog />} />
         <Route path="/marketplace/:id" element={<ServiceDetails />} />
-        
+
         <Route path="/client/marketplace/templates" element={<TemplateMarketplace />} />
         <Route path="/checkout/:orderId" element={<Checkout />} />
 
@@ -158,8 +159,7 @@ function App() {
         <Route path="/client/messages" element={<InAppChat />} />
         <Route path="/client/messages/new" element={<InAppChat />} />
         <Route path="/client/consultation/confirmation" element={<ConsultationSuccess />} />
-        <Route path="/client/documents" element={<ClientDocumentGenerator />} />
-        <Route path="/client/documents/create" element={<DocumentPartyDetails />} />
+        <Route path="/client/documents" element={<MyDocuments />} />
         <Route path="/client/consultations" element={<Consultations />} />
         <Route path="/bookings/manage" element={<div className="p-8 text-center">Manage Bookings - Coming Soon</div>} />
 

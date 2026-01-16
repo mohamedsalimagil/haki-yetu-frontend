@@ -76,8 +76,14 @@ const InAppChat = () => {
     if (!selectedContact) return;
 
     const token = localStorage.getItem('token');
-    const socketConnection = io('http://localhost:5000', {
-      auth: { token }
+
+    // Determine socket URL from API_URL (remove /api suffix)
+    const apiUrl = import.meta.env.VITE_API_URL || "https://haki-yetu-backend.onrender.com/api";
+    const socketUrl = apiUrl.replace('/api', '');
+
+    const socketConnection = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'] // Ensure compatibility
     });
 
     socketConnection.on('connect', () => {
