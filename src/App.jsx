@@ -69,7 +69,6 @@ import DisputeDetails from './pages/client/support/DisputeDetails';
 import DisputeConfirmation from './pages/client/support/DisputeConfirmation';
 import FAQsPage from './pages/client/support/FAQsPage';
 import AIChatPage from './pages/client/support/AIChatPage';
-// ------------------------------------------
 
 // Admin Module
 import AdminRoutes from './pages/admin/AdminRoutes';
@@ -79,12 +78,9 @@ import Chat from './pages/Chat';
 
 function App() {
   const { user } = useAuth();
-
   const location = useLocation();
 
-  // Define routes where the global Navbar should be hidden
-  // 1. Admin pages have their own AdminLayout
-  // 2. Dashboards (Client/Lawyer) have their own Sidebars
+  // Define routes where Navbar should be hidden
   const hideNavbarRoutes = [
     '/lawyer/dashboard',
     '/lawyer/earnings',
@@ -92,19 +88,24 @@ function App() {
     '/dashboard'
   ];
 
+  // Check if current path matches admin or hidden routes
   const shouldHideNavbar =
     location.pathname.startsWith('/admin') ||
     hideNavbarRoutes.some(route => location.pathname.startsWith(route));
 
   return (
     <>
-      <Navbar />
+      {/* ✅ FIXED: Only show Navbar if not on a hidden route */}
+      {!shouldHideNavbar && <Navbar />}
 
       <Routes>
         {/* --- Public Routes --- */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<AboutPage />} />
+        
+        {/* Redirect /services to /marketplace to avoid confusion */}
         <Route path="/services" element={<Navigate to="/marketplace" replace />} />
+        
         <Route path="/services/drafting" element={<DocumentGenerator />} />
         <Route path="/advocates" element={<AdvocateDirectory />} />
         <Route path="/pricing" element={<PricingPage />} />
@@ -139,8 +140,10 @@ function App() {
         } />
 
         {/* --- Client Marketplace Routes --- */}
+        {/* ⚠️ NOTE: This confirms your Service Cards must link to /marketplace/:id */}
         <Route path="/marketplace" element={<ServiceCatalog />} />
         <Route path="/marketplace/:id" element={<ServiceDetails />} />
+        
         <Route path="/client/templates" element={<TemplateMarketplace />} />
         <Route path="/checkout/:orderId" element={<Checkout />} />
 

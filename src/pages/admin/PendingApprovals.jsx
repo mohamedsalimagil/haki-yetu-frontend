@@ -12,6 +12,7 @@ import {
   rejectLawyerApplication
 } from '../../services/adminService';
 import { getFullUrl } from '../../utils/apiUtils';
+import api from '../../services/api';
 
 // Backend base URL for API calls
 const API_BASE_URL = import.meta.env.VITE_API_BASE || 'https://haki-yetu-backend.onrender.com';

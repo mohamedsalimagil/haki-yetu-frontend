@@ -15,8 +15,12 @@ class SocketService {
     console.log("🔌 Attempting socket connection...");
 
     // Production Connection with credentials for proper authentication
+<<<<<<< HEAD
     const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://haki-yetu-backend.onrender.com';
     this.socket = io(socketUrl, {
+=======
+    this.socket = io('https://haki-yetu-backend.onrender.com', {
+>>>>>>> c6bef946354cd3772866f076da7ae0a43f837442
       withCredentials: true,  // Required for CORS with credentials
       transports: ['websocket', 'polling'],  // Try websocket first, fallback to polling
       autoConnect: true,

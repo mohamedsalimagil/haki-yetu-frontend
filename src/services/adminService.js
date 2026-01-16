@@ -127,6 +127,7 @@ const adminService = {
   },
 
   rejectLawyerApplication: async (applicationId, data) => {
+    console.log(`Calling reject API: /api/admin/lawyer-applications/${applicationId}/reject`);
     const token = localStorage.getItem('token');
     const response = await axios.post(`https://haki-yetu-backend.onrender.com/api/admin/lawyer-applications/${applicationId}/reject`, data, {
       headers: {

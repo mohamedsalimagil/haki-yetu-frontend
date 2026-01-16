@@ -74,8 +74,8 @@ const LawyerCard = ({ lawyer, onBookNow, onMessage }) => {
           <div>
             <p className="text-sm text-gray-600">Starting from</p>
             <p className="text-2xl font-bold text-green-600">
-              KES {lawyer.hourly_rate || lawyer.base_price || 'TBD'}
-              {lawyer.hourly_rate && <span className="text-sm font-normal">/hour</span>}
+              KES {lawyer.consultation_fee || lawyer.hourly_rate || lawyer.base_price || 3000}
+              {(lawyer.consultation_fee || lawyer.hourly_rate) && <span className="text-sm font-normal">/session</span>}
             </p>
           </div>
           <div className="text-right">
