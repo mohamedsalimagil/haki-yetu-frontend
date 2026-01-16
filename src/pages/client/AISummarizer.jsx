@@ -169,7 +169,8 @@ ${summary.alerts.map(a => `- ${a.clause}: ${a.description}`).join('\n')}` : ''}
       console.error('Error processing file:', error);
 
       // Show error and allow retry
-      toast.error('Failed to analyze document. Please try again.');
+      const errorMessage = error.response?.data?.error || 'Failed to analyze document. Please try again.';
+      toast.error(errorMessage);
 
       // Reset state to allow retry
       setSelectedFile(null);
