@@ -7,6 +7,13 @@ const lawyerService = {
     return response.data;
   },
 
+  // Create a new lawyer profile (for onboarding)
+  createProfile: async (profileData) => {
+    const response = await api.post('/lawyer/profile', profileData);
+    return response.data;
+  },
+
+  // Update existing lawyer profile
   updateProfile: async (profileData) => {
     const response = await api.put('/lawyer/profile', profileData);
     return response.data;

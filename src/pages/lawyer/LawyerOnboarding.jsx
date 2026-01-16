@@ -84,20 +84,41 @@ const LawyerOnboarding = () => {
 
     try {
       const profileData = new FormData();
+
+      // Required fields
       profileData.append('lsk_number', formData.lskNumber);
-      profileData.append('year_of_admission', formData.yearOfAdmission);
-      profileData.append('firm_name', formData.firmName);
-      profileData.append('specializations', JSON.stringify(selectedSpecializations));
+      profileData.append('experience_years', formData.yearOfAdmission); // Year of admission mapped to experience
+
+      // Calculate experience years from year of admission
+      const currentYear = new Date().getFullYear();
+      const admissionYear = parseInt(formData.yearOfAdmission);
+      const calculatedExperience = admissionYear && !isNaN(admissionYear) ? Math.max(0, currentYear - admissionYear) : 0;
+      profileData.append('experience_years', calculatedExperience.toString());
+
+      // Optional fields
+      if (formData.firmName) {
+        profileData.append('firm_name', formData.firmName);
+      }
+
+      // Specialization - convert array to comma-separated string
+      const specializationString = selectedSpecializations.join(', ');
+      profileData.append('specialization', specializationString);
+
+      // Bio field (optional but helpful)
+      profileData.append('bio', `Specializing in ${specializationString}`);
+
+      // File upload
       profileData.append('practicing_certificate', certificateFile);
 
-      await lawyerService.updateProfile(profileData);
+      // Use createProfile instead of updateProfile for new registrations
+      await lawyerService.createProfile(profileData);
 
       toast.success('Profile submitted for Admin Verification!');
       navigate('/verification-pending');
     } catch (error) {
-      console.error('Error updating profile:', error);
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to update profile';
-      toast.error(`Profile update failed: ${errorMessage}`);
+      console.error('Error creating profile:', error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to create profile';
+      toast.error(`Profile creation failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
