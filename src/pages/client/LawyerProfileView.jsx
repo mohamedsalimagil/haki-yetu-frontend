@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft, Star, MapPin, Briefcase, Award, Calendar,
-  MessageCircle, CheckCircle, Clock, ChevronRight
+  MessageCircle, CheckCircle, Clock, ChevronRight, Loader2
 } from 'lucide-react';
+import api from '../../services/api';
 
 const LawyerProfileView = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('biography');
-
-  // TODO: Replace with API call to fetch lawyer profile data based on id
-  const lawyerProfile = {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lawyerProfile, setLawyerProfile] = useState({
     id: id || 'ADV-001',
     name: 'Advocate Profile',
     title: 'Advocate of the High Court of Kenya',
@@ -28,9 +29,80 @@ const LawyerProfileView = () => {
     education: [],
     availableSlots: [],
     reviews: [],
-  };
+  });
+
+  // Fetch lawyer profile data from API
+  useEffect(() => {
+    const fetchLawyerProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/marketplace/advocates/${id}`);
+        const data = response.data;
+
+        // Map API response to component state
+        setLawyerProfile({
+          id: data.id || id,
+          name: data.name || data.full_name || 'Advocate',
+          title: data.title || 'Advocate of the High Court of Kenya',
+          lskNumber: data.lsk_number || data.practice_number || 'N/A',
+          experience: data.experience_years ? `${data.experience_years} years` : 'N/A',
+          casesHandled: data.cases_handled || data.total_cases || 'N/A',
+          rating: data.rating || data.average_rating || 0,
+          reviewCount: data.review_count || data.total_reviews || 0,
+          consultationFee: data.consultation_fee || data.hourly_rate || 0,
+          verified: data.verified || data.is_verified || false,
+          avatar: data.avatar || data.profile_picture || data.photo_url ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'Lawyer')}&background=0A1E41&color=fff&size=200`,
+          specializations: data.specializations || data.practice_areas || [],
+          biography: data.biography || data.bio || data.about || 'No biography available.',
+          education: data.education || [],
+          availableSlots: data.available_slots || data.availability || [],
+          reviews: data.reviews || [],
+        });
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch lawyer profile:', err);
+        setError('Failed to load lawyer profile. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchLawyerProfile();
+    }
+  }, [id]);
 
   const tabs = ['biography', 'specializations', 'education', 'reviews'];
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 size={48} className="animate-spin text-[#2563EB] mx-auto mb-4" />
+          <p className="text-slate-600 dark:text-gray-400">Loading lawyer profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] dark:bg-gray-900 transition-colors">
@@ -109,7 +181,7 @@ const LawyerProfileView = () => {
                   Book Consultation
                 </button>
                 <button
-                  onClick={() => navigate('/client/messages/new')}
+                  onClick={() => navigate('/client/messages', { state: { partnerId: id, partnerName: lawyerProfile.name } })}
                   className="w-full py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-slate-700 dark:text-gray-200 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center justify-center gap-2"
                 >
                   <MessageCircle size={18} />

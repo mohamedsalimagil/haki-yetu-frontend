@@ -292,8 +292,18 @@ const InAppChat = () => {
         <div className="flex-1 overflow-y-auto">
           {loadingContacts ? (
             <div className="p-4 text-center text-slate-400 text-sm">Loading contacts...</div>
-          ) : filteredContacts.length === 0 ? (
-            <div className="p-4 text-center text-slate-400 text-sm">No conversations found.</div>
+          ) : filteredContacts.length === 0 && !selectedContact ? (
+            <div className="p-4 text-center">
+              <p className="text-slate-400 text-sm mb-4">No conversations yet.</p>
+              {user?.role === 'client' && (
+                <button
+                  onClick={() => navigate('/client/advocates')}
+                  className="px-4 py-2 bg-[#2563EB] text-white text-sm rounded-lg hover:bg-blue-700 transition"
+                >
+                  Browse Advocates
+                </button>
+              )}
+            </div>
           ) : (
             filteredContacts.map((contact) => (
               <div
