@@ -119,6 +119,11 @@ const InAppChat = () => {
       console.log('🔌 Lawyer Chat: Disconnected from socket server');
     });
 
+    socketConnection.on('error', (err) => {
+      console.error('Socket Error:', err);
+      toast.error(err.message || 'Chat connection error');
+    });
+
     setSocket(socketConnection);
 
     return () => {
