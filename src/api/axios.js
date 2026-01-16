@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api', // Backend Flask server URL
+  baseURL: import.meta.env.VITE_API_URL || 'https://haki-yetu-backend.onrender.com/api', // Backend Flask server URL
   withCredentials: true, // Required for CSRF and Session cookies
   headers: {
     'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ api.interceptors.request.use(
     // Check if token is expired before making request
     if (token && isTokenExpired(token)) {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+        const baseUrl = import.meta.env.VITE_API_URL || 'https://haki-yetu-backend.onrender.com/api';
         const { data } = await axios.post(`${baseUrl}/auth/refresh`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -77,7 +77,7 @@ api.interceptors.response.use(
 
       try {
         const token = localStorage.getItem(TOKEN_KEY);
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+        const baseUrl = import.meta.env.VITE_API_URL || 'https://haki-yetu-backend.onrender.com/api';
         const { data } = await axios.post(`${baseUrl}/auth/refresh`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });

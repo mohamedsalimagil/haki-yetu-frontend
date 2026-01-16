@@ -36,7 +36,7 @@ const ServiceManagement = () => {
   const fetchCategories = async () => {
     try {
       // Better: Use the environment variable
-      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://haki-yetu-backend.onrender.com';
       const response = await axios.get(`${baseUrl}/marketplace/categories`);
       console.log("Categories API Response:", response.data); // 🔍 Debug log
 
