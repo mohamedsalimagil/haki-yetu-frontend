@@ -1,4 +1,4 @@
-# 🏛️ Haki Yetu Digital Platform — Frontend Application
+# Haki Yetu Digital Platform — Frontend Application
 
 <div align="center">
 
@@ -10,61 +10,61 @@
 
 **Bridging the gap between citizens and legal justice in Kenya through technology.**
 
-[🎨 Features](#features) • [🚀 Quick Start](#quick-start) • [📁 Project Structure](#project-structure) • [👥 Team](#team)
+[Features](#features) | [Quick Start](#quick-start) | [Project Structure](#project-structure) | [Team](#team)
 
 </div>
 
 ---
 
-## 📋 Overview
+## Overview
 
 **Haki Yetu** (Swahili for "Our Rights") is a modern, responsive web application that connects Kenyan citizens with verified legal professionals. This repository contains the **React frontend** that provides intuitive portals for clients seeking legal services, lawyers managing their practice, and administrators overseeing the platform.
 
-### 🎯 User Portals
+### User Portals
 - **Client Portal** — Discover services, book consultations, manage appointments, and process payments
 - **Lawyer Portal** — Manage client cases, set availability, handle consultations, and track earnings
 - **Admin Portal** — Verify users, monitor platform metrics, and manage system settings
 
 ---
 
-## ✨ Features
+## Features
 
-### 🔐 Authentication & Security
+### Authentication & Security
 - JWT token-based authentication with automatic refresh
 - Protected routes with `VerificationGuard` component
 - Role-based access control (Client, Lawyer, Admin)
 - Secure session management
 
-### 🛒 Service Marketplace
+### Service Marketplace
 - Browse legal services by category
 - Detailed service pages with lawyer profiles
 - Real-time availability checking
 - M-Pesa payment integration with checkout UI
 
-### 📅 Appointment Management
+### Appointment Management
 - Interactive calendar with FullCalendar integration
 - Appointment booking and rescheduling
 - Real-time availability slots
 - Automated reminders and notifications
 
-### 💬 Real-time Communication
+### Real-time Communication
 - In-app messaging with Socket.IO
 - Order-based chat rooms
 - File sharing and document exchange
 - Message notifications and read receipts
 
-### 📄 Document Management
+### Document Management
 - Drag-and-drop document upload
 - AI-powered document summarization
 - Legal document templates
 - Secure document download and sharing
 
-### 📊 Analytics Dashboards
+### Analytics Dashboards
 - Client: Appointment history, spending overview, case status
 - Lawyer: Earnings, client metrics, consultation stats
 - Admin: Platform analytics, user verification stats, revenue tracking
 
-### 🎨 User Experience
+### User Experience
 - Fully responsive design (mobile-first)
 - Dark/light mode support
 - Smooth animations with CSS transitions
@@ -73,7 +73,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category | Technology |
 |----------|------------|
@@ -93,7 +93,7 @@
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 16 or higher
@@ -131,7 +131,7 @@
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -198,7 +198,7 @@ src/
 
 ---
 
-## 📜 Available Scripts
+## Available Scripts
 
 | Command | Description |
 |---------|-------------|
@@ -209,7 +209,7 @@ src/
 
 ---
 
-## 🧪 Test Accounts
+## Test Accounts
 
 Use these credentials to test different user roles:
 
@@ -221,7 +221,7 @@ Use these credentials to test different user roles:
 
 ---
 
-## 🚢 Deployment
+## Deployment
 
 ### Vercel Deployment
 
@@ -252,7 +252,7 @@ VITE_API_URL=https://your-backend-api.com/api
 
 ---
 
-## 🎨 Design System
+## Design System
 
 ### Color Palette
 
@@ -272,19 +272,17 @@ VITE_API_URL=https://your-backend-api.com/api
 
 ---
 
-## 👥 Team
+## Team
 
-<table>
-  <tr>
-    <td align="center"><strong>Beatrice Wambui</strong><br/>Authentication & User Verification UI</td>
-    <td align="center"><strong>Mohamed Agil</strong><br/>Marketplace & Payment Integration</td>
-    <td align="center"><strong>Michael Ndirangu</strong><br/>Admin Analytics & Dashboard</td>
-  </tr>
-</table>
+| Team Member | Responsibility |
+|-------------|----------------|
+| **Beatrice Wambui** | Authentication & User Verification UI |
+| **Mohamed Agil** | Marketplace & Payment Integration |
+| **Michael Ndirangu** | Admin Analytics & Dashboard |
 
 ---
 
-## 📄 License
+## License
 
 This project is developed as part of the **Software Engineering Capstone Project**. It is intended for educational purposes only.
 
@@ -292,7 +290,7 @@ This project is developed as part of the **Software Engineering Capstone Project
 
 <div align="center">
 
-**Made with ❤️ in Kenya 🇰🇪**
+**Made in Kenya**
 
 *Empowering citizens with accessible legal services*
 
