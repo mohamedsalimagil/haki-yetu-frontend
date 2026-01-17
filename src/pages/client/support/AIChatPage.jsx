@@ -62,7 +62,7 @@ const AIChatPage = () => {
         }
 
         if (lowerMessage.includes('human') || lowerMessage.includes('agent') || lowerMessage.includes('person') || lowerMessage.includes('talk to someone')) {
-            return "I'd be happy to connect you with a human agent! However, I'm here to help answer most questions. Would you still like to speak with a human agent?\n\n💡 Tip: Human agents are available Monday-Friday, 8AM-6PM EAT.";
+            return "I'd be happy to connect you with a human agent! However, I'm here to help answer most questions. Would you still like to speak with a human agent?\n\n Tip: Human agents are available Monday-Friday, 8AM-6PM EAT.";
         }
 
         // Default response
@@ -104,7 +104,7 @@ const AIChatPage = () => {
         const humanRequestMessage = {
             id: messages.length + 1,
             sender: 'ai',
-            text: "I've notified our support team. A human agent will join this chat shortly. Average wait time is 3-5 minutes during business hours (Mon-Fri, 8AM-6PM EAT).\n\n📞 For urgent matters, you can also call us at: +254 700 000 000",
+            text: "I've notified our support team. A human agent will join this chat shortly. Average wait time is 3-5 minutes during business hours (Mon-Fri, 8AM-6PM EAT).\n\n For urgent matters, you can also call us at: +254 700 000 000",
             timestamp: new Date(),
             isSystemMessage: true
         };
