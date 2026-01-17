@@ -279,7 +279,7 @@ const ClientVerification = () => {
                     <Clock className="w-3 h-3" />
                     <span>Submitted: {selectedClient.created_at ? new Date(selectedClient.created_at).toLocaleString() : 'N/A'}</span>
                   </div>
-                  <span>📍 {selectedClient.location}</span>
+                  <span> {selectedClient.location}</span>
                 </div>
               </div>
               <div className="flex space-x-3">
