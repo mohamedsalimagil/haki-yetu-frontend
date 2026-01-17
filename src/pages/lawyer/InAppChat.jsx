@@ -19,6 +19,7 @@ const InAppChat = () => {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [initializing, setInitializing] = useState(false);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [socket, setSocket] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -30,41 +31,61 @@ const InAppChat = () => {
     const fetchContacts = async () => {
       try {
         setLoadingContacts(true);
+        // If we have a target partner, show initializing state for main window
+        const searchParams = new URLSearchParams(location.search);
+        if (location.state?.partnerId || searchParams.get('partnerId')) {
+          setInitializing(true);
+        }
+
         const response = await api.get('/chat/conversations');
         // Backend returns list of conversations with partner details
         const conversations = response.data.conversations || [];
         setContacts(conversations);
 
         // Check if we have a specific partner to select from navigation state
-        const targetPartnerId = location.state?.partnerId;
+        const searchParams = new URLSearchParams(location.search);
+        const targetPartnerId = location.state?.partnerId || searchParams.get('partnerId');
+
         if (targetPartnerId) {
+          console.log(' Initializing chat with partner:', targetPartnerId);
+
           // Find or create conversation with this partner
           const existingConvo = conversations.find(
             c => String(c.partner_id) === String(targetPartnerId)
           );
+
           if (existingConvo) {
+            console.log(' Found existing conversation');
             setSelectedContact(existingConvo);
           } else {
+            console.log('🆕 Creating new conversation context');
             // Create a temporary contact entry for the new conversation
             const partnerName = location.state?.partnerName || 'Lawyer';
+            // Use avatar from state or generate one
+            const partnerAvatar = location.state?.partnerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=1E40AF&color=fff`;
+
             setSelectedContact({
               id: 'new',
               partner_id: targetPartnerId,
               partner_name: partnerName,
-              partner_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(partnerName)}&background=1E40AF&color=fff`,
-              partner_role: 'lawyer',
+              partner_role: location.state?.partnerRole || 'lawyer',
+              partner_avatar: partnerAvatar,
               last_message_preview: 'Start a conversation...',
               last_message_time: new Date().toISOString()
             });
           }
         } else if (conversations.length > 0) {
-          // Auto-select first contact if no specific partner requested
-          setSelectedContact(conversations[0]);
+          // Auto-select first contact if no specific partner requested and no selection exists
+          if (!selectedContact) {
+            setSelectedContact(conversations[0]);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch contacts:', error);
+        toast.error('Failed to load conversations');
       } finally {
         setLoadingContacts(false);
+        setInitializing(false);
       }
     };
 
@@ -83,7 +104,7 @@ const InAppChat = () => {
     });
 
     socketConnection.on('connect', () => {
-      console.log('🔌 Lawyer Chat: Connected to socket server');
+      console.log(' Lawyer Chat: Connected to socket server');
       // Join chat room with partner
       socketConnection.emit('join_chat', {
         partner_id: selectedContact.partner_id
@@ -91,7 +112,7 @@ const InAppChat = () => {
     });
 
     socketConnection.on('receive_message', (message) => {
-      console.log('📥 Received message via socket:', message);
+      console.log(' Received message via socket:', message);
       // Add new message to state if it's for this conversation
       const partnerId = selectedContact.partner_id;
       if (String(message.sender_id) === String(partnerId) ||
@@ -112,7 +133,7 @@ const InAppChat = () => {
     });
 
     socketConnection.on('disconnect', () => {
-      console.log('🔌 Lawyer Chat: Disconnected from socket server');
+      console.log(' Lawyer Chat: Disconnected from socket server');
     });
 
     socketConnection.on('error', (err) => {
@@ -176,14 +197,14 @@ const InAppChat = () => {
           content: content,
           message: content
         });
-        console.log('📤 Message sent via socket');
+        console.log(' Message sent via socket');
       } else {
         // Fallback to HTTP API
         await api.post('/chat/send', {
           recipient_id: recipientId,
           content: content
         });
-        console.log('📤 Message sent via HTTP API');
+        console.log(' Message sent via HTTP API');
       }
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -221,7 +242,7 @@ const InAppChat = () => {
       toast.success('Document shared successfully', { id: toastId });
 
       // Send a notification message in chat
-      const content = `📄 Shared a document: ${file.name}`;
+      const content = ` Shared a document: ${file.name}`;
       const recipientId = selectedContact.partner_id;
 
       // Send via socket
@@ -344,7 +365,12 @@ const InAppChat = () => {
 
       {/* --- CENTER: Chat Window --- */}
       <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 transition-colors">
-        {!selectedContact ? (
+        {initializing ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
+            <Loader2 size={48} className="mb-4 text-blue-500 animate-spin" />
+            <p className="font-medium text-gray-600 dark:text-gray-300">Initializing secure chat...</p>
+          </div>
+        ) : !selectedContact ? (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
             <Send size={48} className="mb-4 opacity-20" />
             <p>Select a conversation to start messaging</p>
