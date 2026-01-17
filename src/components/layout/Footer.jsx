@@ -54,7 +54,7 @@ const Footer = () => {
 
                         <p className="text-sm flex items-center gap-1 text-gray-400">
                             Made with{' '}
-                            <span className="text-red-500 animate-pulse text-lg">❤️</span>
+                            <span className="text-red-500 animate-pulse text-lg"></span>
                             {' '}by{' '}
                             <span className="flex items-center gap-2 ml-1">
                                 <a
