@@ -12,7 +12,7 @@ class SocketService {
     }
 
     this.isConnecting = true;
-    console.log("🔌 Attempting socket connection...");
+    console.log(" Attempting socket connection...");
 
     // Production Connection with credentials for proper authentication
 <<<<<<< HEAD
@@ -29,7 +29,7 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log("🔌 Socket Connected successfully");
+      console.log(" Socket Connected successfully");
       this.isConnecting = false;
       // Explicitly emit authenticate event as required by backend events.py
       this.socket.emit('authenticate', { token });
@@ -66,7 +66,7 @@ class SocketService {
 
   disconnect() {
     if (this.socket) {
-      console.log("🔌 Disconnecting socket...");
+      console.log(" Disconnecting socket...");
       this.socket.disconnect();
       this.socket = null;
       this.isConnecting = false;
