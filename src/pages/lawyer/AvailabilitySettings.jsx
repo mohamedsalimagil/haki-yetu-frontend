@@ -86,10 +86,10 @@ const AvailabilitySettings = () => {
         availability: schedule
       });
 
-      toast.success('Availability schedule updated successfully!', { icon: '✅', duration: 4000 });
+      toast.success('Availability schedule updated successfully!', { icon: undefined, duration: 4000 });
     } catch (error) {
       console.error('Backend Error:', error);
-      toast.success('Schedule saved locally! (Backend: ' + (error.response?.data?.message || error.message) + ')', { icon: '⚠️', duration: 5000 });
+      toast.success('Schedule saved locally! (Backend: ' + (error.response?.data?.message || error.message) + ')', { icon: undefined, duration: 5000 });
     } finally {
       setLoading(false);
     }
@@ -136,7 +136,7 @@ const AvailabilitySettings = () => {
       );
 
       toast.success('Consultation rescheduled successfully! Client has been notified.', {
-        icon: '✅',
+        icon: undefined,
         duration: 4000
       });
 
@@ -167,7 +167,7 @@ const AvailabilitySettings = () => {
         closeRescheduleModal();
       } else {
         toast.error('Failed to reschedule: ' + (error.response?.data?.message || error.message), {
-          icon: '❌',
+          icon: undefined,
           duration: 5000
         });
       }
