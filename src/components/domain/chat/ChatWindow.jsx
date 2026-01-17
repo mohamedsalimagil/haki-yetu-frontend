@@ -182,7 +182,7 @@ const ChatWindow = ({ selectedConversation }) => {
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-            <p>No messages yet. Say hello! </p>
+            <p>No messages yet. Say hello! 👋</p>
           </div>
         ) : (
           <div className="space-y-3">

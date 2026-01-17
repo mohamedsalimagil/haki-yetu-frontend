@@ -27,7 +27,7 @@ const Checkout = () => {
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      
+
       // Check if order data was passed via location state (from NotarizationFlow)
       if (location.state) {
         const { service, amount, timeSlot, document } = location.state;
@@ -211,14 +211,14 @@ const Checkout = () => {
         description: `Payment for ${order.service_name || 'Haki Yetu'}`, // Backend expects 'description' not 'transactionDesc'
         // Add type differentiation for backend processing
         ...(location.state?.type === 'TEMPLATE'
-           ? {
-               template_id: location.state.item?.id,
-               payment_type: 'TEMPLATE'
-             }
-           : {
-               booking_id: order.id,
-               payment_type: 'CONSULTATION'
-             }
+          ? {
+            template_id: location.state.item?.id,
+            payment_type: 'TEMPLATE'
+          }
+          : {
+            booking_id: order.id,
+            payment_type: 'CONSULTATION'
+          }
         )
       };
 
@@ -301,7 +301,7 @@ const Checkout = () => {
         <div className="text-center">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-600 text-2xl"></span>
+              <span className="text-red-600 text-2xl">⚠️</span>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Order Not Found</h3>
             <p className="text-gray-600 mb-6">The order you're looking for doesn't exist.</p>
@@ -322,10 +322,10 @@ const Checkout = () => {
       {/* Header */}
       <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-20">
         <div className="flex items-center gap-2">
-           <div className="bg-blue-600 p-1.5 rounded-lg">
-              <CreditCard className="text-white w-5 h-5" />
-           </div>
-           <span className="font-bold text-gray-900 text-lg">Haki Yetu</span>
+          <div className="bg-blue-600 p-1.5 rounded-lg">
+            <CreditCard className="text-white w-5 h-5" />
+          </div>
+          <span className="font-bold text-gray-900 text-lg">Haki Yetu</span>
         </div>
         <button
           onClick={() => navigate('/services')}
@@ -524,8 +524,8 @@ const Checkout = () => {
                 {paymentStatus === 'completed' && location.state?.type === 'TEMPLATE'
                   ? 'Your template is ready for download!'
                   : isPollingPayment
-                  ? 'Verifying payment completion...'
-                  : 'You will receive an M-Pesa prompt on your phone'
+                    ? 'Verifying payment completion...'
+                    : 'You will receive an M-Pesa prompt on your phone'
                 }
               </p>
             </div>

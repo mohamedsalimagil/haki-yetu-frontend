@@ -176,7 +176,7 @@ const LandingPage = () => {
                       </svg>
                     </div>
                     <p className="text-gray-600 dark:text-gray-400 font-medium text-lg tracking-wide mt-4 italic">
-                       Justice drawn for you 
+                      ✨ Justice drawn for you ✨
                     </p>
                   </div>
                 </div>
