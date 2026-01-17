@@ -43,11 +43,11 @@ const LawyerRegistrationForm = () => {
   const [newSpecialization, setNewSpecialization] = useState('');
   const [newLanguage, setNewLanguage] = useState('');
 
-  // ✅ 1. Get User and Navigate
+  // 1. Get User and Navigate
   const { register, user } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ 2. Auto-Skip Step 1 if User is Logged In
+  // 2. Auto-Skip Step 1 if User is Logged In
   useEffect(() => {
     if (user) {
       // Pre-fill data
@@ -159,7 +159,7 @@ const LawyerRegistrationForm = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  // ✅ 3. The Critical Fix: Handle Submit Logic
+  // 3. The Critical Fix: Handle Submit Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
 
