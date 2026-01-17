@@ -15,7 +15,7 @@ const LawyerDashboard = () => {
    const [autoAccept, setAutoAccept] = useState(true);
    const [dashboardData, setDashboardData] = useState(null);
 
-   // ✅ SECURITY CHECK: Redirect unverified lawyers immediately
+   //  SECURITY CHECK: Redirect unverified lawyers immediately
    useEffect(() => {
       if (!authLoading && user) {
          const isPending = user.verification_status === 'pending' ||
@@ -24,7 +24,7 @@ const LawyerDashboard = () => {
             user.status === 'pending';
 
          if (isPending) {
-            console.warn("⛔ Unverified lawyer attempted to access dashboard. Redirecting...");
+            console.warn(" Unverified lawyer attempted to access dashboard. Redirecting...");
             navigate('/verification-pending', { replace: true });
          }
       }
