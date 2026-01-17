@@ -39,7 +39,7 @@ const ClientDashboard = () => {
 
   const showComingSoon = (feature) => {
     toast.success(`${feature} module coming in Phase 2!`, {
-      icon: '🚧',
+      icon: undefined,
       style: { borderRadius: '10px', background: '#333', color: '#fff' },
     });
   };
