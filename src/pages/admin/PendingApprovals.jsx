@@ -53,9 +53,9 @@ const LawyerVerification = () => {
       const data = await getPendingLawyerApplications();
 
       // Debug: Log document URLs from backend
-      console.log("📄 Backend lawyer data:", data);
+      console.log(" Backend lawyer data:", data);
       if (data.length > 0) {
-        console.log("📎 First lawyer document URLs:", {
+        console.log(" First lawyer document URLs:", {
           practicing_certificate_url: data[0].practicing_certificate_url,
           national_id_url: data[0].national_id_url,
           id_front_url: data[0].id_front_url,
@@ -358,13 +358,13 @@ const LawyerVerification = () => {
                   </div>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-400">💼</span>
+                      <span className="text-gray-400"></span>
                       <span className="text-xs uppercase font-bold text-gray-400 dark:text-gray-500">LSK No:</span>
                       <span className="text-gray-700 dark:text-gray-300 font-medium">{selectedLawyer.lsk}</span>
                     </div>
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                     <div className="flex items-center space-x-1">
-                      <span>📍</span>
+                      <span></span>
                       <span>{selectedLawyer.location}</span>
                     </div>
                   </div>
