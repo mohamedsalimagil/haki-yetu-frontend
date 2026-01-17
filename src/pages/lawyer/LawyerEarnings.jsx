@@ -184,7 +184,7 @@ const LawyerEarnings = () => {
               <div className="p-3 rounded-xl bg-amber-50 text-amber-600">
                 <Star size={20} />
               </div>
-              <span className="text-xs font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded-full">★</span>
+              <span className="text-xs font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded-full"></span>
             </div>
             <p className="text-xs font-bold text-slate-400 uppercase">Client Rating</p>
             <h3 className="text-2xl font-bold text-[#0A1E41]">{earningsData.clientRating}</h3>
