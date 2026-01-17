@@ -45,7 +45,7 @@ const ServiceDetails = () => { // Define functional component for service detail
             time: timeStr
         };
 
-        console.log("🚀 Sending Payload:", payload); // Look at this in Console (F12)
+        console.log(" Sending Payload:", payload); // Look at this in Console (F12)
 
         try {
             const response = await api.post('/marketplace/bookings', payload);
@@ -60,7 +60,7 @@ const ServiceDetails = () => { // Define functional component for service detail
             });
             
         } catch (err) {
-            console.error("❌ Booking Failed:", err);
+            console.error(" Booking Failed:", err);
             
             // 2. BETTER ERROR MESSAGE: Show exactly what the backend said
             if (err.response) {
