@@ -108,7 +108,7 @@ const BookingModal = ({ service, onClose }) => {
               
               <button 
                 onClick={() => { 
-                  toast('Saved to Order History', { icon: '📂' });
+                  toast('Saved to Order History', { icon: undefined });
                   navigate('/dashboard/history'); 
                   onClose(); 
                 }}
