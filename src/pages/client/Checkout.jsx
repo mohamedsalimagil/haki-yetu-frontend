@@ -243,7 +243,7 @@ const Checkout = () => {
         setPaymentStatus('pending');
         toast.success('STK Push sent! Please enter your M-Pesa PIN to complete payment.', {
           duration: 5000,
-          icon: '📱'
+          icon: undefined
         });
       } else if (location.state?.purchaseRef) {
         // For template purchases, verify using purchase reference
@@ -301,7 +301,7 @@ const Checkout = () => {
         <div className="text-center">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-red-600 text-2xl">⚠️</span>
+              <span className="text-red-600 text-2xl"></span>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">Order Not Found</h3>
             <p className="text-gray-600 mb-6">The order you're looking for doesn't exist.</p>
