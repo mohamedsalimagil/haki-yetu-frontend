@@ -97,7 +97,7 @@ const ClientOnboarding = () => {
     }
 
     setFile(file);
-    toast.success(`✅ ${file.name} uploaded (${(file.size / 1024).toFixed(1)}KB)`);
+    toast.success(` ${file.name} uploaded (${(file.size / 1024).toFixed(1)}KB)`);
   };
 
   const handleSaveDraft = () => {
