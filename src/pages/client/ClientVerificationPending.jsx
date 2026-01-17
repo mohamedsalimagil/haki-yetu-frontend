@@ -20,12 +20,12 @@ const ClientVerificationPending = () => {
 
           <div className="flex justify-center items-center space-x-8 mb-8">
             <div className="text-center">
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white mx-auto mb-2">✓</div>
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white mx-auto mb-2"></div>
               <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Registered</span>
             </div>
             <div className="w-16 h-0.5 bg-blue-600"></div>
             <div className="text-center">
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white mx-auto mb-2">✓</div>
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white mx-auto mb-2"></div>
               <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Documents</span>
             </div>
             <div className="w-16 h-0.5 bg-gray-300 dark:bg-gray-600"></div>

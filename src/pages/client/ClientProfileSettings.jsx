@@ -128,7 +128,7 @@ const ClientProfileSettings = () => {
                 <p className="text-sm text-slate-500 dark:text-gray-400 mb-2">{profile.email}</p>
                 <div className="flex items-center justify-center md:justify-start gap-2">
                   <span className={`px-2 py-1 text-xs font-bold rounded ${profile.idVerified ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'}`}>
-                    {profile.idVerified ? '✓ ID Verified' : 'Pending Verification'}
+                    {profile.idVerified ? ' ID Verified' : 'Pending Verification'}
                   </span>
                   <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold rounded">{profile.planName}</span>
                 </div>

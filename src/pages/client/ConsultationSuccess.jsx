@@ -142,7 +142,7 @@ const ConsultationSuccess = () => {
   };
 
   const handleDownloadReceipt = async () => {
-    // ✅ FIX: Use bookingId from props/state instead of booking.id which might be undefined
+    //  FIX: Use bookingId from props/state instead of booking.id which might be undefined
     const receiptBookingId = bookingId || (booking && booking.id);
     if (!receiptBookingId) {
       toast.error('Receipt download unavailable - booking ID not found');
@@ -150,7 +150,7 @@ const ConsultationSuccess = () => {
     }
 
     try {
-      // ✅ FIX: Use proper blob handling and create download link
+      //  FIX: Use proper blob handling and create download link
       const response = await api.get(`/payment/receipt/${receiptBookingId}`, {
         responseType: 'blob'
       });
@@ -171,7 +171,7 @@ const ConsultationSuccess = () => {
     } catch (error) {
       console.error('Failed to download receipt:', error);
 
-      // ✅ FIX: Better error handling with specific messages
+      //  FIX: Better error handling with specific messages
       if (error.response?.status === 404) {
         toast.error('Receipt not found. Payment may still be processing.');
       } else if (error.response?.status === 500) {
@@ -213,7 +213,7 @@ const ConsultationSuccess = () => {
                 onClick={handleSkipVerification}
                 className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
               >
-                ✓ Continue Anyway
+                 Continue Anyway
               </button>
               <p className="text-xs text-gray-500 dark:text-gray-500">
                 Your booking will be confirmed automatically once payment is verified.
