@@ -35,7 +35,7 @@ const BookingCheckout = () => {
     );
   }
 
-  // ✅ FIX: Use actual service price instead of hardcoded 3500
+  //  FIX: Use actual service price instead of hardcoded 3500
   const consultationFee = advocate.consultation_fee || advocate.price || 50; // Default to 50 if not specified
   const processingFee = 0;
   const total = consultationFee + processingFee;
