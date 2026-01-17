@@ -106,7 +106,7 @@ api.interceptors.response.use(
         "Unable to connect to Haki Yetu servers. Please check your internet connection.",
         {
           duration: 5000,
-          icon: '🔌'
+          icon: undefined
         }
       );
     }
