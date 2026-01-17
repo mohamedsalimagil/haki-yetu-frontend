@@ -96,7 +96,7 @@ function App() {
 
   return (
     <>
-      {/* ✅ FIXED: Only show Navbar if not on a hidden route */}
+      {/* FIXED: Only show Navbar if not on a hidden route */}
       {!shouldHideNavbar && <Navbar />}
 
       <Routes>
@@ -141,7 +141,7 @@ function App() {
         } />
 
         {/* --- Client Marketplace Routes --- */}
-        {/* ⚠️ NOTE: This confirms your Service Cards must link to /marketplace/:id */}
+        {/* NOTE: This confirms your Service Cards must link to /marketplace/:id */}
         <Route path="/marketplace" element={<ServiceCatalog />} />
         <Route path="/marketplace/:id" element={<ServiceDetails />} />
 
