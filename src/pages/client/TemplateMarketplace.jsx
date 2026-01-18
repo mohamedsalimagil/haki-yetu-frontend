@@ -14,7 +14,7 @@ const TemplateMarketplace = () => {
 
   const fetchTemplates = async () => {
     try {
-      const res = await api.get('/documents/marketplace/templates');
+      const res = await api.get('/api/documents/marketplace/templates');
       setTemplates(res.data);
     } catch (error) {
       console.error("Failed to load templates", error);
@@ -25,17 +25,13 @@ const TemplateMarketplace = () => {
 
   const handlePurchase = async (template) => {
     try {
-      // Initiate purchase request
-      const response = await api.post(`/documents/marketplace/templates/${template.id}/purchase`);
-
-      // Redirect to checkout with purchase data
+      // For paid templates, redirect to checkout page which handles M-Pesa STK push
       navigate('/checkout', {
         state: {
           service: template.name,
           amount: template.price,
           type: 'TEMPLATE',
-          item: template,
-          purchaseRef: response.data.purchase_ref || response.data.reference
+          item: template
         }
       });
     } catch (error) {

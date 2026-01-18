@@ -11,7 +11,7 @@ const ConsultationSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { bookingId, paymentStatus: initialPaymentStatus, lawyer } = location.state || {};
+  const { bookingId, paymentStatus: initialPaymentStatus, lawyer, amount: passedAmount } = location.state || {};
 
   const [booking, setBooking] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus || 'PENDING');
@@ -119,7 +119,7 @@ const ConsultationSuccess = () => {
     timeZone: 'EAT',
     format: booking.service_type || 'Video Consultation',
     duration: booking.duration_minutes ? `${booking.duration_minutes} Minutes` : '60 Minutes',
-    amount: booking.amount ? parseFloat(booking.amount) : (lawyer.consultation_fee || 50),
+    amount: passedAmount || (booking.amount ? parseFloat(booking.amount) : (lawyer.consultation_fee || 0)),
     email: user?.email || 'client@example.com'
   } : (location.state || {
     // Fallback/Default data for direct access without state
@@ -142,15 +142,24 @@ const ConsultationSuccess = () => {
   };
 
   const handleDownloadReceipt = async () => {
-    //  FIX: Use bookingId from props/state instead of booking.id which might be undefined
-    const receiptBookingId = bookingId || (booking && booking.id);
+    // ✅ FIX: Use bookingId from props/state instead of booking.id which might be undefined
+    let receiptBookingId = bookingId || (booking && booking.id);
     if (!receiptBookingId) {
       toast.error('Receipt download unavailable - booking ID not found');
       return;
     }
 
+    // ✅ FIX: Sanitize booking ID - remove any trailing characters like `:1` and ensure it's a clean integer
+    receiptBookingId = String(receiptBookingId).split(':')[0].split('/')[0].trim();
+    receiptBookingId = parseInt(receiptBookingId, 10);
+
+    if (!receiptBookingId || isNaN(receiptBookingId)) {
+      toast.error('Invalid booking ID format');
+      return;
+    }
+
     try {
-      //  FIX: Use proper blob handling and create download link
+      // ✅ FIX: Use proper blob handling and create download link
       const response = await api.get(`/payment/receipt/${receiptBookingId}`, {
         responseType: 'blob'
       });
@@ -171,7 +180,7 @@ const ConsultationSuccess = () => {
     } catch (error) {
       console.error('Failed to download receipt:', error);
 
-      //  FIX: Better error handling with specific messages
+      // ✅ FIX: Better error handling with specific messages
       if (error.response?.status === 404) {
         toast.error('Receipt not found. Payment may still be processing.');
       } else if (error.response?.status === 500) {

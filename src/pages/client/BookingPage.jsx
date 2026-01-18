@@ -148,7 +148,8 @@ const BookingPage = () => {
               state: {
                 bookingId: bookingResponse.booking_id,
                 paymentStatus: 'pending',
-                lawyer: lawyer
+                lawyer: lawyer,
+                amount: totalAmount
               }
             });
           }, 2000);

@@ -36,7 +36,7 @@ const Consultations = () => {
           status: (c.status || '').toLowerCase(),
           meetingLink: c.meeting_link || `https://meet.jit.si/HakiYetu-${c.id}-${user.id}`, // Use DB value if available
           location: c.meeting_type === 'online' ? 'Video Call' : 'In Person',
-          amount: c.amount || 3000,
+          amount: c.amount_paid || c.amount || c.consultation_fee || 0,
           notes: c.description
         }));
       setConsultations(mappedConsultations);
